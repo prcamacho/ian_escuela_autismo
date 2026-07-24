@@ -1,0 +1,12 @@
+node_modules/
+.agents/
+*.log
+*.apk
+*.aab
+*.ap_
+*.jks
+*.keystore
+.env
+.env.*
+!.env.example
+.DS_Store

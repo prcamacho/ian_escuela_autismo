@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Ian Escuela">
+  <rect width="512" height="512" rx="96" fill="#1f7a8c"/>
+  <circle cx="142" cy="142" r="64" fill="#f4f6f8"/>
+  <rect x="214" y="86" width="176" height="112" rx="28" fill="#f4f6f8"/>
+  <rect x="86" y="242" width="340" height="78" rx="28" fill="#ffb703"/>
+  <rect x="86" y="350" width="220" height="78" rx="28" fill="#f07167"/>
+  <circle cx="366" cy="389" r="39" fill="#ffffff"/>
+  <path d="M136 142h12M124 124l8 8M124 160l8-8" stroke="#1f7a8c" stroke-width="18" stroke-linecap="round"/>
+</svg>

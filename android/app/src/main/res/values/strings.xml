@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Ian Escuela</string>
+    <string name="title_activity_main">Ian Escuela</string>
+    <string name="package_name">com.ian.escuela</string>
+    <string name="custom_url_scheme">com.ian.escuela</string>
+</resources>

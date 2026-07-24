@@ -1,0 +1,17 @@
+{
+  "name": "Ian Escuela",
+  "short_name": "Ian",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#f4f6f8",
+  "theme_color": "#1f7a8c",
+  "description": "App escolar adaptable para practicar y evaluar actividades con respuestas tactiles.",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

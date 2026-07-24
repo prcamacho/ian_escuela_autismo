@@ -1,0 +1,6 @@
+{
+  "appId": "com.ian.escuela",
+  "appName": "Ian Escuela",
+  "webDir": "app",
+  "bundledWebRuntime": false
+}
