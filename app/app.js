@@ -56,7 +56,7 @@ const COMMUNICATION_PICTOS = {
   "otra-vez": { label: "Otra vez", phrase: "otra vez", image: "otra-vez.png", color: "#7c5cdb" },
   abrir: { label: "Abrir", phrase: "abrir", image: "abrir.png", color: "#1f7a8c" },
   cerrar: { label: "Cerrar", phrase: "cerrar", image: "cerrar.png", color: "#c44747" },
-  agua: { label: "Agua", phrase: "agua", image: "agua.png", color: "#1f7a8c" },
+  agua: { label: "Agua", phrase: "agua", image: "agua.png", imageVersion: "17", color: "#1f7a8c" },
   beber: { label: "Beber", phrase: "beber", image: "beber.png", color: "#1f7a8c" },
   comer: { label: "Comer", phrase: "comer", image: "comer.png", color: "#4f9d69" },
   hambre: { label: "Hambre", phrase: "hambre", image: "hambre.png", color: "#f07167" },
@@ -144,20 +144,10 @@ const COMMUNICATION_STARTERS = [
     color: "#1f7a8c",
     sequence: ["yo", "quiero"],
     groups: [
-      { id: "necesidades", title: "Necesito", pictos: ["agua", "beber", "comer", "descanso", "auriculares", "abrazo", "solo", "medicina"] },
+      { id: "bienestar", title: "Bienestar", pictos: ["agua", "beber", "comer", "descanso", "auriculares", "abrazo", "solo", "medicina"] },
       { id: "actividades", title: "Hacer", pictos: ["jugar", "dibujar", "leer", "escribir", "recreo", "tarea", "otra-vez", "terminar"] },
-      { id: "personas", title: "Personas", pictos: ["mama", "papa", "maestra", "companero", "terapeuta", "casa", "escuela", "aula"] }
-    ]
-  },
-  {
-    id: "necesito",
-    title: "Necesito",
-    color: "#4b7bec",
-    sequence: ["necesitar"],
-    groups: [
-      { id: "rapido", title: "Rapido", pictos: ["necesito-ayuda", "bano", "agua", "descanso", "silencio", "auriculares", "solo", "medicina"] },
-      { id: "cuerpo", title: "Cuerpo", pictos: ["dolor", "dolor-cabeza", "dolor-estomago", "dolor-garganta", "dolor-oido", "dolor-mano", "dolor-brazo", "enfermo"] },
-      { id: "escuela", title: "Escuela", pictos: ["maestra", "turno", "esperar", "salir", "volver", "cuaderno", "lapiz", "tarea"] }
+      { id: "personas", title: "Personas y lugares", pictos: ["mama", "papa", "maestra", "companero", "terapeuta", "casa", "escuela", "aula"] },
+      { id: "escuela", title: "Escuela", pictos: ["lapiz", "cuaderno", "tarea", "recreo", "leer", "escribir", "turno", "maestra"] }
     ]
   },
   {
@@ -536,14 +526,21 @@ function communicationPhrase() {
 }
 
 function pictoImage(card, className = "") {
-  return `<img class="${className}" src="${PICTO_PATH}${card.image}" alt="" loading="lazy" decoding="async" />`;
+  const version = card.imageVersion ? `?v=${card.imageVersion}` : "";
+  return `<img class="${className}" src="${PICTO_PATH}${card.image}${version}" alt="" loading="lazy" decoding="async" />`;
 }
 
 function renderPictoButton(id, action = "add-picto", className = "picto-card") {
   const card = communicationPicto(id);
   if (!card) return "";
+  const activeStarter = communicationStarterById(communicationStarter);
+  const isSelectedChoice =
+    action === "add-picto" &&
+    activeStarter &&
+    communicationSentence.length > activeStarter.sequence.length &&
+    communicationSentence[activeStarter.sequence.length] === id;
   return `
-    <button class="${className}" type="button" data-action="${action}" data-picto="${id}" style="--card-color:${card.color}">
+    <button class="${className}${isSelectedChoice ? " is-selected" : ""}" type="button" data-action="${action}" data-picto="${id}" style="--card-color:${card.color}">
       <span class="picto-image">${pictoImage(card, "picto-img")}</span>
       <span class="picto-label">${escapeHtml(card.label)}</span>
     </button>
@@ -582,7 +579,7 @@ function renderCommunication() {
   const starterButtons = COMMUNICATION_STARTERS.map(
     (starter) => `
       <button class="starter-card" type="button" data-action="communication-starter" data-starter="${starter.id}" style="--card-color:${starter.color}">
-        <span>${escapeHtml(starter.title)}</span>
+        <span class="starter-card-title">${escapeHtml(starter.title)}</span>
       </button>
     `
   ).join("");
@@ -599,16 +596,22 @@ function renderCommunication() {
     : "";
   const builderContent = activeStarter
     ? `
-      <div class="builder-heading">
-        <div class="builder-title" style="--card-color:${activeStarter.color}">
-          <span>${escapeHtml(phrase || activeStarter.title)}</span>
-        </div>
-        <button class="builder-reset" type="button" data-action="communication-reset-starter">Cambiar inicio</button>
+      <div class="builder-title" style="--card-color:${activeStarter.color}">
+        <span>${escapeHtml(phrase || activeStarter.title)}</span>
       </div>
       <div class="builder-chips">${groupTabs}</div>
       <div class="picto-grid compact-picto-grid">${(activeGroup?.pictos || []).map((id) => renderPictoButton(id)).join("")}</div>
     `
     : `
+      ${
+        phrase
+          ? `
+            <div class="builder-title builder-title-message" style="--card-color:#1f7a8c">
+              <span>${escapeHtml(phrase)}</span>
+            </div>
+          `
+          : ""
+      }
       <div class="starter-grid">${starterButtons}</div>
     `;
 
@@ -1013,6 +1016,12 @@ function toast(message) {
 
 function addCommunicationPicto(id) {
   if (!communicationPicto(id)) return;
+  const activeStarter = communicationStarterById(communicationStarter);
+  if (activeStarter) {
+    communicationSentence = [...activeStarter.sequence, id];
+    render();
+    return;
+  }
   if (communicationSentence.length >= 12) {
     toast("Frase completa");
     return;
@@ -1051,6 +1060,13 @@ function resetCommunicationStarter() {
 
 function removeCommunicationToken(index) {
   if (index < 0 || index >= communicationSentence.length) return;
+  const activeStarter = communicationStarterById(communicationStarter);
+  if (activeStarter) {
+    if (index < activeStarter.sequence.length) return clearCommunicationSentence();
+    communicationSentence = activeStarter.sequence.filter((pictoId) => communicationPicto(pictoId));
+    render();
+    return;
+  }
   communicationSentence.splice(index, 1);
   if (!communicationSentence.length) resetCommunicationStarter();
   else render();
@@ -1078,7 +1094,6 @@ document.addEventListener("click", (event) => {
     return render();
   }
   if (action === "add-picto") return addCommunicationPicto(target.dataset.picto);
-  if (action === "communication-reset-starter") return resetCommunicationStarter();
   if (action === "communication-clear") return clearCommunicationSentence();
   if (action === "remove-communication-token") return removeCommunicationToken(Number(target.dataset.index));
   if (action === "open-subject") return setRoute({ view: "subject", subjectId: target.dataset.subject });
