@@ -1,4 +1,4 @@
-const CACHE_NAME = "ian-escuela-v38";
+const CACHE_NAME = "ian-escuela-v67";
 const PICTO_FILES = [
   "./assets/pictos/adios.png",
   "./assets/pictos/abrazo.png",
@@ -96,6 +96,8 @@ const APP_FILES = [
   "./app.js",
   "./manifest.json",
   "./icon.svg",
+  "./assets/plantas-partes-ejemplo.jpeg",
+  "./assets/plantas-partes-actividad.png",
   ...PICTO_FILES
 ];
 

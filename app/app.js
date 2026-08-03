@@ -266,7 +266,7 @@ const DEFAULT_DATA = {
               correctIndex: 0
             }
           ]
-        }
+        },
       ]
     },
     {
@@ -276,21 +276,21 @@ const DEFAULT_DATA = {
       color: "#4f9d69",
       themes: [
         {
-          id: "cuerpo-y-cuidado",
-          title: "Cuerpo y cuidado",
-          description: "Reconocer acciones de cuidado personal.",
+          id: "partes-planta",
+          title: "Las partes de la planta",
+          description: "Conocer y reconocer flor, tallo, hoja y raiz.",
+          activityLabel: "Aprender y practicar",
           exercises: [
             {
-              id: "lavarse-manos",
-              prompt: "Toca lavarse las manos",
-              support: "Manos",
-              options: [
-                { text: "Lavarse", visual: "MANOS" },
-                { text: "Correr", visual: "CORRER" },
-                { text: "Dormir", visual: "DORMIR" },
-                { text: "Saltar", visual: "SALTAR" }
-              ],
-              correctIndex: 0
+              id: "rotular-planta",
+              type: "plant-labeling",
+              prompt: "Arrastra cada palabra hasta la parte correcta",
+              parts: [
+                { id: "flor", label: "Flor", position: "flower" },
+                { id: "tallo", label: "Tallo", position: "stem" },
+                { id: "hoja", label: "Hoja", position: "leaf" },
+                { id: "raiz", label: "Raiz", position: "root" }
+              ]
             }
           ]
         }
@@ -303,21 +303,91 @@ const DEFAULT_DATA = {
       color: "#4b7bec",
       themes: [
         {
-          id: "lugares",
-          title: "Lugares",
-          description: "Reconocer espacios cotidianos.",
+          id: "objetos-sonidos",
+          title: "Objetos y sonidos",
+          description: "Une cada objeto con el sonido que le corresponde.",
           exercises: [
             {
-              id: "escuela",
-              prompt: "Toca escuela",
-              support: "Escuela",
-              options: [
-                { text: "Escuela", visual: "ESCUELA" },
-                { text: "Casa", visual: "CASA" },
-                { text: "Plaza", visual: "PLAZA" },
-                { text: "Auto", visual: "AUTO" }
-              ],
-              correctIndex: 0
+              id: "objetos-sonidos-1",
+              type: "matching",
+              prompt: "Uní cada dibujo con su sonido",
+              support: "Tocá un dibujo y después su sonido.",
+              pairs: [
+                { id: "tren", label: "Tren", visual: "🚂", sound: "Chuuu chuuuu" },
+                { id: "reloj", label: "Reloj", visual: "⏰", sound: "Tic tac" },
+                { id: "telefono", label: "Teléfono", visual: "☎️", sound: "Ring ring" },
+                { id: "tambor", label: "Tambor", visual: "🥁", sound: "Pom pom pom" }
+              ]
+            },
+            {
+              id: "objetos-sonidos-2",
+              type: "matching",
+              prompt: "Uní cada dibujo con su sonido",
+              support: "Tocá un dibujo y después su sonido.",
+              pairs: [
+                { id: "puerta", label: "Puerta", visual: "🚪", sound: "Toc toc" },
+                { id: "timbre", label: "Timbre", visual: "🔔", sound: "Ding dong" },
+                { id: "ambulancia", label: "Ambulancia", visual: "🚑", sound: "Piii piii" },
+                { id: "silbato", label: "Silbato", visual: "📣", sound: "Fiu fiu" }
+              ]
+            }
+          ]
+        },
+        {
+          id: "animales-sonidos",
+          title: "Animales y sonidos",
+          description: "Une cada animal con el sonido que le corresponde.",
+          exercises: [
+            {
+              id: "animales-sonidos-1",
+              type: "matching",
+              prompt: "Uní cada animal con su sonido",
+              support: "Tocá un animal y después su sonido.",
+              pairs: [
+                { id: "perro", label: "Perro", visual: "🐶", sound: "Guau guau" },
+                { id: "gato", label: "Gato", visual: "🐱", sound: "Miau" },
+                { id: "vaca", label: "Vaca", visual: "🐮", sound: "Muuu" },
+                { id: "pato", label: "Pato", visual: "🦆", sound: "Cuac cuac" }
+              ]
+            },
+            {
+              id: "animales-sonidos-2",
+              type: "matching",
+              prompt: "Uní cada animal con su sonido",
+              support: "Tocá un animal y después su sonido.",
+              pairs: [
+                { id: "burro", label: "Burro", visual: "🫏", sound: "Hia hia" },
+                { id: "gallo", label: "Gallo", visual: "🐓", sound: "Quiquiriquí" },
+                { id: "caballo", label: "Caballo", visual: "🐴", sound: "Hiiii" },
+                { id: "chancho", label: "Chancho", visual: "🐷", sound: "Oinc oinc" }
+              ]
+            }
+          ]
+        },
+        {
+          id: "que-sonido-hace",
+          title: "¿Qué sonido hace?",
+          description: "Toca un dibujo para descubrir su sonido.",
+          activityLabel: "12 sonidos",
+          exercises: [
+            {
+              id: "galeria-sonidos",
+              type: "sound-gallery",
+              prompt: "Tocá un dibujo para ver su sonido.",
+              items: [
+                { id: "fantasma", label: "Fantasma", visual: "👻", sound: "Boooo" },
+                { id: "bomba", label: "Bomba", visual: "💣", sound: "Bummm" },
+                { id: "tren", label: "Tren", visual: "🚂", sound: "Chuuu chuuuu" },
+                { id: "campana", label: "Campana", visual: "🔔", sound: "Talán talán" },
+                { id: "puerta", label: "Puerta", visual: "🚪", sound: "Toc toc" },
+                { id: "moto", label: "Moto", visual: "🏍️", sound: "Rummm" },
+                { id: "reloj", label: "Reloj", visual: "⏰", sound: "Tic tac" },
+                { id: "timbre", label: "Timbre", visual: "🔘", sound: "Ding dong" },
+                { id: "telefono", label: "Teléfono", visual: "☎️", sound: "Rin rin" },
+                { id: "globo", label: "Globo", visual: "🎈", sound: "Ploooop" },
+                { id: "ambulancia", label: "Ambulancia", visual: "🚑", sound: "Piii piii" },
+                { id: "tambor", label: "Tambor", visual: "🥁", sound: "Pom pom pom" }
+              ]
             }
           ]
         }
@@ -331,32 +401,61 @@ const DEFAULT_DATA = {
       themes: [
         {
           id: "numeros-1-10",
-          title: "Numeros 1 a 10",
-          description: "Reconocer cantidad y numero.",
+          title: "Relacionar multiplicaciones",
+          description: "Arrastrar cada multiplicacion hasta su resultado.",
+          activityLabel: "2 actividades interactivas",
           exercises: [
             {
-              id: "numero-3",
-              prompt: "Toca el numero 3",
-              support: "3",
-              options: [
-                { text: "1", visual: "1" },
-                { text: "3", visual: "3" },
-                { text: "5", visual: "5" },
-                { text: "8", visual: "8" }
-              ],
-              correctIndex: 1
+              id: "multiplicaciones-espacio",
+              type: "drag-matching",
+              prompt: "Arrastra cada multiplicacion hasta su resultado",
+              support: "🚀",
+              pairs: [
+                { id: "cuatro-por-cuatro", expression: "4 × 4", result: "16" },
+                { id: "seis-por-dos", expression: "6 × 2", result: "12" },
+                { id: "dos-por-cinco", expression: "2 × 5", result: "10" },
+                { id: "cinco-por-tres", expression: "5 × 3", result: "15" }
+              ]
             },
             {
-              id: "suma-2-1",
-              prompt: "Cuanto es 2 + 1",
-              support: "2 + 1",
-              options: [
-                { text: "2", visual: "2" },
-                { text: "3", visual: "3" },
-                { text: "4", visual: "4" },
-                { text: "5", visual: "5" }
-              ],
-              correctIndex: 1
+              id: "multiplicaciones-espacio-2",
+              type: "drag-matching",
+              prompt: "Arrastra cada multiplicacion hasta su resultado",
+              support: "🌟",
+              pairs: [
+                { id: "cuatro-por-dos", expression: "4 × 2", result: "8" },
+                { id: "cinco-por-cuatro", expression: "5 × 4", result: "20" },
+                { id: "cuatro-por-tres", expression: "4 × 3", result: "12" }
+              ]
+            }
+          ]
+        },
+        {
+          id: "sumas-resultados",
+          title: "Sumas: elegir el resultado",
+          description: "Toca la respuesta correcta en cada suma.",
+          activityLabel: "2 actividades interactivas",
+          exercises: [
+            {
+              id: "sumas-resultados-1",
+              type: "sum-choice-grid",
+              prompt: "Toca el resultado correcto de cada suma",
+              rows: [
+                { id: "suma-3-8", expression: "3 + 8", options: ["8", "10", "7", "9", "11"], correctIndex: 4 },
+                { id: "suma-4-6", expression: "4 + 6", options: ["10", "6", "5", "7", "8"], correctIndex: 0 },
+                { id: "suma-6-2", expression: "6 + 2", options: ["5", "8", "6", "9", "2"], correctIndex: 1 },
+                { id: "suma-6-8", expression: "6 + 8", options: ["14", "15", "10", "13", "16"], correctIndex: 0 }
+              ]
+            },
+            {
+              id: "sumas-resultados-2",
+              type: "sum-choice-grid",
+              prompt: "Toca el resultado correcto de cada suma",
+              rows: [
+                { id: "suma-7-7", expression: "7 + 7", options: ["4", "14", "24", "13", "10"], correctIndex: 1 },
+                { id: "suma-10-3", expression: "10 + 3", options: ["12", "13", "14", "11", "15"], correctIndex: 1 },
+                { id: "suma-12-2", expression: "12 + 2", options: ["12", "13", "20", "14", "11"], correctIndex: 3 }
+              ]
             }
           ]
         }
@@ -399,6 +498,15 @@ function clone(value) {
   return JSON.parse(JSON.stringify(value));
 }
 
+function shuffled(values) {
+  const copy = [...values];
+  for (let index = copy.length - 1; index > 0; index -= 1) {
+    const swapIndex = Math.floor(Math.random() * (index + 1));
+    [copy[index], copy[swapIndex]] = [copy[swapIndex], copy[index]];
+  }
+  return copy;
+}
+
 function loadData() {
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
@@ -424,9 +532,45 @@ function normalizeData(value) {
     subjects: FIXED_SUBJECTS.map((fixed) => {
       const saved = sourceSubjects.find((subject) => subject?.id === fixed.id);
       const fallback = defaultSubjects.find((subject) => subject.id === fixed.id);
+      const savedThemes = Array.isArray(saved?.themes) ? saved.themes : null;
+      const hasLegacySocialActivity =
+        fixed.id === "cs-sociales" &&
+        savedThemes?.length === 1 &&
+        savedThemes[0]?.id === "lugares" &&
+        savedThemes[0]?.exercises?.length === 1 &&
+        savedThemes[0]?.exercises?.[0]?.id === "escuela";
+      const hasPreviousSoundActivity =
+        fixed.id === "cs-sociales" && savedThemes?.length === 1 && savedThemes[0]?.id === "dibujos-sonidos";
+      const hasPreviousTwoSoundActivities =
+        fixed.id === "cs-sociales" &&
+        savedThemes?.length === 2 &&
+        savedThemes.some((theme) => theme?.id === "objetos-sonidos") &&
+        savedThemes.some((theme) => theme?.id === "animales-sonidos");
+      const hasPreviousSoundChoiceActivity =
+        fixed.id === "cs-sociales" &&
+        savedThemes?.some(
+          (theme) =>
+            theme?.id === "que-sonido-hace" &&
+            theme?.exercises?.length === 4 &&
+            theme.exercises.every((exercise) => exercise?.type === "sound-choice")
+        );
+      const hasPreviousMathActivity =
+        fixed.id === "matematicas" &&
+        !(savedThemes?.length === 1 &&
+          savedThemes[0]?.id === "numeros-1-10" &&
+          savedThemes[0]?.exercises?.length === 2 &&
+          savedThemes[0].exercises.every(
+            (exercise) => exercise?.type === "drag-matching" && [3, 4].includes(exercise.pairs?.length)
+          ));
+      const hasPreviousNaturalActivity =
+        fixed.id === "cs-naturales" && !savedThemes?.some((theme) => theme?.id === "partes-planta");
       return {
         ...fixed,
-        themes: clone(Array.isArray(saved?.themes) ? saved.themes : fallback?.themes || [])
+          themes: clone(
+            hasLegacySocialActivity || hasPreviousSoundActivity || hasPreviousTwoSoundActivities || hasPreviousSoundChoiceActivity || hasPreviousMathActivity || hasPreviousNaturalActivity
+              ? fallback?.themes || []
+            : savedThemes || fallback?.themes || []
+        )
       };
     })
   };
@@ -480,8 +624,16 @@ function subtitleForRoute() {
 }
 
 function render() {
+  const focusedActivityTypes = ["matching", "sound-choice", "sound-gallery", "drag-matching", "sum-choice-grid", "plant-labeling"];
+  const isFocusedActivity =
+    route.view === "run" && focusedActivityTypes.includes(session?.exercises?.[session.index]?.type);
   document.documentElement.classList.toggle("communication-mode", route.view === "communication");
   document.body.classList.toggle("communication-mode", route.view === "communication");
+  document.documentElement.classList.toggle("matching-mode", isFocusedActivity);
+  document.body.classList.toggle("matching-mode", isFocusedActivity);
+  const isDragMatchingActivity = route.view === "run" && session?.exercises?.[session.index]?.type === "drag-matching";
+  document.documentElement.classList.toggle("drag-matching-mode", isDragMatchingActivity);
+  document.body.classList.toggle("drag-matching-mode", isDragMatchingActivity);
   if (route.view === "school") return renderSchool();
   if (route.view === "communication") return renderCommunication();
   if (route.view === "subject") return renderSubject(route.subjectId);
@@ -529,9 +681,6 @@ function renderSchool() {
 
   renderShell(`
     <section class="screen">
-      <div class="toolbar">
-        <button class="btn btn-ghost" type="button" data-action="home">${icon("arrow")}Inicio</button>
-      </div>
       <div class="grid subject-grid school-grid">${subjects}</div>
     </section>
   `);
@@ -717,12 +866,12 @@ function renderSubject(subjectId) {
               <h3>${escapeHtml(theme.title)}</h3>
               <p>${escapeHtml(theme.description || "Tema sin descripcion")}</p>
               <span class="pill-row">
-                <span class="pill">${theme.exercises.length} ejercicios</span>
+                <span class="pill">${escapeHtml(theme.activityLabel || `${theme.exercises.length} ${theme.exercises.length === 1 ? "ronda" : "rondas"}`)}</span>
               </span>
             </div>
           </div>
           <div class="inline-actions">
-            <button class="btn btn-primary" type="button" data-action="open-theme" data-subject="${subject.id}" data-theme="${theme.id}">${icon("list")}Abrir</button>
+            <button class="btn btn-primary" type="button" data-action="start" data-mode="activity" data-subject="${subject.id}" data-theme="${theme.id}">${icon("play")}Empezar</button>
           </div>
         </article>
       `
@@ -737,7 +886,7 @@ function renderSubject(subjectId) {
       </div>
       <div class="section-title">
         <h2>${escapeHtml(subject.title)}</h2>
-        <span class="pill">${subject.themes.length} temas / ${allExercisesCount(subject)} ejercicios</span>
+        <span class="pill">${subject.themes.length} actividades / ${allExercisesCount(subject)} rondas</span>
       </div>
       <div class="grid theme-grid">${themes}</div>
     </section>
@@ -752,20 +901,34 @@ function renderTheme(subjectId, themeId) {
   const exercises = theme.exercises.length
     ? theme.exercises
         .map(
-          (exercise, index) => `
+          (exercise, index) => {
+            const preview =
+              exercise.type === "matching"
+                ? `<div class="pill-row">${exercise.pairs
+                    .map((pair) => `<span class="pill">${escapeHtml(pair.visual)} ${escapeHtml(pair.label)}</span>`)
+                    .join("")}</div>`
+                : exercise.type === "drag-matching"
+                  ? `<div class="pill-row"><span class="pill">${exercise.pairs.length} multiplicaciones para relacionar</span></div>`
+                : exercise.type === "sum-choice-grid"
+                  ? `<div class="pill-row"><span class="pill">${exercise.rows.length} sumas para resolver</span></div>`
+                : exercise.type === "plant-labeling"
+                  ? `<div class="pill-row"><span class="pill">Conocer y ubicar ${exercise.parts.length} partes</span></div>`
+                : `<div class="pill-row">
+                    ${exercise.options
+                      .map(
+                        (option, optionIndex) =>
+                          `<span class="pill">${optionIndex === exercise.correctIndex ? "OK " : ""}${escapeHtml(option.text)}</span>`
+                      )
+                      .join("")}
+                  </div>`;
+            return `
         <article class="exercise-card">
           <h3>${index + 1}. ${escapeHtml(exercise.prompt)}</h3>
           <p>${escapeHtml(exercise.support || "Sin apoyo visual")}</p>
-          <div class="pill-row">
-            ${exercise.options
-              .map(
-                (option, optionIndex) =>
-                  `<span class="pill">${optionIndex === exercise.correctIndex ? "OK " : ""}${escapeHtml(option.text)}</span>`
-              )
-              .join("")}
-          </div>
+          ${preview}
         </article>
-      `
+      `;
+          }
         )
         .join("")
     : `<div class="empty-state"><h2>No hay ejercicios todavia</h2><p>Agrega actividades tactiles para este tema.</p></div>`;
@@ -775,8 +938,7 @@ function renderTheme(subjectId, themeId) {
       <div class="toolbar">
         <button class="btn btn-ghost" type="button" data-action="open-subject" data-subject="${subject.id}">${icon("arrow")}${escapeHtml(subject.title)}</button>
         <div class="screen-actions">
-          <button class="btn btn-primary" type="button" data-action="start" data-mode="practice" data-subject="${subject.id}" data-theme="${theme.id}" ${theme.exercises.length ? "" : "disabled"}>${icon("play")}Practicar</button>
-          <button class="btn btn-warm" type="button" data-action="start" data-mode="evaluation" data-subject="${subject.id}" data-theme="${theme.id}" ${theme.exercises.length ? "" : "disabled"}>${icon("check")}Evaluar</button>
+          <button class="btn btn-primary" type="button" data-action="start" data-mode="activity" data-subject="${subject.id}" data-theme="${theme.id}" ${theme.exercises.length ? "" : "disabled"}>${icon("play")}Empezar</button>
         </div>
       </div>
       <div class="section-title">
@@ -793,6 +955,7 @@ function startSession(subjectId, themeId, mode) {
   const theme = themeById(subject, themeId);
   if (!subject || !theme || !theme.exercises.length) return;
 
+  const exercises = clone(theme.exercises);
   session = {
     id: uid("session"),
     subjectId,
@@ -803,11 +966,303 @@ function startSession(subjectId, themeId, mode) {
     index: 0,
     score: 0,
     selectedIndex: null,
+    soundChoiceWrongIndex: null,
+    soundGalleryItemId: null,
     answers: [],
-    exercises: clone(theme.exercises)
+    exercises,
+    matching: Object.fromEntries(
+      exercises
+        .filter((exercise) => exercise.type === "matching")
+        .map((exercise) => [
+          exercise.id,
+          {
+            selectedPicture: null,
+            selectedSound: null,
+            matchedIds: [],
+            soundOrder: shuffled(exercise.pairs.map((pair) => pair.id)),
+            message: ""
+          }
+        ])
+    ),
+    dragMatching: Object.fromEntries(
+      exercises
+        .filter((exercise) => exercise.type === "drag-matching")
+        .map((exercise) => [
+          exercise.id,
+          {
+            placements: {},
+            resultOrder: shuffled(exercise.pairs.map((pair) => pair.id)),
+            checked: false,
+            isCorrect: false,
+            message: ""
+          }
+        ])
+    ),
+    sumChoice: Object.fromEntries(
+      exercises
+        .filter((exercise) => exercise.type === "sum-choice-grid")
+        .map((exercise) => [
+          exercise.id,
+          { selections: {}, checked: false, isCorrect: false, message: "" }
+        ])
+    ),
+    plantLabeling: Object.fromEntries(
+      exercises
+        .filter((exercise) => exercise.type === "plant-labeling")
+        .map((exercise) => [
+          exercise.id,
+          { learning: true, placements: {}, labelOrder: shuffled(exercise.parts.map((part) => part.id)), checked: false, isCorrect: false, message: "" }
+        ])
+    )
   };
   route = { view: "run" };
   render();
+}
+
+function renderMatchingBoard(exercise, matchingState, answered) {
+  const pairsById = new Map(exercise.pairs.map((pair) => [pair.id, pair]));
+  const renderPicture = (pair) => {
+    const isMatched = matchingState.matchedIds.includes(pair.id);
+    const isSelected = matchingState.selectedPicture === pair.id;
+    return `
+      <button class="matching-card matching-picture ${isMatched ? "is-matched" : ""} ${isSelected ? "is-selected" : ""}" type="button" data-action="matching-select" data-kind="picture" data-pair="${escapeHtml(pair.id)}" ${isMatched || answered ? "disabled" : ""}>
+        <span class="matching-visual" aria-hidden="true">${escapeHtml(pair.visual)}</span>
+        <span>${escapeHtml(pair.label)}</span>
+      </button>
+    `;
+  };
+  const renderSound = (pair) => {
+    const isMatched = matchingState.matchedIds.includes(pair.id);
+    const isSelected = matchingState.selectedSound === pair.id;
+    return `
+      <button class="matching-card matching-sound ${isMatched ? "is-matched" : ""} ${isSelected ? "is-selected" : ""}" type="button" data-action="matching-select" data-kind="sound" data-pair="${escapeHtml(pair.id)}" ${isMatched || answered ? "disabled" : ""}>
+        ${escapeHtml(pair.sound)}
+      </button>
+    `;
+  };
+
+  return `
+    <div class="matching-board" aria-label="Emparejar dibujos y sonidos">
+      <div class="matching-column">
+        <span class="matching-heading">Dibujos</span>
+        ${exercise.pairs.map(renderPicture).join("")}
+      </div>
+      <div class="matching-column">
+        <span class="matching-heading">Sonidos</span>
+        ${matchingState.soundOrder.map((id) => renderSound(pairsById.get(id))).join("")}
+      </div>
+    </div>
+  `;
+}
+
+function renderDragMatchingBoard(exercise, dragState) {
+  const pairsById = new Map(exercise.pairs.map((pair) => [pair.id, pair]));
+  const placedIds = Object.values(dragState.placements);
+  const statusFor = (pairId) => {
+    if (!dragState.checked) return "";
+    return dragState.placements[pairId] === pairId ? "is-correct" : "is-wrong";
+  };
+  const rows = exercise.pairs
+    .map((pair) => {
+      const placedId = dragState.placements[pair.id];
+      const placedPair = placedId ? pairsById.get(placedId) : null;
+      return `
+        <div class="drag-match-row">
+          <div class="drag-match-expression">${escapeHtml(pair.expression)}</div>
+          <div class="drag-match-arrow" aria-hidden="true">→</div>
+          <button class="drag-match-slot ${placedPair ? "has-answer" : ""} ${statusFor(pair.id)}" type="button" data-action="drag-match-slot" data-pair="${escapeHtml(pair.id)}" aria-label="Resultado para ${escapeHtml(pair.expression)}">
+            ${placedPair ? escapeHtml(placedPair.result) : "Soltá aquí"}
+          </button>
+        </div>
+      `;
+    })
+    .join("");
+  const results = dragState.resultOrder
+    .map((id) => {
+      const pair = pairsById.get(id);
+      const isPlaced = placedIds.includes(id);
+      return `
+        <button class="drag-match-result ${isPlaced ? "is-placed" : ""}" type="button" draggable="true" data-action="drag-match-result" data-result="${escapeHtml(id)}" ${isPlaced ? "disabled" : ""} aria-label="Arrastrar resultado ${escapeHtml(pair.result)}">
+          ${escapeHtml(pair.result)}
+        </button>
+      `;
+    })
+    .join("");
+
+  return `
+    <div class="drag-match-board" aria-label="Relacionar multiplicaciones con resultados">
+      <div class="drag-match-list">${rows}</div>
+      <div class="drag-match-results-label">Resultados</div>
+      <div class="drag-match-results">${results}</div>
+    </div>
+  `;
+}
+
+function renderDragMatchingRunner(exercise) {
+  const dragState = session.dragMatching[exercise.id];
+  const total = session.exercises.length;
+  const complete = Object.keys(dragState.placements).length === exercise.pairs.length;
+  const feedbackMessage = dragState.message || (complete ? "Ya completaste todas las asociaciones." : "Arrastrá todos los resultados para continuar.");
+  const feedbackClass = dragState.checked && dragState.isCorrect ? "good" : dragState.checked ? "bad" : "wait";
+
+  renderShell(`
+    <section class="runner matching-runner drag-matching-runner">
+      <div class="matching-session-bar">
+        <button class="btn btn-ghost" type="button" data-action="cancel-run">${icon("arrow")}Salir</button>
+        <div class="matching-session-status"><span>${session.index + 1} de ${total}</span><span>Actividad</span></div>
+      </div>
+      <article class="question-panel">
+        <p class="question-text">${escapeHtml(exercise.prompt)}</p>
+        <div class="question-support">${escapeHtml(exercise.support || "")}</div>
+        ${renderDragMatchingBoard(exercise, dragState)}
+        <div class="feedback ${feedbackClass}" aria-live="polite">${feedbackMessage}</div>
+      </article>
+      <div class="answer-actions">
+        <button class="btn btn-primary" type="button" data-action="check-drag-matching" ${complete && !dragState.checked ? "" : "disabled"}>${icon("check")}Verificar resultados</button>
+      </div>
+    </section>
+  `);
+}
+
+function renderSumChoiceRunner(exercise) {
+  const state = session.sumChoice[exercise.id];
+  const complete = Object.keys(state.selections).length === exercise.rows.length;
+  const rows = exercise.rows
+    .map((row) => {
+      const selectedIndex = state.selections[row.id];
+      const options = row.options
+        .map((option, index) => {
+          const selected = selectedIndex === index;
+          const status = state.checked ? (selected ? (index === row.correctIndex ? "is-correct" : "is-wrong") : "") : selected ? "is-selected" : "";
+          return `<button class="sum-choice-option ${status}" type="button" data-action="sum-choice-select" data-row="${escapeHtml(row.id)}" data-option="${index}" aria-label="${escapeHtml(row.expression)}: ${escapeHtml(option)}">${escapeHtml(option)}</button>`;
+        })
+        .join("");
+      return `<div class="sum-choice-row"><div class="sum-choice-expression">${escapeHtml(row.expression)} =</div><div class="sum-choice-options">${options}</div></div>`;
+    })
+    .join("");
+  const feedbackClass = state.checked && state.isCorrect ? "good" : state.checked ? "bad" : "wait";
+  const feedbackMessage = state.message || (complete ? "Ya respondiste todas las sumas." : "Toca una respuesta en cada fila.");
+  renderShell(`
+    <section class="runner matching-runner sum-choice-runner">
+      <div class="matching-session-bar">
+        <button class="btn btn-ghost" type="button" data-action="cancel-run">${icon("arrow")}Salir</button>
+        <div class="matching-session-status"><span>${session.index + 1} de ${session.exercises.length}</span><span>Actividad</span></div>
+      </div>
+      <article class="question-panel">
+        <p class="question-text">${escapeHtml(exercise.prompt)}</p>
+        <div class="sum-choice-board" aria-label="Elegir resultados de sumas">${rows}</div>
+        <div class="feedback ${feedbackClass}" aria-live="polite">${feedbackMessage}</div>
+      </article>
+      <div class="answer-actions">
+        <button class="btn btn-primary" type="button" data-action="check-sum-choice" ${complete && !state.checked ? "" : "disabled"}>${icon("check")}Verificar resultados</button>
+      </div>
+    </section>
+  `);
+}
+
+function renderPlantDiagram(exercise, state, learning) {
+  const partsById = new Map(exercise.parts.map((part) => [part.id, part]));
+  const slots = exercise.parts
+    .map((part) => {
+      const placedId = state?.placements?.[part.position];
+      const placedPart = placedId ? partsById.get(placedId) : null;
+      const status = state?.checked ? (placedPart?.id === part.id ? "is-correct" : placedPart ? "is-wrong" : "") : "";
+      return learning
+        ? ""
+        : `<button class="plant-drop-slot plant-slot-${part.position} ${placedPart ? "has-answer" : ""} ${status}" type="button" data-action="plant-slot" data-position="${escapeHtml(part.position)}" aria-label="Ubicación para una parte de la planta">${placedPart ? escapeHtml(placedPart.label) : "Soltá aquí"}</button>`;
+    })
+    .join("");
+  const pointers = learning
+    ? ""
+    : `<span class="plant-pointer plant-pointer-flower" aria-hidden="true">→</span><span class="plant-pointer plant-pointer-stem" aria-hidden="true">←</span><span class="plant-pointer plant-pointer-leaf" aria-hidden="true">→</span><span class="plant-pointer plant-pointer-root" aria-hidden="true">←</span>`;
+  return `<div class="plant-diagram ${learning ? "is-learning" : "is-activity"}"><img class="plant-reference-image" src="./assets/plantas-partes-${learning ? "ejemplo.jpeg" : "actividad.png"}" alt="${learning ? "Planta con sus partes señaladas" : "Planta sin nombres para completar"}" />${pointers}${slots}</div>`;
+}
+
+function renderPlantLearningRunner(exercise, state) {
+  renderShell(`
+    <section class="runner matching-runner plant-runner">
+      <div class="matching-session-bar"><button class="btn btn-ghost" type="button" data-action="cancel-run">${icon("arrow")}Salir</button><div class="matching-session-status"><span>Aprendemos</span><span>Planta</span></div></div>
+      <article class="question-panel plant-learning-panel">
+        <p class="question-text">Conocé las partes de una planta</p>
+        ${renderPlantDiagram(exercise, state, true)}
+        <div class="plant-learning-legend"><span><strong>Raíz</strong> absorbe agua</span><span><strong>Tallo</strong> sostiene</span><span><strong>Hoja</strong> recibe luz</span><span><strong>Flor</strong> forma semillas</span></div>
+      </article>
+      <div class="answer-actions"><button class="btn btn-primary" type="button" data-action="plant-start">${icon("play")}Empezar actividad</button></div>
+    </section>
+  `);
+}
+
+function renderPlantLabelingRunner(exercise) {
+  const state = session.plantLabeling[exercise.id];
+  const complete = Object.keys(state.placements).length === exercise.parts.length;
+  const partsById = new Map(exercise.parts.map((part) => [part.id, part]));
+  const labels = state.labelOrder
+    .map((id) => {
+      const part = partsById.get(id);
+      const isPlaced = Object.values(state.placements).includes(id);
+      return `<button class="plant-label-chip ${isPlaced ? "is-placed" : ""}" type="button" draggable="true" data-action="plant-label" data-label="${escapeHtml(id)}" ${isPlaced ? "disabled" : ""}>${escapeHtml(part.label)}</button>`;
+    })
+    .join("");
+  const feedbackClass = state.checked && state.isCorrect ? "good" : state.checked ? "bad" : "wait";
+  const feedbackMessage = state.message || (complete ? "Ya completaste todas las partes." : "Arrastrá cada palabra a la parte correspondiente.");
+  renderShell(`
+    <section class="runner matching-runner plant-runner">
+      <div class="matching-session-bar"><button class="btn btn-ghost" type="button" data-action="cancel-run">${icon("arrow")}Salir</button><div class="matching-session-status"><span>Actividad</span><span>Planta</span></div></div>
+      <article class="question-panel plant-activity-panel">
+        <p class="question-text">${escapeHtml(exercise.prompt)}</p>
+        ${renderPlantDiagram(exercise, state, false)}
+        <div class="plant-labels" aria-label="Palabras para arrastrar">${labels}</div>
+        <div class="feedback ${feedbackClass}" aria-live="polite">${feedbackMessage}</div>
+      </article>
+      <div class="answer-actions"><button class="btn btn-primary" type="button" data-action="check-plant" ${complete && !state.checked ? "" : "disabled"}>${icon("check")}Verificar resultados</button></div>
+    </section>
+  `);
+}
+
+function renderSoundGalleryRunner(exercise) {
+  const selectedItem = exercise.items.find((item) => item.id === session.soundGalleryItemId);
+  const galleryItems = exercise.items
+    .map(
+      (item) => `
+        <button class="sound-gallery-card" type="button" data-action="sound-gallery-show" data-item="${escapeHtml(item.id)}" aria-label="${escapeHtml(item.label)}">
+          <span class="sound-gallery-card-visual" aria-hidden="true">${escapeHtml(item.visual)}</span>
+          <span>${escapeHtml(item.label)}</span>
+        </button>
+      `
+    )
+    .join("");
+
+  renderShell(`
+    <section class="runner matching-runner sound-gallery-runner">
+      <div class="matching-session-bar">
+        <button class="btn btn-ghost" type="button" data-action="cancel-run">${icon("arrow")}Salir</button>
+        <div class="matching-session-status">
+          <span>${exercise.items.length} sonidos</span>
+          <span>Actividad</span>
+        </div>
+      </div>
+      <article class="question-panel">
+        <p class="question-text">${escapeHtml(exercise.prompt)}</p>
+        <div class="sound-gallery-grid" aria-label="Dibujos y sonidos">${galleryItems}</div>
+      </article>
+    </section>
+    ${
+      selectedItem
+        ? `
+          <section class="sound-gallery-presentation" role="dialog" aria-modal="true" aria-label="${escapeHtml(selectedItem.label)}: ${escapeHtml(selectedItem.sound)}">
+            <button class="presentation-close" type="button" data-action="sound-gallery-close" aria-label="Cerrar">${icon("x")}</button>
+            <div class="sound-gallery-presentation-content">
+              <span class="sound-gallery-presentation-visual" aria-hidden="true">${escapeHtml(selectedItem.visual)}</span>
+              <div>
+                <p class="sound-gallery-presentation-name">${escapeHtml(selectedItem.label)}</p>
+                <p class="sound-gallery-presentation-sound">${escapeHtml(selectedItem.sound)}</p>
+              </div>
+            </div>
+          </section>
+        `
+        : ""
+    }
+  `);
 }
 
 function renderRunner() {
@@ -817,13 +1272,33 @@ function renderRunner() {
   if (done) return renderFinish();
 
   const exercise = session.exercises[session.index];
+  if (exercise.type === "sound-gallery") return renderSoundGalleryRunner(exercise);
+  if (exercise.type === "drag-matching") return renderDragMatchingRunner(exercise);
+  if (exercise.type === "sum-choice-grid") return renderSumChoiceRunner(exercise);
+  if (exercise.type === "plant-labeling") {
+    const plantState = session.plantLabeling[exercise.id];
+    return plantState.learning ? renderPlantLearningRunner(exercise, plantState) : renderPlantLabelingRunner(exercise);
+  }
   const answered = session.selectedIndex !== null;
   const progress = Math.round((session.index / total) * 100);
-  const modeLabel = session.mode === "evaluation" ? "Evaluacion" : "Practica";
-  const answers = exercise.options
+  const modeLabel = session.mode === "evaluation" ? "Evaluacion" : session.mode === "activity" ? "Actividad" : "Practica";
+  const isMatchingActivity = exercise.type === "matching";
+  const isSoundChoiceActivity = exercise.type === "sound-choice";
+  const isFocusedActivity = isMatchingActivity || isSoundChoiceActivity;
+  const answers = (exercise.options || [])
     .map((option, index) => {
+      if (isSoundChoiceActivity) {
+        let state = "";
+        if (answered && index === exercise.correctIndex) state = "is-correct";
+        if (!answered && session.soundChoiceWrongIndex === index) state = "is-wrong";
+        return `
+          <button class="sound-choice-btn ${state}" type="button" data-action="answer" data-index="${index}" ${answered ? "disabled" : ""}>
+            ${escapeHtml(option.text)}
+          </button>
+        `;
+      }
       let state = "";
-      if (answered && session.mode === "practice") {
+      if (answered && session.mode !== "evaluation") {
         if (index === exercise.correctIndex) state = "is-correct";
         if (index === session.selectedIndex && index !== exercise.correctIndex) state = "is-wrong";
       }
@@ -835,9 +1310,59 @@ function renderRunner() {
       `;
     })
     .join("");
-
-  renderShell(`
-    <section class="runner">
+  const matchingState = isMatchingActivity ? session.matching[exercise.id] : null;
+  const questionContent =
+    isMatchingActivity
+      ? renderMatchingBoard(exercise, matchingState, answered)
+      : isSoundChoiceActivity
+        ? `<div class="answers sound-choice-options">${answers}</div>`
+      : `<div class="answers">${answers}</div>`;
+  const feedbackMessage =
+    isMatchingActivity
+      ? matchingState.message || ""
+      : isSoundChoiceActivity
+        ? answered
+          ? `${icon("check")}Correcto`
+          : session.soundChoiceWrongIndex !== null
+            ? `${icon("x")}Probemos otra vez`
+            : " "
+      : answered
+        ? session.mode !== "evaluation"
+          ? session.selectedIndex === exercise.correctIndex
+            ? `${icon("check")}Correcto`
+            : `${icon("x")}Probamos con otra en la proxima`
+          : `${icon("check")}Respuesta guardada`
+        : " ";
+  const feedbackClass = isMatchingActivity
+    ? answered || matchingState.message === "¡Bien!"
+      ? "good"
+      : "wait"
+    : isSoundChoiceActivity
+      ? answered
+        ? "good"
+        : "wait"
+      : answered
+        ? "good"
+        : "wait";
+  const supportContent = isSoundChoiceActivity
+    ? `
+      <div class="sound-choice-object">
+        <span class="sound-choice-visual" aria-hidden="true">${escapeHtml(exercise.object?.visual || "")}</span>
+        <span>${escapeHtml(exercise.object?.label || "")}</span>
+      </div>
+    `
+    : escapeHtml(exercise.support || "?");
+  const runnerNavigation = isFocusedActivity
+    ? `
+      <div class="matching-session-bar">
+        <button class="btn btn-ghost" type="button" data-action="cancel-run">${icon("arrow")}Salir</button>
+        <div class="matching-session-status">
+          <span>${session.index + 1} de ${total}</span>
+          <span>${modeLabel}</span>
+        </div>
+      </div>
+    `
+    : `
       <div class="toolbar">
         <button class="btn btn-ghost" type="button" data-action="cancel-run">${icon("arrow")}Salir</button>
         <span class="pill">${modeLabel}</span>
@@ -849,21 +1374,16 @@ function renderRunner() {
         </div>
         <div class="progress-bar"><div class="progress-fill" style="--progress:${progress}%"></div></div>
       </div>
+    `;
+
+  renderShell(`
+    <section class="runner ${isFocusedActivity ? "matching-runner" : ""}">
+      ${runnerNavigation}
       <article class="question-panel">
         <p class="question-text">${escapeHtml(exercise.prompt)}</p>
-        <div class="question-support">${escapeHtml(exercise.support || "?")}</div>
-        <div class="answers">${answers}</div>
-        <div class="feedback ${answered ? "good" : "wait"}">
-          ${
-            answered
-              ? session.mode === "practice"
-                ? session.selectedIndex === exercise.correctIndex
-                  ? `${icon("check")}Correcto`
-                  : `${icon("x")}Probamos con otra en la proxima`
-                : `${icon("check")}Respuesta guardada`
-              : " "
-          }
-        </div>
+        <div class="question-support">${supportContent}</div>
+        ${questionContent}
+        <div class="feedback ${feedbackClass}" aria-live="polite">${feedbackMessage}</div>
       </article>
       <div class="answer-actions">
         <button class="btn btn-primary" type="button" data-action="next" ${answered ? "" : "disabled"}>${icon("check")}Siguiente</button>
@@ -872,10 +1392,200 @@ function renderRunner() {
   `);
 }
 
+function placeDragMatchingResult(resultId, pairId) {
+  if (!session) return;
+  const exercise = session.exercises[session.index];
+  const dragState = session.dragMatching[exercise?.id];
+  if (exercise?.type !== "drag-matching" || !dragState) return;
+  const alreadyPlacedPair = Object.keys(dragState.placements).find((key) => dragState.placements[key] === resultId);
+  if (alreadyPlacedPair) delete dragState.placements[alreadyPlacedPair];
+  dragState.placements[pairId] = resultId;
+  dragState.checked = false;
+  dragState.isCorrect = false;
+  dragState.message = "";
+  render();
+}
+
+function clearDragMatchingSlot(pairId) {
+  if (!session) return;
+  const exercise = session.exercises[session.index];
+  const dragState = session.dragMatching[exercise?.id];
+  if (exercise?.type !== "drag-matching" || !dragState) return;
+  delete dragState.placements[pairId];
+  dragState.checked = false;
+  dragState.isCorrect = false;
+  dragState.message = "";
+  render();
+}
+
+function checkDragMatching() {
+  if (!session) return;
+  const exercise = session.exercises[session.index];
+  const dragState = session.dragMatching[exercise?.id];
+  if (exercise?.type !== "drag-matching" || !dragState || Object.keys(dragState.placements).length !== exercise.pairs.length) return;
+  dragState.checked = true;
+  dragState.isCorrect = exercise.pairs.every((pair) => {
+    const selected = exercise.pairs.find((candidate) => candidate.id === dragState.placements[pair.id]);
+    return selected?.result === pair.result;
+  });
+  dragState.message = dragState.isCorrect ? "¡Muy bien! Todas las respuestas son correctas." : "Hay alguna respuesta para revisar. Podés moverla y volver a comprobar.";
+  if (dragState.isCorrect) {
+    session.selectedIndex = 0;
+    session.score += 1;
+    session.answers.push({ prompt: exercise.prompt, support: exercise.support || "", selected: "Todas las respuestas", correct: "Todas las respuestas", isCorrect: true });
+  }
+  render();
+  if (dragState.isCorrect) {
+    window.setTimeout(() => {
+      if (session?.exercises[session.index]?.id === exercise.id) nextQuestion();
+    }, 850);
+  }
+}
+
+function selectSumChoice(rowId, optionIndex) {
+  if (!session) return;
+  const exercise = session.exercises[session.index];
+  const state = session.sumChoice[exercise?.id];
+  if (exercise?.type !== "sum-choice-grid" || !state) return;
+  if (!exercise.rows.some((row) => row.id === rowId && row.options[optionIndex] !== undefined)) return;
+  state.selections[rowId] = optionIndex;
+  state.checked = false;
+  state.isCorrect = false;
+  state.message = "";
+  render();
+}
+
+function checkSumChoice() {
+  if (!session) return;
+  const exercise = session.exercises[session.index];
+  const state = session.sumChoice[exercise?.id];
+  if (exercise?.type !== "sum-choice-grid" || !state || Object.keys(state.selections).length !== exercise.rows.length) return;
+  state.checked = true;
+  state.isCorrect = exercise.rows.every((row) => state.selections[row.id] === row.correctIndex);
+  state.message = state.isCorrect ? "¡Muy bien! Todas las sumas están correctas." : "Hay alguna respuesta para revisar. Podés tocar otra opción y volver a comprobar.";
+  if (state.isCorrect) {
+    session.selectedIndex = 0;
+    session.score += 1;
+    session.answers.push({ prompt: exercise.prompt, support: "", selected: "Todas las respuestas", correct: "Todas las respuestas", isCorrect: true });
+  }
+  render();
+  if (state.isCorrect) {
+    window.setTimeout(() => {
+      if (session?.exercises[session.index]?.id === exercise.id) nextQuestion();
+    }, 850);
+  }
+}
+
+function startPlantActivity() {
+  if (!session) return;
+  const exercise = session.exercises[session.index];
+  const state = session.plantLabeling[exercise?.id];
+  if (exercise?.type !== "plant-labeling" || !state) return;
+  state.learning = false;
+  render();
+}
+
+function placePlantLabel(labelId, position) {
+  if (!session) return;
+  const exercise = session.exercises[session.index];
+  const state = session.plantLabeling[exercise?.id];
+  if (exercise?.type !== "plant-labeling" || !state || state.learning) return;
+  const label = exercise.parts.find((part) => part.id === labelId);
+  if (!label || !exercise.parts.some((part) => part.position === position)) return;
+  const previousPosition = Object.keys(state.placements).find((key) => state.placements[key] === labelId);
+  if (previousPosition) delete state.placements[previousPosition];
+  state.placements[position] = labelId;
+  state.checked = false;
+  state.isCorrect = false;
+  state.message = "";
+  render();
+}
+
+function clearPlantSlot(position) {
+  if (!session) return;
+  const exercise = session.exercises[session.index];
+  const state = session.plantLabeling[exercise?.id];
+  if (exercise?.type !== "plant-labeling" || !state) return;
+  delete state.placements[position];
+  state.checked = false;
+  state.isCorrect = false;
+  state.message = "";
+  render();
+}
+
+function checkPlant() {
+  if (!session) return;
+  const exercise = session.exercises[session.index];
+  const state = session.plantLabeling[exercise?.id];
+  if (exercise?.type !== "plant-labeling" || !state || Object.keys(state.placements).length !== exercise.parts.length) return;
+  state.checked = true;
+  state.isCorrect = exercise.parts.every((part) => state.placements[part.position] === part.id);
+  state.message = state.isCorrect ? "¡Muy bien! Todas las partes están correctas." : "Hay alguna etiqueta para revisar. Podés moverla y volver a verificar.";
+  if (state.isCorrect) {
+    session.selectedIndex = 0;
+    session.score += 1;
+    session.answers.push({ prompt: exercise.prompt, support: "Partes de la planta", selected: "Todas las etiquetas", correct: "Todas las etiquetas", isCorrect: true });
+  }
+  render();
+  if (state.isCorrect) {
+    window.setTimeout(() => {
+      if (session?.exercises[session.index]?.id === exercise.id) nextQuestion();
+    }, 850);
+  }
+}
+
+function selectMatchingPair(kind, pairId) {
+  if (!session || session.selectedIndex !== null) return;
+  const exercise = session.exercises[session.index];
+  if (exercise?.type !== "matching") return;
+  const matchingState = session.matching[exercise.id];
+  if (!matchingState || matchingState.matchedIds.includes(pairId)) return;
+
+  if (kind === "picture") matchingState.selectedPicture = pairId;
+  if (kind === "sound") matchingState.selectedSound = pairId;
+
+  if (!matchingState.selectedPicture || !matchingState.selectedSound) {
+    matchingState.message = "";
+    return render();
+  }
+
+  const isMatch = matchingState.selectedPicture === matchingState.selectedSound;
+  if (!isMatch) {
+    matchingState.selectedPicture = null;
+    matchingState.selectedSound = null;
+    matchingState.message = "Probemos otra vez";
+    return render();
+  }
+
+  matchingState.matchedIds.push(matchingState.selectedPicture);
+  matchingState.selectedPicture = null;
+  matchingState.selectedSound = null;
+  const complete = matchingState.matchedIds.length === exercise.pairs.length;
+  matchingState.message = complete ? "¡Terminaste esta ronda!" : "¡Bien!";
+
+  if (complete) {
+    session.selectedIndex = 0;
+    session.score += 1;
+    session.answers.push({
+      prompt: exercise.prompt,
+      support: exercise.support || "",
+      selected: "Todas las parejas",
+      correct: "Todas las parejas",
+      isCorrect: true
+    });
+  }
+  render();
+}
+
 function answer(index) {
   if (!session || session.selectedIndex !== null) return;
   const exercise = session.exercises[session.index];
   const isCorrect = index === exercise.correctIndex;
+  if (exercise.type === "sound-choice" && !isCorrect) {
+    session.soundChoiceWrongIndex = index;
+    return render();
+  }
+  session.soundChoiceWrongIndex = null;
   session.selectedIndex = index;
   if (isCorrect) session.score += 1;
   session.answers.push({
@@ -892,13 +1602,28 @@ function nextQuestion() {
   if (!session || session.selectedIndex === null) return;
   session.index += 1;
   session.selectedIndex = null;
+  session.soundChoiceWrongIndex = null;
+  render();
+}
+
+function showSoundGalleryItem(itemId) {
+  if (!session) return;
+  const exercise = session.exercises[session.index];
+  if (exercise?.type !== "sound-gallery" || !exercise.items.some((item) => item.id === itemId)) return;
+  session.soundGalleryItemId = itemId;
+  render();
+}
+
+function closeSoundGalleryItem() {
+  if (!session || session.exercises[session.index]?.type !== "sound-gallery") return;
+  session.soundGalleryItemId = null;
   render();
 }
 
 function renderFinish() {
   const total = session.exercises.length;
   const percent = Math.round((session.score / total) * 100);
-  const modeLabel = session.mode === "evaluation" ? "Evaluacion terminada" : "Practica terminada";
+  const modeLabel = session.mode === "evaluation" ? "Evaluacion terminada" : "Actividad terminada";
 
   renderShell(`
     <section class="screen">
@@ -907,7 +1632,7 @@ function renderFinish() {
         <h2>${modeLabel}</h2>
         <p>${session.score} respuestas correctas de ${total}</p>
         <div class="inline-actions" style="justify-content:center">
-          <button class="btn btn-primary" type="button" data-action="open-theme" data-subject="${session.subjectId}" data-theme="${session.themeId}">${icon("list")}Tema</button>
+          <button class="btn btn-primary" type="button" data-action="open-subject" data-subject="${session.subjectId}">${icon("list")}Actividades</button>
         </div>
       </div>
     </section>
@@ -1170,6 +1895,101 @@ function clearCommunicationSentence() {
   render();
 }
 
+let activeDragMatchResult = null;
+let suppressDragMatchClick = false;
+let activePlantLabel = null;
+let suppressPlantClick = false;
+
+document.addEventListener("dragstart", (event) => {
+  const result = event.target.closest('[data-action="drag-match-result"]');
+  if (!result) return;
+  activeDragMatchResult = result.dataset.result;
+  event.dataTransfer.effectAllowed = "move";
+  event.dataTransfer.setData("text/plain", activeDragMatchResult);
+  result.classList.add("is-dragging");
+});
+
+document.addEventListener("dragend", (event) => {
+  event.target.closest('[data-action="drag-match-result"]')?.classList.remove("is-dragging");
+  activeDragMatchResult = null;
+});
+
+document.addEventListener("dragover", (event) => {
+  if (event.target.closest('[data-action="drag-match-slot"]')) event.preventDefault();
+});
+
+document.addEventListener("drop", (event) => {
+  const slot = event.target.closest('[data-action="drag-match-slot"]');
+  if (!slot) return;
+  event.preventDefault();
+  const resultId = event.dataTransfer.getData("text/plain") || activeDragMatchResult;
+  if (resultId) placeDragMatchingResult(resultId, slot.dataset.pair);
+});
+
+document.addEventListener("pointerdown", (event) => {
+  const result = event.target.closest('[data-action="drag-match-result"]');
+  if (!result || result.disabled) return;
+  activeDragMatchResult = result.dataset.result;
+  result.classList.add("is-dragging");
+});
+
+document.addEventListener("pointerup", (event) => {
+  if (!activeDragMatchResult) return;
+  const slot = document.elementFromPoint(event.clientX, event.clientY)?.closest('[data-action="drag-match-slot"]');
+  const resultId = activeDragMatchResult;
+  document.querySelectorAll(".is-dragging").forEach((element) => element.classList.remove("is-dragging"));
+  activeDragMatchResult = null;
+  if (slot) {
+    suppressDragMatchClick = true;
+    placeDragMatchingResult(resultId, slot.dataset.pair);
+  }
+});
+
+document.addEventListener("dragstart", (event) => {
+  const label = event.target.closest('[data-action="plant-label"]');
+  if (!label) return;
+  activePlantLabel = label.dataset.label;
+  event.dataTransfer.effectAllowed = "move";
+  event.dataTransfer.setData("text/plain", activePlantLabel);
+  label.classList.add("is-dragging");
+});
+
+document.addEventListener("dragend", (event) => {
+  event.target.closest('[data-action="plant-label"]')?.classList.remove("is-dragging");
+  activePlantLabel = null;
+});
+
+document.addEventListener("dragover", (event) => {
+  if (event.target.closest('[data-action="plant-slot"]')) event.preventDefault();
+});
+
+document.addEventListener("drop", (event) => {
+  const slot = event.target.closest('[data-action="plant-slot"]');
+  if (!slot) return;
+  event.preventDefault();
+  const labelId = event.dataTransfer.getData("text/plain") || activePlantLabel;
+  if (labelId) placePlantLabel(labelId, slot.dataset.position);
+});
+
+document.addEventListener("pointerdown", (event) => {
+  const label = event.target.closest('[data-action="plant-label"]');
+  if (!label || label.disabled) return;
+  activePlantLabel = label.dataset.label;
+  label.classList.add("is-dragging");
+});
+
+document.addEventListener("pointerup", (event) => {
+  if (!activePlantLabel) return;
+  const slot = document.elementFromPoint(event.clientX, event.clientY)?.closest('[data-action="plant-slot"]');
+  const labelId = activePlantLabel;
+  document.querySelectorAll(".plant-label-chip.is-dragging").forEach((element) => element.classList.remove("is-dragging"));
+  activePlantLabel = null;
+  if (slot) {
+    suppressPlantClick = true;
+    placePlantLabel(labelId, slot.dataset.position);
+  }
+});
+
 document.addEventListener("click", (event) => {
   const target = event.target.closest("[data-action]");
   if (!target) return;
@@ -1198,13 +2018,38 @@ document.addEventListener("click", (event) => {
   if (action === "open-subject") return setRoute({ view: "subject", subjectId: target.dataset.subject });
   if (action === "open-theme") return setRoute({ view: "theme", subjectId: target.dataset.subject, themeId: target.dataset.theme });
   if (action === "start") return startSession(target.dataset.subject, target.dataset.theme, target.dataset.mode);
+  if (action === "matching-select") return selectMatchingPair(target.dataset.kind, target.dataset.pair);
+  if (action === "drag-match-slot") {
+    if (suppressDragMatchClick) {
+      suppressDragMatchClick = false;
+      return;
+    }
+    if (target.classList.contains("has-answer")) return clearDragMatchingSlot(target.dataset.pair);
+    return;
+  }
+  if (action === "plant-start") return startPlantActivity();
+  if (action === "plant-slot") {
+    if (suppressPlantClick) {
+      suppressPlantClick = false;
+      return;
+    }
+    if (target.classList.contains("has-answer")) return clearPlantSlot(target.dataset.position);
+    return;
+  }
+  if (action === "plant-label") return;
+  if (action === "check-plant") return checkPlant();
+  if (action === "drag-match-result") return;
+  if (action === "check-drag-matching") return checkDragMatching();
+  if (action === "sum-choice-select") return selectSumChoice(target.dataset.row, Number(target.dataset.option));
+  if (action === "check-sum-choice") return checkSumChoice();
+  if (action === "sound-gallery-show") return showSoundGalleryItem(target.dataset.item);
+  if (action === "sound-gallery-close") return closeSoundGalleryItem();
   if (action === "answer") return answer(Number(target.dataset.index));
   if (action === "next") return nextQuestion();
   if (action === "cancel-run") {
     const subjectId = session?.subjectId;
-    const themeId = session?.themeId;
     session = null;
-    return setRoute(subjectId && themeId ? { view: "theme", subjectId, themeId } : { view: "home" });
+    return setRoute(subjectId ? { view: "subject", subjectId } : { view: "home" });
   }
   if (action === "close-modal") return closeModal();
 });
