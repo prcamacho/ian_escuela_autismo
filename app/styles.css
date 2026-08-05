@@ -26,6 +26,22 @@
 }
 
 html,
+body,
+#app,
+#app *,
+#modal-root,
+#modal-root * {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+img,
+svg {
+  -webkit-user-drag: none;
+}
+
+html,
 body {
   min-height: 100%;
 }
@@ -1465,6 +1481,572 @@ button {
   color: #9e3434;
 }
 
+.ghost-sum-runner {
+  min-height: auto;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+}
+
+.ghost-sum-runner .answer-actions {
+  min-height: 48px;
+}
+
+.ghost-sum-runner .answer-actions .btn[disabled] {
+  visibility: hidden;
+}
+
+.ghost-sum-panel {
+  min-height: 0;
+  grid-template-rows: auto minmax(0, 1fr) auto auto;
+  align-content: initial;
+  overflow: hidden;
+}
+
+.ghost-sum-workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(360px, 0.9fr);
+  gap: clamp(12px, 2vw, 24px);
+  min-height: 0;
+  align-items: stretch;
+}
+
+.ghost-sum-equation {
+  display: grid;
+  grid-template-columns: minmax(120px, 1fr) auto minmax(120px, 1fr) auto;
+  gap: clamp(8px, 1.2vw, 16px);
+  align-items: center;
+  min-width: 0;
+  padding: clamp(12px, 2vw, 22px);
+  border: 2px solid #d5e3e8;
+  border-radius: 18px;
+  background: #f8fcfd;
+}
+
+.ghost-sum-term {
+  display: grid;
+  grid-template-rows: auto minmax(48px, 1fr);
+  gap: 10px;
+  min-width: 0;
+  align-items: start;
+  text-align: center;
+}
+
+.ghost-sum-term > strong,
+.ghost-sum-sign {
+  color: #18334a;
+  font-size: clamp(3.4rem, 6.5vw, 5.8rem);
+  font-weight: 950;
+  line-height: 0.9;
+}
+
+.ghost-sum-sign {
+  align-self: center;
+  transform: translateY(-25px);
+}
+
+.ghost-origin-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(32px, 46px));
+  gap: 5px;
+  justify-content: center;
+  align-content: start;
+  min-height: 50px;
+}
+
+.ghost-token,
+.ghost-origin-placeholder {
+  width: 46px;
+  height: 46px;
+  min-width: 0;
+  border-radius: 12px;
+}
+
+.ghost-token {
+  position: relative;
+  display: grid;
+  place-items: center;
+  border: 2px solid #bfd4e8;
+  background: #eef6ff;
+  color: var(--ink);
+  padding: 0;
+  font: inherit;
+  font-size: 1.9rem;
+  line-height: 1;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: transform 0.14s ease, border-color 0.14s ease, background 0.14s ease;
+}
+
+.ghost-origin-token:hover,
+.ghost-origin-token:focus-visible {
+  border-color: #4b7bec;
+  background: #e5edff;
+  outline: none;
+  transform: translateY(-2px);
+}
+
+.ghost-origin-placeholder {
+  display: block;
+  border: 2px dashed #d8e2ea;
+  background: rgba(255, 255, 255, 0.45);
+}
+
+.ghost-sum-result-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 132px;
+  min-width: 0;
+  min-height: 0;
+  border: 3px solid #b9d8ce;
+  border-radius: 18px;
+  background: #fbfefc;
+  overflow: hidden;
+}
+
+.ghost-sum-tray {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 8px;
+  min-width: 0;
+  padding: 12px;
+}
+
+.ghost-sum-runner:not(.ghost-multiply-runner) .ghost-sum-tray {
+  grid-template-rows: minmax(0, 1fr);
+}
+
+.ghost-sum-panel-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  color: #34734c;
+  font-size: 0.9rem;
+  font-weight: 900;
+}
+
+.ghost-sum-panel-heading strong {
+  white-space: nowrap;
+}
+
+.ghost-tray-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(34px, 46px));
+  gap: 6px;
+  align-content: center;
+  justify-content: center;
+  min-width: 0;
+}
+
+.ghost-tray-token {
+  border-color: #b8d5bb;
+  background: #f2fbef;
+}
+
+.ghost-tray-token small {
+  position: absolute;
+  right: -4px;
+  bottom: -4px;
+  display: grid;
+  place-items: center;
+  width: 19px;
+  height: 19px;
+  border-radius: 50%;
+  background: #34734c;
+  color: #fff;
+  font-size: 0.68rem;
+  font-weight: 900;
+}
+
+.ghost-tray-hint {
+  grid-column: 1 / -1;
+  align-self: center;
+  color: var(--muted);
+  font-size: 0.88rem;
+  font-weight: 850;
+  text-align: center;
+}
+
+.ghost-sum-answer-area {
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 9px;
+  border-left: 3px solid #b9d8ce;
+  background: #fffaf0;
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 900;
+  text-align: center;
+}
+
+.ghost-sum-answer-slot {
+  display: grid;
+  place-items: center;
+  width: 94px;
+  height: 94px;
+  border: 3px dashed #d5b76f;
+  border-radius: 16px;
+  background: #fff;
+  color: #6f624a;
+  font: inherit;
+  font-size: 3.2rem;
+  font-weight: 950;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: transform 0.14s ease, border-color 0.14s ease, background 0.14s ease;
+}
+
+.ghost-sum-answer-slot.has-answer {
+  border-style: solid;
+  border-color: #4b7bec;
+  background: #edf3ff;
+  color: #244c9b;
+}
+
+.ghost-sum-answer-slot.is-correct {
+  border-style: solid;
+  border-color: var(--green);
+  background: #e3f5e9;
+  color: #23633e;
+}
+
+.ghost-sum-answer-slot.is-wrong {
+  border-style: solid;
+  border-color: #d76565;
+  background: #fff0f0;
+  color: #9e3434;
+  animation: ghost-answer-shake 0.28s ease;
+}
+
+.ghost-sum-options-area {
+  display: grid;
+  grid-template-columns: minmax(180px, auto) minmax(0, 1fr);
+  gap: 14px;
+  align-items: center;
+  color: var(--muted);
+  font-size: 0.88rem;
+  font-weight: 900;
+}
+
+.ghost-sum-answer-options {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(72px, 112px));
+  gap: 12px;
+  justify-content: center;
+}
+
+.ghost-sum-answer-option {
+  min-height: 58px;
+  border: 3px solid #c9dce2;
+  border-radius: 15px;
+  background: #fffdf7;
+  color: var(--ink);
+  font: inherit;
+  font-size: 2rem;
+  font-weight: 950;
+  cursor: grab;
+  touch-action: none;
+  transition: transform 0.14s ease, border-color 0.14s ease, opacity 0.14s ease;
+}
+
+.ghost-sum-answer-option:hover,
+.ghost-sum-answer-option:focus-visible,
+.ghost-sum-answer-option.is-dragging {
+  border-color: #4b7bec;
+  outline: none;
+  transform: translateY(-2px);
+}
+
+.ghost-sum-answer-option.is-placed {
+  opacity: 0.24;
+  cursor: default;
+}
+
+.ghost-tray-token.is-arriving,
+.ghost-multiply-tray-group.is-arriving,
+.ghost-origin-token.is-returning {
+  animation: ghost-pop 0.3s ease both;
+}
+
+@keyframes ghost-pop {
+  0% { opacity: 0; transform: scale(0.55); }
+  70% { opacity: 1; transform: scale(1.12); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes ghost-answer-shake {
+  0%, 100% { transform: translateX(0); }
+  35% { transform: translateX(-5px); }
+  70% { transform: translateX(5px); }
+}
+
+.ghost-multiply-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.ghost-multiply-title-row .question-text {
+  margin: 0;
+}
+
+.multiplication-help-button {
+  min-height: 42px;
+  padding: 0 18px;
+  border: 2px solid #8f78c7;
+  background: #f2edff;
+  color: #573a99;
+  font-weight: 950;
+  white-space: nowrap;
+}
+
+.ghost-multiply-workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(390px, 0.75fr);
+  gap: 12px;
+  min-height: 0;
+}
+
+.ghost-multiply-groups-area {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 4px;
+  min-width: 0;
+  min-height: 0;
+  padding: 8px 10px;
+  border: 2px solid #d5e3e8;
+  border-radius: 18px;
+  background: #f8fcfd;
+}
+
+.ghost-multiply-equation {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(12px, 2.2vw, 28px);
+  color: #18334a;
+  font-size: clamp(2.2rem, 4.3vw, 3.8rem);
+  font-weight: 950;
+  line-height: 0.95;
+}
+
+.ghost-multiply-equation b {
+  color: #7b6740;
+}
+
+.ghost-multiply-groups {
+  display: grid;
+  grid-template-columns: repeat(var(--group-count), minmax(72px, 1fr));
+  gap: 7px;
+  min-height: 0;
+  align-items: stretch;
+  justify-content: center;
+}
+
+.ghost-multiply-group {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr);
+  gap: 4px;
+  min-width: 0;
+  min-height: 0;
+  padding: 5px;
+  border: 2px solid #bcd2e2;
+  border-radius: 13px;
+  background: #eef7fb;
+}
+
+.ghost-multiply-group-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 30px);
+  gap: 3px;
+  place-content: center;
+  min-height: 0;
+}
+
+.ghost-multiply-runner .ghost-multiply-group-grid .ghost-token,
+.ghost-multiply-runner .ghost-multiply-group-grid .ghost-origin-placeholder,
+.ghost-multiply-runner .ghost-multiply-tray-grid .ghost-token {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+}
+
+.ghost-multiply-runner .ghost-multiply-group-grid .ghost-token,
+.ghost-multiply-runner .ghost-multiply-tray-grid .ghost-token {
+  font-size: 1.25rem;
+}
+
+.ghost-multiply-result-panel {
+  grid-template-columns: minmax(0, 1fr) 112px;
+}
+
+.ghost-multiply-result-panel .ghost-sum-tray {
+  grid-template-rows: minmax(0, 1fr);
+}
+
+.ghost-multiply-runner .ghost-multiply-tray-grid {
+  grid-template-columns: minmax(0, 1fr);
+  grid-auto-flow: row;
+  gap: 3px;
+  align-content: center;
+  justify-items: center;
+}
+
+.ghost-multiply-tray-group {
+  display: grid;
+  grid-template-columns: repeat(var(--group-size), 24px);
+  gap: 3px;
+  padding: 1px 4px;
+  border: 2px solid #c7dfca;
+  border-radius: 9px;
+  background: #f4fbf2;
+}
+
+.ghost-multiply-runner .ghost-multiply-tray-group .ghost-token {
+  width: 24px;
+  height: 24px;
+  border-width: 1px;
+  border-radius: 6px;
+  font-size: 1rem;
+}
+
+.multiplication-help-backdrop {
+  position: fixed;
+  z-index: 60;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 12px;
+  background: rgba(19, 31, 42, 0.72);
+}
+
+.multiplication-help-dialog {
+  width: min(720px, 100%);
+  max-height: calc(100dvh - 24px);
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr);
+  gap: 10px;
+  padding: 16px;
+  border: 3px solid #c9bce8;
+  border-radius: 24px;
+  background: #fff;
+  box-shadow: 0 24px 65px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+}
+
+.multiplication-help-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.multiplication-help-header h2,
+.multiplication-help-header p {
+  margin: 0;
+}
+
+.multiplication-help-header h2 {
+  color: #3f2b70;
+  font-size: 1.45rem;
+}
+
+.multiplication-help-header p {
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 0.88rem;
+  font-weight: 800;
+}
+
+.multiplication-help-close {
+  min-height: 42px;
+  white-space: nowrap;
+}
+
+.multiplication-help-equation {
+  min-height: 48px;
+  display: grid;
+  place-items: center;
+  border-radius: 13px;
+  background: #f2edff;
+  color: #6a5b83;
+  font-size: 1.2rem;
+  font-weight: 950;
+}
+
+.multiplication-help-equation.has-result {
+  background: #e5f6e9;
+  color: #23633e;
+  font-size: 1.7rem;
+}
+
+.multiplication-table {
+  width: min(520px, 100%);
+  height: 100%;
+  min-height: 0;
+  margin: 0 auto;
+  border-spacing: 5px;
+  table-layout: fixed;
+}
+
+.multiplication-table th,
+.multiplication-table td {
+  height: 46px;
+  padding: 0;
+  border-radius: 10px;
+  text-align: center;
+}
+
+.multiplication-table-corner {
+  background: #e7edf1;
+  color: #455b6a;
+  font-size: 1.5rem;
+}
+
+.multiplication-table-header {
+  width: 100%;
+  height: 100%;
+  min-height: 44px;
+  border: 2px solid #b8cbd7;
+  border-radius: 10px;
+  background: #eef5f8;
+  color: #28475d;
+  font: inherit;
+  font-size: 1.25rem;
+  font-weight: 950;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.multiplication-table-header.is-selected {
+  border: 4px solid #6845b5;
+  background: #e8deff;
+  color: #402477;
+}
+
+.multiplication-table td {
+  border: 2px solid #d6e0e6;
+  background: #fff;
+  color: #526776;
+  font-size: 1.12rem;
+  font-weight: 900;
+  transition: transform 0.14s ease, background 0.14s ease, border-color 0.14s ease;
+}
+
+.multiplication-table td.is-row-highlighted,
+.multiplication-table td.is-column-highlighted {
+  border-color: #b9a5e7;
+  background: #f3efff;
+}
+
+.multiplication-table td.is-result {
+  border: 4px solid #2f8a53;
+  background: #dff3e5;
+  color: #1f653c;
+  font-size: 1.45rem;
+  transform: scale(1.08);
+  box-shadow: 0 4px 12px rgba(47, 138, 83, 0.22);
+}
+
 .plant-runner {
   min-height: auto;
   grid-template-rows: auto auto auto;
@@ -1590,7 +2172,7 @@ button {
 }
 
 .plant-pointer-flower {
-  top: 55px;
+  top: 17%;
   left: 25%;
   width: 21%;
 }
@@ -1602,7 +2184,7 @@ button {
 }
 
 .plant-pointer-stem {
-  top: 122px;
+  top: 37%;
   right: 25%;
   width: 25%;
   transform: scaleX(-1);
@@ -1615,13 +2197,13 @@ button {
 }
 
 .plant-pointer-leaf {
-  top: 186px;
+  top: 57%;
   left: 24%;
   width: 18%;
 }
 
 .plant-pointer-root {
-  bottom: 29px;
+  bottom: 9%;
   right: 24%;
   width: 26%;
   transform: scaleX(-1);
@@ -1645,25 +2227,25 @@ button {
 
 .plant-slot-flower,
 .plant-label-flower {
-  top: 14px;
+  top: 4%;
   left: 8%;
 }
 
 .plant-slot-stem,
 .plant-label-stem {
-  top: 92px;
+  top: 28%;
   right: 7%;
 }
 
 .plant-slot-leaf,
 .plant-label-leaf {
-  top: 188px;
+  top: 57%;
   left: 7%;
 }
 
 .plant-slot-root,
 .plant-label-root {
-  bottom: 14px;
+  bottom: 4%;
   right: 7%;
 }
 
@@ -1724,6 +2306,35 @@ button {
 .plant-label-chip.is-placed {
   cursor: default;
   opacity: 0.35;
+}
+
+.drag-match-result.is-touch-source,
+.plant-label-chip.is-touch-source,
+.ghost-sum-answer-option.is-touch-source {
+  opacity: 0.28;
+}
+
+.touch-drag-preview {
+  position: fixed !important;
+  z-index: 10000 !important;
+  margin: 0 !important;
+  pointer-events: none !important;
+  opacity: 0.98 !important;
+  transform: translate(-50%, -50%) scale(1.06) !important;
+  transition: none !important;
+  border-color: #4b7bec !important;
+  background: #fff !important;
+  box-shadow: 0 12px 28px rgba(30, 54, 91, 0.28);
+  cursor: grabbing;
+}
+
+.drag-match-slot.is-drag-over,
+.plant-drop-slot.is-drag-over,
+.ghost-sum-answer-slot.is-drag-over {
+  border-color: #4b7bec;
+  background: #edf3ff;
+  box-shadow: 0 0 0 3px rgba(75, 123, 236, 0.18);
+  transform: scale(1.02);
 }
 
 .plant-learning-help {
@@ -1845,6 +2456,66 @@ body.matching-mode .main {
 }
 
 .matching-runner .matching-board {
+  min-height: 0;
+  align-self: stretch;
+}
+
+.matching-runner.plant-runner {
+  height: calc(100dvh - 36px);
+  min-height: 0;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  overflow: hidden;
+}
+
+.matching-runner .plant-learning-panel {
+  min-height: 0;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  overflow: hidden;
+}
+
+.matching-runner .plant-activity-panel {
+  min-height: 0;
+  grid-template-rows: auto minmax(0, 1fr) auto auto;
+  overflow: hidden;
+}
+
+.plant-learning-panel .plant-diagram,
+.plant-activity-panel .plant-diagram {
+  width: min(780px, 100%);
+  height: 100%;
+  min-height: 0;
+  max-height: 330px;
+}
+
+.matching-runner.drag-matching-runner,
+.matching-runner.sum-choice-runner,
+.matching-runner.ghost-sum-runner {
+  height: calc(100dvh - 36px);
+  min-height: 0;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  overflow: hidden;
+}
+
+.matching-runner.drag-matching-runner .question-panel {
+  min-height: 0;
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
+  overflow: hidden;
+}
+
+.matching-runner.sum-choice-runner .question-panel {
+  min-height: 0;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  overflow: hidden;
+}
+
+.matching-runner.ghost-sum-runner .question-panel {
+  min-height: 0;
+  grid-template-rows: auto minmax(0, 1fr) auto auto;
+  overflow: hidden;
+}
+
+.drag-matching-runner .drag-match-board,
+.sum-choice-runner .sum-choice-board {
   min-height: 0;
   align-self: stretch;
 }
@@ -2450,6 +3121,12 @@ body.matching-mode .main {
     display: none;
   }
 
+  .matching-runner.ghost-sum-runner .answer-actions:has(.btn[disabled]) {
+    display: flex;
+    visibility: hidden;
+    pointer-events: none;
+  }
+
   .matching-runner .answer-actions .btn {
     min-height: 42px;
     padding: 0 14px;
@@ -3045,6 +3722,194 @@ body.matching-mode .main {
 
   .plant-learning-legend strong {
     font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 900px) {
+  .ghost-sum-workspace {
+    grid-template-columns: minmax(0, 1fr) minmax(250px, 0.78fr);
+    gap: 10px;
+  }
+
+  .ghost-sum-equation {
+    grid-template-columns: minmax(90px, 1fr) auto minmax(90px, 1fr) auto;
+    gap: 7px;
+    padding: 10px;
+  }
+
+  .ghost-origin-grid,
+  .ghost-tray-grid {
+    grid-template-columns: repeat(5, minmax(26px, 40px));
+    gap: 3px;
+  }
+
+  .ghost-token,
+  .ghost-origin-placeholder {
+    width: 40px;
+    height: 40px;
+  }
+
+  .ghost-sum-result-panel {
+    grid-template-columns: minmax(0, 1fr) 104px;
+  }
+
+  .ghost-sum-answer-slot {
+    width: 76px;
+    height: 76px;
+    font-size: 2.6rem;
+  }
+
+  .ghost-sum-options-area {
+    grid-template-columns: 1fr;
+    gap: 5px;
+    text-align: center;
+  }
+}
+
+@media (max-width: 650px) {
+  .ghost-sum-workspace {
+    grid-template-columns: minmax(0, 1fr) 210px;
+  }
+
+  .ghost-sum-term > strong,
+  .ghost-sum-sign {
+    font-size: 2.6rem;
+  }
+
+  .ghost-origin-grid,
+  .ghost-tray-grid {
+    grid-template-columns: repeat(5, 30px);
+    gap: 2px;
+  }
+
+  .ghost-token,
+  .ghost-origin-placeholder {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+  }
+
+  .ghost-token {
+    font-size: 1.35rem;
+  }
+}
+
+@media (max-height: 700px) {
+  .drag-matching-runner .question-support {
+    display: none;
+  }
+
+  .drag-matching-runner .drag-match-list,
+  .sum-choice-runner .sum-choice-board {
+    gap: 5px;
+  }
+
+  .drag-matching-runner .drag-match-row {
+    gap: 5px;
+  }
+
+  .drag-matching-runner .drag-match-expression,
+  .drag-matching-runner .drag-match-slot,
+  .drag-matching-runner .drag-match-result,
+  .sum-choice-runner .sum-choice-expression,
+  .sum-choice-runner .sum-choice-option {
+    min-height: 42px;
+    font-size: 0.95rem;
+  }
+
+  .drag-matching-runner .drag-match-results {
+    margin-top: 22px;
+    gap: 5px;
+  }
+
+  .drag-matching-runner .drag-match-results-label {
+    font-size: 0.76rem;
+  }
+
+  .sum-choice-runner .sum-choice-row,
+  .sum-choice-runner .sum-choice-options {
+    gap: 5px;
+  }
+
+  .ghost-sum-panel {
+    gap: 8px;
+    padding: 12px 16px;
+  }
+
+  .ghost-sum-workspace {
+    gap: 10px;
+  }
+
+  .ghost-sum-equation {
+    padding: 10px 12px;
+  }
+
+  .ghost-sum-term {
+    grid-template-rows: auto minmax(38px, 1fr);
+    gap: 5px;
+  }
+
+  .ghost-sum-term > strong,
+  .ghost-sum-sign {
+    font-size: 3.1rem;
+  }
+
+  .ghost-sum-sign {
+    transform: translateY(-22px);
+  }
+
+  .ghost-origin-grid,
+  .ghost-tray-grid {
+    grid-template-columns: repeat(5, minmax(30px, 40px));
+    gap: 3px;
+  }
+
+  .ghost-token,
+  .ghost-origin-placeholder {
+    width: 40px;
+    height: 40px;
+  }
+
+  .ghost-token {
+    font-size: 1.65rem;
+  }
+
+  .ghost-sum-result-panel {
+    grid-template-columns: minmax(0, 1fr) 106px;
+  }
+
+  .ghost-sum-tray {
+    gap: 4px;
+    padding: 8px;
+  }
+
+  .ghost-sum-panel-heading,
+  .ghost-sum-options-area {
+    font-size: 0.76rem;
+  }
+
+  .ghost-sum-answer-area {
+    gap: 5px;
+    font-size: 0.74rem;
+  }
+
+  .ghost-sum-answer-slot {
+    width: 74px;
+    height: 74px;
+    font-size: 2.5rem;
+  }
+
+  .ghost-sum-options-area {
+    gap: 8px;
+  }
+
+  .ghost-sum-answer-options {
+    gap: 8px;
+  }
+
+  .ghost-sum-answer-option {
+    min-height: 46px;
+    font-size: 1.55rem;
   }
 }
 

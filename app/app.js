@@ -1,4 +1,5 @@
 const STORAGE_KEY = "ian-escuela-data-v1";
+const MULTIPLICATION_BAG_KEY = "ian-multiplication-bag-v1";
 
 const ICONS = {
   home: '<path d="M3 10.5 12 3l9 7.5"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/>',
@@ -401,61 +402,39 @@ const DEFAULT_DATA = {
       themes: [
         {
           id: "numeros-1-10",
-          title: "Relacionar multiplicaciones",
-          description: "Arrastrar cada multiplicacion hasta su resultado.",
-          activityLabel: "2 actividades interactivas",
+          title: "Multiplicar con fantasmas",
+          description: "Contar fantasmas y elegir el resultado.",
+          activityLabel: "5 multiplicaciones diferentes cada vez",
+          randomExerciseCount: 5,
+          multiplicationPool: {
+            easy: [[1, 1], [1, 2], [2, 1], [1, 3], [3, 1], [2, 2], [2, 3], [3, 2], [3, 3], [1, 4]],
+            medium: [[4, 1], [2, 4], [4, 2], [3, 4], [4, 3], [4, 4], [1, 5], [5, 1], [2, 5], [5, 2]],
+            challenge: [[3, 5], [5, 3], [4, 5], [5, 4], [5, 5]]
+          },
           exercises: [
             {
-              id: "multiplicaciones-espacio",
-              type: "drag-matching",
-              prompt: "Arrastra cada multiplicacion hasta su resultado",
-              support: "🚀",
-              pairs: [
-                { id: "cuatro-por-cuatro", expression: "4 × 4", result: "16" },
-                { id: "seis-por-dos", expression: "6 × 2", result: "12" },
-                { id: "dos-por-cinco", expression: "2 × 5", result: "10" },
-                { id: "cinco-por-tres", expression: "5 × 3", result: "15" }
-              ]
-            },
-            {
-              id: "multiplicaciones-espacio-2",
-              type: "drag-matching",
-              prompt: "Arrastra cada multiplicacion hasta su resultado",
-              support: "🌟",
-              pairs: [
-                { id: "cuatro-por-dos", expression: "4 × 2", result: "8" },
-                { id: "cinco-por-cuatro", expression: "5 × 4", result: "20" },
-                { id: "cuatro-por-tres", expression: "4 × 3", result: "12" }
-              ]
+              id: "multiplicaciones-fantasmas",
+              type: "ghost-multiplication",
+              prompt: "Tocá los fantasmas y elegí el resultado"
             }
           ]
         },
         {
           id: "sumas-resultados",
-          title: "Sumas: elegir el resultado",
-          description: "Toca la respuesta correcta en cada suma.",
-          activityLabel: "2 actividades interactivas",
+          title: "Sumas con fantasmas",
+          description: "Juntar cantidades y elegir el resultado.",
+          activityLabel: "5 sumas diferentes cada vez",
+          randomExerciseCount: 5,
+          sumPool: {
+            easy: [[1, 1], [1, 2], [1, 3], [2, 2]],
+            medium: [[1, 4], [2, 3], [1, 5], [2, 4], [3, 3]],
+            challenge: [[2, 5], [3, 4], [3, 5], [4, 4], [4, 5]]
+          },
           exercises: [
             {
-              id: "sumas-resultados-1",
-              type: "sum-choice-grid",
-              prompt: "Toca el resultado correcto de cada suma",
-              rows: [
-                { id: "suma-3-8", expression: "3 + 8", options: ["8", "10", "7", "9", "11"], correctIndex: 4 },
-                { id: "suma-4-6", expression: "4 + 6", options: ["10", "6", "5", "7", "8"], correctIndex: 0 },
-                { id: "suma-6-2", expression: "6 + 2", options: ["5", "8", "6", "9", "2"], correctIndex: 1 },
-                { id: "suma-6-8", expression: "6 + 8", options: ["14", "15", "10", "13", "16"], correctIndex: 0 }
-              ]
-            },
-            {
-              id: "sumas-resultados-2",
-              type: "sum-choice-grid",
-              prompt: "Toca el resultado correcto de cada suma",
-              rows: [
-                { id: "suma-7-7", expression: "7 + 7", options: ["4", "14", "24", "13", "10"], correctIndex: 1 },
-                { id: "suma-10-3", expression: "10 + 3", options: ["12", "13", "14", "11", "15"], correctIndex: 1 },
-                { id: "suma-12-2", expression: "12 + 2", options: ["12", "13", "20", "14", "11"], correctIndex: 3 }
-              ]
+              id: "sumas-fantasmas",
+              type: "ghost-sum",
+              prompt: "Juntá los fantasmas y elegí el resultado"
             }
           ]
         }
@@ -475,6 +454,9 @@ let communicationNegated = false;
 
 const app = document.getElementById("app");
 const modalRoot = document.getElementById("modal-root");
+
+document.addEventListener("contextmenu", (event) => event.preventDefault(), { capture: true });
+document.addEventListener("selectstart", (event) => event.preventDefault(), { capture: true });
 
 function uid(prefix) {
   return `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
@@ -505,6 +487,110 @@ function shuffled(values) {
     [copy[index], copy[swapIndex]] = [copy[swapIndex], copy[index]];
   }
   return copy;
+}
+
+let lastGhostSumSignature = "";
+
+function ghostSumOptions(result, maximum = 10) {
+  const values = new Set([result]);
+  for (const distance of [1, 2]) {
+    for (const offset of shuffled([-distance, distance])) {
+      const candidate = result + offset;
+      if (candidate > 0 && candidate <= maximum) values.add(candidate);
+      if (values.size === 3) break;
+    }
+    if (values.size === 3) break;
+  }
+  return shuffled([...values]);
+}
+
+function createGhostSumExercises(theme) {
+  const pool = theme.sumPool || {};
+  const orientPair = ([first, second]) => (first !== second && Math.random() < 0.5 ? [second, first] : [first, second]);
+  const easy = shuffled(pool.easy || []).slice(0, 2).map(orientPair);
+  const medium = shuffled(pool.medium || []).slice(0, 2).map(orientPair);
+  const challenge = shuffled(pool.challenge || []).slice(0, 1).map(orientPair);
+  let ordered = [...shuffled(easy), ...shuffled(medium), ...challenge];
+  let signature = ordered.map((pair) => pair.join("+")).join("|");
+  if (signature === lastGhostSumSignature && ordered.length > 1) {
+    [ordered[0], ordered[1]] = [ordered[1], ordered[0]];
+    signature = ordered.map((pair) => pair.join("+")).join("|");
+  }
+  lastGhostSumSignature = signature;
+
+  return ordered.map(([left, right], index) => {
+    const result = left + right;
+    return {
+      id: uid(`suma-fantasma-${index + 1}`),
+      type: "ghost-sum",
+      prompt: "Juntá los fantasmas y elegí el resultado",
+      left,
+      right,
+      result,
+      options: ghostSumOptions(result)
+    };
+  });
+}
+
+function multiplicationPairKey(pair) {
+  return `${pair[0]}x${pair[1]}`;
+}
+
+function readMultiplicationBag() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(MULTIPLICATION_BAG_KEY) || "{}");
+    return {
+      easy: Array.isArray(saved.easy) ? saved.easy : [],
+      medium: Array.isArray(saved.medium) ? saved.medium : [],
+      challenge: Array.isArray(saved.challenge) ? saved.challenge : []
+    };
+  } catch {
+    return { easy: [], medium: [], challenge: [] };
+  }
+}
+
+function takeMultiplicationPairs(pool, savedKeys, amount) {
+  const pairsByKey = new Map(pool.map((pair) => [multiplicationPairKey(pair), pair]));
+  const remaining = [...new Set(savedKeys)].filter((key) => pairsByKey.has(key));
+  if (remaining.length < amount) {
+    const refill = shuffled([...pairsByKey.keys()]).filter((key) => !remaining.includes(key));
+    remaining.push(...refill);
+  }
+  const selectedKeys = remaining.splice(0, amount);
+  return {
+    selected: selectedKeys.map((key) => pairsByKey.get(key)),
+    remaining
+  };
+}
+
+function createGhostMultiplicationExercises(theme) {
+  const pool = theme.multiplicationPool || {};
+  const bag = readMultiplicationBag();
+  const easy = takeMultiplicationPairs(pool.easy || [], bag.easy, 2);
+  const medium = takeMultiplicationPairs(pool.medium || [], bag.medium, 2);
+  const challenge = takeMultiplicationPairs(pool.challenge || [], bag.challenge, 1);
+
+  try {
+    localStorage.setItem(
+      MULTIPLICATION_BAG_KEY,
+      JSON.stringify({ easy: easy.remaining, medium: medium.remaining, challenge: challenge.remaining })
+    );
+  } catch {
+    // La actividad puede continuar aunque el dispositivo no permita guardar el avance de la bolsa.
+  }
+
+  return [...easy.selected, ...medium.selected, ...challenge.selected].map(([groupCount, groupSize], index) => {
+    const result = groupCount * groupSize;
+    return {
+      id: uid(`multiplicacion-fantasma-${index + 1}`),
+      type: "ghost-multiplication",
+      prompt: "Tocá los fantasmas y elegí el resultado",
+      groupCount,
+      groupSize,
+      result,
+      options: ghostSumOptions(result, 25)
+    };
+  });
 }
 
 function loadData() {
@@ -589,7 +675,7 @@ function themeById(subject, id) {
 }
 
 function allExercisesCount(subject) {
-  return subject.themes.reduce((sum, theme) => sum + theme.exercises.length, 0);
+  return subject.themes.reduce((sum, theme) => sum + (theme.randomExerciseCount || theme.exercises.length), 0);
 }
 
 function setRoute(nextRoute) {
@@ -624,7 +710,7 @@ function subtitleForRoute() {
 }
 
 function render() {
-  const focusedActivityTypes = ["matching", "sound-choice", "sound-gallery", "drag-matching", "sum-choice-grid", "plant-labeling"];
+  const focusedActivityTypes = ["matching", "sound-choice", "sound-gallery", "drag-matching", "sum-choice-grid", "ghost-sum", "ghost-multiplication", "plant-labeling"];
   const isFocusedActivity =
     route.view === "run" && focusedActivityTypes.includes(session?.exercises?.[session.index]?.type);
   document.documentElement.classList.toggle("communication-mode", route.view === "communication");
@@ -911,6 +997,10 @@ function renderTheme(subjectId, themeId) {
                   ? `<div class="pill-row"><span class="pill">${exercise.pairs.length} multiplicaciones para relacionar</span></div>`
                 : exercise.type === "sum-choice-grid"
                   ? `<div class="pill-row"><span class="pill">${exercise.rows.length} sumas para resolver</span></div>`
+                : exercise.type === "ghost-sum"
+                  ? `<div class="pill-row"><span class="pill">${theme.randomExerciseCount || 5} sumas con objetos para contar</span></div>`
+                : exercise.type === "ghost-multiplication"
+                  ? `<div class="pill-row"><span class="pill">${theme.randomExerciseCount || 5} multiplicaciones con fantasmas</span></div>`
                 : exercise.type === "plant-labeling"
                   ? `<div class="pill-row"><span class="pill">Conocer y ubicar ${exercise.parts.length} partes</span></div>`
                 : `<div class="pill-row">
@@ -943,7 +1033,7 @@ function renderTheme(subjectId, themeId) {
       </div>
       <div class="section-title">
         <h2>${escapeHtml(theme.title)}</h2>
-        <span class="pill">${theme.exercises.length} ejercicios</span>
+        <span class="pill">${theme.randomExerciseCount || theme.exercises.length} ejercicios</span>
       </div>
       <div class="grid theme-grid">${exercises}</div>
     </section>
@@ -955,7 +1045,11 @@ function startSession(subjectId, themeId, mode) {
   const theme = themeById(subject, themeId);
   if (!subject || !theme || !theme.exercises.length) return;
 
-  const exercises = clone(theme.exercises);
+  const exercises = theme.sumPool
+    ? createGhostSumExercises(theme)
+    : theme.multiplicationPool
+      ? createGhostMultiplicationExercises(theme)
+      : clone(theme.exercises);
   session = {
     id: uid("session"),
     subjectId,
@@ -1004,6 +1098,27 @@ function startSession(subjectId, themeId, mode) {
         .map((exercise) => [
           exercise.id,
           { selections: {}, checked: false, isCorrect: false, message: "" }
+        ])
+    ),
+    ghostSums: Object.fromEntries(
+      exercises
+        .filter((exercise) => ["ghost-sum", "ghost-multiplication"].includes(exercise.type))
+        .map((exercise) => [
+          exercise.id,
+          {
+            movedGhosts: [],
+            selectedAnswer: null,
+            checked: false,
+            isCorrect: false,
+            message: "",
+            lastMovedGhost: null,
+            lastReturnedGhost: null,
+            lastMovedGroup: null,
+            lastReturnedGroup: null,
+            helpOpen: false,
+            helpRow: null,
+            helpColumn: null
+          }
         ])
     ),
     plantLabeling: Object.fromEntries(
@@ -1160,6 +1275,225 @@ function renderSumChoiceRunner(exercise) {
   `);
 }
 
+function renderGhostSumGroup(exercise, state, side) {
+  const amount = exercise[side];
+  const moved = new Set(state.movedGhosts);
+  const label = side === "left" ? "primer número" : "segundo número";
+  const ghosts = Array.from({ length: amount }, (_, index) => {
+    const token = `${side}-${index + 1}`;
+    if (moved.has(token)) return `<span class="ghost-origin-placeholder" aria-hidden="true"></span>`;
+    const returnedClass = state.lastReturnedGhost === token ? "is-returning" : "";
+    return `<button class="ghost-token ghost-origin-token ${returnedClass}" type="button" data-action="ghost-sum-toggle-ghost" data-token="${token}" aria-label="Mover fantasma ${index + 1} del ${label}"><span aria-hidden="true">👻</span></button>`;
+  }).join("");
+  return `<div class="ghost-sum-term"><strong>${amount}</strong><div class="ghost-origin-grid" aria-label="${amount} fantasmas del ${label}">${ghosts}</div></div>`;
+}
+
+function renderGhostSumRunner(exercise) {
+  const state = session.ghostSums[exercise.id];
+  const total = exercise.left + exercise.right;
+  const allMoved = state.movedGhosts.length === total;
+  const ready = allMoved && state.selectedAnswer !== null;
+  const movedGhosts = state.movedGhosts
+    .map((token) => {
+      const arrivingClass = state.lastMovedGhost === token ? "is-arriving" : "";
+      return `<button class="ghost-token ghost-tray-token ${arrivingClass}" type="button" data-action="ghost-sum-toggle-ghost" data-token="${escapeHtml(token)}" aria-label="Fantasma reunido; tocar para devolver"><span aria-hidden="true">👻</span></button>`;
+    })
+    .join("");
+  const answerStatus = state.checked ? (state.isCorrect ? "is-correct" : "is-wrong") : state.selectedAnswer !== null ? "has-answer" : "";
+  const options = exercise.options
+    .map((value) => {
+      const selected = state.selectedAnswer === value;
+      return `<button class="ghost-sum-answer-option ${selected ? "is-placed" : ""}" type="button" draggable="true" data-action="ghost-sum-answer" data-answer="${value}" ${selected ? "disabled" : ""} aria-label="Respuesta ${value}">${value}</button>`;
+    })
+    .join("");
+  let feedbackMessage = state.message;
+  if (!feedbackMessage) {
+    if (!state.movedGhosts.length) feedbackMessage = "Tocá los fantasmas para juntarlos.";
+    else if (!allMoved) feedbackMessage = "Seguí tocando los fantasmas.";
+    else if (state.selectedAnswer === null) feedbackMessage = "Ahora contalos y elegí o arrastrá el resultado.";
+    else feedbackMessage = "Ya podés verificar el resultado.";
+  }
+  const feedbackClass = state.checked && state.isCorrect ? "good" : state.checked ? "bad" : "wait";
+
+  renderShell(`
+    <section class="runner matching-runner ghost-sum-runner">
+      <div class="matching-session-bar">
+        <button class="btn btn-ghost" type="button" data-action="cancel-run">${icon("arrow")}Salir</button>
+        <div class="matching-session-status"><span>${session.index + 1} de ${session.exercises.length}</span><span>Suma</span></div>
+      </div>
+      <article class="question-panel ghost-sum-panel">
+        <p class="question-text">${escapeHtml(exercise.prompt)}</p>
+        <div class="ghost-sum-workspace">
+          <div class="ghost-sum-equation" aria-label="${exercise.left} más ${exercise.right}">
+            ${renderGhostSumGroup(exercise, state, "left")}
+            <span class="ghost-sum-sign" aria-hidden="true">+</span>
+            ${renderGhostSumGroup(exercise, state, "right")}
+            <span class="ghost-sum-sign" aria-hidden="true">=</span>
+          </div>
+          <div class="ghost-sum-result-panel">
+            <section class="ghost-sum-tray" aria-label="Lugar para juntar los fantasmas">
+              <div class="ghost-tray-grid">${movedGhosts || `<span class="ghost-tray-hint">Tocá los fantasmas</span>`}</div>
+            </section>
+            <section class="ghost-sum-answer-area">
+              <span>Resultado</span>
+              <button class="ghost-sum-answer-slot ${answerStatus}" type="button" data-action="ghost-sum-answer-slot" aria-label="Espacio para el resultado">${state.selectedAnswer ?? "?"}</button>
+            </section>
+          </div>
+        </div>
+        <div class="ghost-sum-options-area">
+          <span>Arrastrá o tocá una respuesta</span>
+          <div class="ghost-sum-answer-options">${options}</div>
+        </div>
+        <div class="feedback ${feedbackClass}" aria-live="polite">${escapeHtml(feedbackMessage)}</div>
+      </article>
+      <div class="answer-actions">
+        <button class="btn btn-primary" type="button" data-action="check-ghost-sum" ${ready && !state.checked ? "" : "disabled"}>${icon("check")}Verificar resultado</button>
+      </div>
+    </section>
+  `);
+}
+
+function renderGhostMultiplicationGroup(exercise, state, groupIndex) {
+  const moved = new Set(state.movedGhosts);
+  const groupId = `group-${groupIndex + 1}`;
+  const ghosts = Array.from({ length: exercise.groupSize }, (_, ghostIndex) => {
+    const token = `group-${groupIndex + 1}-${ghostIndex + 1}`;
+    if (moved.has(token)) return `<span class="ghost-origin-placeholder" aria-hidden="true"></span>`;
+    const returnedClass = state.lastReturnedGroup === groupId ? "is-returning" : "";
+    return `<button class="ghost-token ghost-origin-token ${returnedClass}" type="button" data-action="ghost-sum-toggle-ghost" data-token="${token}" aria-label="Mover este conjunto de fantasmas"><span aria-hidden="true">👻</span></button>`;
+  }).join("");
+  return `
+    <section class="ghost-multiply-group" aria-label="Conjunto de fantasmas">
+      <div class="ghost-multiply-group-grid">${ghosts}</div>
+    </section>
+  `;
+}
+
+function renderMultiplicationHelp(exercise, state) {
+  const numbers = [1, 2, 3, 4, 5];
+  const hasResult = state.helpRow !== null && state.helpColumn !== null;
+  const equation = hasResult
+    ? `${state.helpRow} × ${state.helpColumn} = ${state.helpRow * state.helpColumn}`
+    : "Elegí un número de cada borde";
+  const columnHeaders = numbers
+    .map((number) => `<th scope="col"><button class="multiplication-table-header ${state.helpColumn === number ? "is-selected" : ""}" type="button" data-action="multiplication-help-axis" data-axis="column" data-value="${number}" aria-pressed="${state.helpColumn === number}">${number}</button></th>`)
+    .join("");
+  const rows = numbers
+    .map((row) => {
+      const cells = numbers
+        .map((column) => {
+          const classes = [
+            state.helpRow === row ? "is-row-highlighted" : "",
+            state.helpColumn === column ? "is-column-highlighted" : "",
+            state.helpRow === row && state.helpColumn === column ? "is-result" : ""
+          ].filter(Boolean).join(" ");
+          return `<td class="${classes}"><span>${row * column}</span></td>`;
+        })
+        .join("");
+      return `
+        <tr>
+          <th scope="row"><button class="multiplication-table-header ${state.helpRow === row ? "is-selected" : ""}" type="button" data-action="multiplication-help-axis" data-axis="row" data-value="${row}" aria-pressed="${state.helpRow === row}">${row}</button></th>
+          ${cells}
+        </tr>
+      `;
+    })
+    .join("");
+
+  return `
+    <div class="multiplication-help-backdrop" role="dialog" aria-modal="true" aria-labelledby="multiplication-help-title">
+      <section class="multiplication-help-dialog">
+        <header class="multiplication-help-header">
+          <div>
+            <h2 id="multiplication-help-title">Tabla pitagórica hasta el 5</h2>
+            <p>Buscá <strong>${exercise.groupCount}</strong> a la izquierda y <strong>${exercise.groupSize}</strong> arriba.</p>
+          </div>
+          <button class="btn btn-ghost multiplication-help-close" type="button" data-action="multiplication-help-close" aria-label="Cerrar ayuda">${icon("x")}Cerrar</button>
+        </header>
+        <div class="multiplication-help-equation ${hasResult ? "has-result" : ""}" aria-live="polite">${equation}</div>
+        <table class="multiplication-table" aria-label="Tabla pitagórica del uno al cinco">
+          <thead><tr><th class="multiplication-table-corner" aria-label="Por">×</th>${columnHeaders}</tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </section>
+    </div>
+  `;
+}
+
+function renderGhostMultiplicationRunner(exercise) {
+  const state = session.ghostSums[exercise.id];
+  const total = exercise.result;
+  const allMoved = state.movedGhosts.length === total;
+  const ready = allMoved && state.selectedAnswer !== null;
+  const groups = Array.from({ length: exercise.groupCount }, (_, index) => renderGhostMultiplicationGroup(exercise, state, index)).join("");
+  const movedSet = new Set(state.movedGhosts);
+  const movedGroups = Array.from({ length: exercise.groupCount }, (_, groupIndex) => {
+    const groupId = `group-${groupIndex + 1}`;
+    const groupTokens = Array.from({ length: exercise.groupSize }, (_, ghostIndex) => `${groupId}-${ghostIndex + 1}`)
+      .filter((token) => movedSet.has(token));
+    if (!groupTokens.length) return "";
+    const arrivingClass = state.lastMovedGroup === groupId ? "is-arriving" : "";
+    const ghosts = groupTokens
+      .map((token) => `<button class="ghost-token ghost-tray-token" type="button" data-action="ghost-sum-toggle-ghost" data-token="${escapeHtml(token)}" aria-label="Fantasma reunido; tocar para devolver su conjunto"><span aria-hidden="true">👻</span></button>`)
+      .join("");
+    return `<div class="ghost-multiply-tray-group ${arrivingClass}" style="--group-size: ${exercise.groupSize}" aria-label="Conjunto acumulado">${ghosts}</div>`;
+  })
+    .join("");
+  const answerStatus = state.checked ? (state.isCorrect ? "is-correct" : "is-wrong") : state.selectedAnswer !== null ? "has-answer" : "";
+  const options = exercise.options
+    .map((option) => {
+      const selected = state.selectedAnswer === option;
+      return `<button class="ghost-sum-answer-option ${selected ? "is-placed" : ""}" type="button" draggable="true" data-action="ghost-sum-answer" data-answer="${option}" ${selected ? "disabled" : ""} aria-label="Respuesta ${option}">${option}</button>`;
+    })
+    .join("");
+  let feedbackMessage = state.message;
+  if (!feedbackMessage) {
+    if (!state.movedGhosts.length) feedbackMessage = "Tocá los fantasmas para llevarlos al total.";
+    else if (!allMoved) feedbackMessage = "Seguí tocando los fantasmas.";
+    else if (state.selectedAnswer === null) feedbackMessage = "Ahora contalos y elegí o arrastrá el resultado.";
+    else feedbackMessage = "Ya podés verificar el resultado.";
+  }
+  const feedbackClass = state.checked && state.isCorrect ? "good" : state.checked ? "bad" : "wait";
+
+  renderShell(`
+    <section class="runner matching-runner ghost-sum-runner ghost-multiply-runner">
+      <div class="matching-session-bar">
+        <button class="btn btn-ghost" type="button" data-action="cancel-run">${icon("arrow")}Salir</button>
+        <div class="matching-session-status"><span>${session.index + 1} de ${session.exercises.length}</span><span>Multiplicación</span></div>
+      </div>
+      <article class="question-panel ghost-sum-panel ghost-multiply-panel">
+        <div class="ghost-multiply-title-row">
+          <p class="question-text">${escapeHtml(exercise.prompt)}</p>
+          <button class="btn multiplication-help-button" type="button" data-action="multiplication-help-open">¿ Ayuda ?</button>
+        </div>
+        <div class="ghost-multiply-workspace">
+          <div class="ghost-multiply-groups-area">
+            <div class="ghost-multiply-equation"><strong>${exercise.groupCount}</strong><span>×</span><strong>${exercise.groupSize}</strong><span>=</span><b>?</b></div>
+            <div class="ghost-multiply-groups" style="--group-count: ${exercise.groupCount}">${groups}</div>
+          </div>
+          <div class="ghost-sum-result-panel ghost-multiply-result-panel">
+            <div class="ghost-sum-tray">
+              <div class="ghost-tray-grid ghost-multiply-tray-grid">${movedGroups || `<span class="ghost-tray-hint">Tocá los fantasmas</span>`}</div>
+            </div>
+            <div class="ghost-sum-answer-area">
+              <span>Resultado</span>
+              <button class="ghost-sum-answer-slot ${answerStatus}" type="button" data-action="ghost-sum-answer-slot" aria-label="Espacio para el resultado">${state.selectedAnswer ?? "?"}</button>
+            </div>
+          </div>
+        </div>
+        <div class="ghost-sum-options-area">
+          <span>Arrastrá o tocá una respuesta</span>
+          <div class="ghost-sum-answer-options">${options}</div>
+        </div>
+        <div class="feedback ${feedbackClass}" aria-live="polite">${escapeHtml(feedbackMessage)}</div>
+      </article>
+      <div class="answer-actions">
+        <button class="btn btn-primary" type="button" data-action="check-ghost-sum" ${ready && !state.checked ? "" : "disabled"}>${icon("check")}Verificar resultado</button>
+      </div>
+      ${state.helpOpen ? renderMultiplicationHelp(exercise, state) : ""}
+    </section>
+  `);
+}
+
 function renderPlantDiagram(exercise, state, learning) {
   const partsById = new Map(exercise.parts.map((part) => [part.id, part]));
   const slots = exercise.parts
@@ -1275,6 +1609,8 @@ function renderRunner() {
   if (exercise.type === "sound-gallery") return renderSoundGalleryRunner(exercise);
   if (exercise.type === "drag-matching") return renderDragMatchingRunner(exercise);
   if (exercise.type === "sum-choice-grid") return renderSumChoiceRunner(exercise);
+  if (exercise.type === "ghost-sum") return renderGhostSumRunner(exercise);
+  if (exercise.type === "ghost-multiplication") return renderGhostMultiplicationRunner(exercise);
   if (exercise.type === "plant-labeling") {
     const plantState = session.plantLabeling[exercise.id];
     return plantState.learning ? renderPlantLearningRunner(exercise, plantState) : renderPlantLabelingRunner(exercise);
@@ -1474,6 +1810,152 @@ function checkSumChoice() {
       if (session?.exercises[session.index]?.id === exercise.id) nextQuestion();
     }, 850);
   }
+}
+
+function toggleGhostSumGhost(tokenId) {
+  if (!session) return;
+  const exercise = session.exercises[session.index];
+  const state = session.ghostSums[exercise?.id];
+  if (!["ghost-sum", "ghost-multiplication"].includes(exercise?.type) || !state) return;
+
+  let validToken = false;
+  if (exercise.type === "ghost-sum") {
+    const [side, rawIndex] = String(tokenId).split("-");
+    const index = Number(rawIndex);
+    validToken = ["left", "right"].includes(side) && Number.isInteger(index) && index >= 1 && index <= exercise[side];
+  } else {
+    const match = String(tokenId).match(/^group-(\d+)-(\d+)$/);
+    const groupIndex = Number(match?.[1]);
+    const ghostIndex = Number(match?.[2]);
+    validToken = Boolean(match) && groupIndex >= 1 && groupIndex <= exercise.groupCount && ghostIndex >= 1 && ghostIndex <= exercise.groupSize;
+  }
+  if (!validToken) return;
+
+  if (exercise.type === "ghost-multiplication") {
+    const groupIndex = Number(String(tokenId).split("-")[1]);
+    const groupId = `group-${groupIndex}`;
+    const groupTokens = Array.from({ length: exercise.groupSize }, (_, index) => `${groupId}-${index + 1}`);
+    const groupIsMoved = groupTokens.every((token) => state.movedGhosts.includes(token));
+    if (groupIsMoved) {
+      state.movedGhosts = state.movedGhosts.filter((token) => !groupTokens.includes(token));
+      state.lastMovedGroup = null;
+      state.lastReturnedGroup = groupId;
+    } else {
+      state.movedGhosts = [...state.movedGhosts.filter((token) => !groupTokens.includes(token)), ...groupTokens];
+      state.lastMovedGroup = groupId;
+      state.lastReturnedGroup = null;
+    }
+    state.lastMovedGhost = null;
+    state.lastReturnedGhost = null;
+  } else if (state.movedGhosts.includes(tokenId)) {
+    state.movedGhosts = state.movedGhosts.filter((token) => token !== tokenId);
+    state.lastMovedGhost = null;
+    state.lastReturnedGhost = tokenId;
+  } else {
+    state.movedGhosts.push(tokenId);
+    state.lastMovedGhost = tokenId;
+    state.lastReturnedGhost = null;
+  }
+  state.checked = false;
+  state.isCorrect = false;
+  state.message = "";
+  render();
+
+  const exerciseId = exercise.id;
+  window.setTimeout(() => {
+    const currentState = session?.ghostSums?.[exerciseId];
+    if (!currentState) return;
+    currentState.lastMovedGhost = null;
+    currentState.lastReturnedGhost = null;
+    currentState.lastMovedGroup = null;
+    currentState.lastReturnedGroup = null;
+  }, 320);
+}
+
+function selectGhostSumAnswer(value) {
+  if (!session) return;
+  const exercise = session.exercises[session.index];
+  const state = session.ghostSums[exercise?.id];
+  const answer = Number(value);
+  if (!["ghost-sum", "ghost-multiplication"].includes(exercise?.type) || !state || !exercise.options.includes(answer)) return;
+  state.selectedAnswer = answer;
+  state.checked = false;
+  state.isCorrect = false;
+  state.message = "";
+  render();
+}
+
+function clearGhostSumAnswer() {
+  if (!session) return;
+  const exercise = session.exercises[session.index];
+  const state = session.ghostSums[exercise?.id];
+  if (!["ghost-sum", "ghost-multiplication"].includes(exercise?.type) || !state || state.selectedAnswer === null) return;
+  state.selectedAnswer = null;
+  state.checked = false;
+  state.isCorrect = false;
+  state.message = "";
+  render();
+}
+
+function checkGhostSum() {
+  if (!session) return;
+  const exercise = session.exercises[session.index];
+  const state = session.ghostSums[exercise?.id];
+  const isMultiplication = exercise?.type === "ghost-multiplication";
+  const total = isMultiplication ? exercise.result : (exercise?.left || 0) + (exercise?.right || 0);
+  if (!["ghost-sum", "ghost-multiplication"].includes(exercise?.type) || !state || state.movedGhosts.length !== total || state.selectedAnswer === null) return;
+  state.checked = true;
+  state.isCorrect = state.selectedAnswer === exercise.result;
+  state.message = state.isCorrect ? "¡Muy bien! Juntaste y contaste todos los fantasmas." : "Contá otra vez los fantasmas y elegí otra respuesta.";
+  if (state.isCorrect) {
+    session.selectedIndex = 0;
+    session.score += 1;
+    session.answers.push({
+      prompt: isMultiplication ? `${exercise.groupCount} × ${exercise.groupSize}` : `${exercise.left} + ${exercise.right}`,
+      support: "Fantasmas para contar",
+      selected: String(state.selectedAnswer),
+      correct: String(exercise.result),
+      isCorrect: true
+    });
+  }
+  render();
+  if (state.isCorrect) {
+    window.setTimeout(() => {
+      if (session?.exercises[session.index]?.id === exercise.id) nextQuestion();
+    }, 1000);
+  }
+}
+
+function openMultiplicationHelp() {
+  if (!session) return;
+  const exercise = session.exercises[session.index];
+  const state = session.ghostSums[exercise?.id];
+  if (exercise?.type !== "ghost-multiplication" || !state) return;
+  state.helpOpen = true;
+  state.helpRow = null;
+  state.helpColumn = null;
+  render();
+}
+
+function closeMultiplicationHelp() {
+  if (!session) return;
+  const exercise = session.exercises[session.index];
+  const state = session.ghostSums[exercise?.id];
+  if (exercise?.type !== "ghost-multiplication" || !state) return;
+  state.helpOpen = false;
+  render();
+}
+
+function selectMultiplicationHelpAxis(axis, value) {
+  if (!session) return;
+  const exercise = session.exercises[session.index];
+  const state = session.ghostSums[exercise?.id];
+  const number = Number(value);
+  if (exercise?.type !== "ghost-multiplication" || !state || !state.helpOpen || ![1, 2, 3, 4, 5].includes(number)) return;
+  if (axis === "row") state.helpRow = number;
+  else if (axis === "column") state.helpColumn = number;
+  else return;
+  render();
 }
 
 function startPlantActivity() {
@@ -1899,10 +2381,94 @@ let activeDragMatchResult = null;
 let suppressDragMatchClick = false;
 let activePlantLabel = null;
 let suppressPlantClick = false;
+let activeGhostSumAnswer = null;
+let ghostSumAnswerPointerStart = null;
+let suppressGhostSumClick = false;
+let touchDragPreview = null;
+let touchDragSource = null;
+let touchDragPointerId = null;
+let touchDragDropSelector = "";
+let touchDragHalfWidth = 0;
+let touchDragHalfHeight = 0;
+
+function clearTouchDragPreview() {
+  touchDragPreview?.remove();
+  touchDragSource?.classList.remove("is-touch-source", "is-dragging");
+  document.querySelectorAll(".is-drag-over").forEach((element) => element.classList.remove("is-drag-over"));
+  touchDragPreview = null;
+  touchDragSource = null;
+  touchDragPointerId = null;
+  touchDragDropSelector = "";
+  touchDragHalfWidth = 0;
+  touchDragHalfHeight = 0;
+}
+
+function moveTouchDragPreview(clientX, clientY) {
+  if (!touchDragPreview) return;
+  const left = Math.max(touchDragHalfWidth + 8, Math.min(window.innerWidth - touchDragHalfWidth - 8, clientX));
+  const preferredTop = clientY - touchDragHalfHeight - 12;
+  const top = Math.max(touchDragHalfHeight + 8, Math.min(window.innerHeight - touchDragHalfHeight - 8, preferredTop));
+  touchDragPreview.style.left = `${left}px`;
+  touchDragPreview.style.top = `${top}px`;
+
+  document.querySelectorAll(".is-drag-over").forEach((element) => element.classList.remove("is-drag-over"));
+  document.elementFromPoint(clientX, clientY)?.closest(touchDragDropSelector)?.classList.add("is-drag-over");
+}
+
+function startTouchDragPreview(source, event, dropSelector) {
+  clearTouchDragPreview();
+  const sourceRect = source.getBoundingClientRect();
+  const preview = source.cloneNode(true);
+  preview.removeAttribute("data-action");
+  preview.removeAttribute("draggable");
+  preview.setAttribute("aria-hidden", "true");
+  preview.classList.remove("is-placed");
+  preview.classList.add("touch-drag-preview");
+  preview.style.width = `${sourceRect.width}px`;
+  preview.style.height = `${sourceRect.height}px`;
+  document.body.appendChild(preview);
+
+  touchDragPreview = preview;
+  touchDragSource = source;
+  touchDragPointerId = event.pointerId;
+  touchDragDropSelector = dropSelector;
+  touchDragHalfWidth = sourceRect.width / 2;
+  touchDragHalfHeight = sourceRect.height / 2;
+  source.classList.add("is-touch-source", "is-dragging");
+  moveTouchDragPreview(event.clientX, event.clientY);
+  event.preventDefault();
+}
+
+document.addEventListener("pointermove", (event) => {
+  if (!touchDragPreview || event.pointerId !== touchDragPointerId) return;
+  moveTouchDragPreview(event.clientX, event.clientY);
+  event.preventDefault();
+});
+
+document.addEventListener("pointercancel", (event) => {
+  if (!touchDragPreview || event.pointerId !== touchDragPointerId) return;
+  clearTouchDragPreview();
+  activeDragMatchResult = null;
+  activePlantLabel = null;
+  activeGhostSumAnswer = null;
+  ghostSumAnswerPointerStart = null;
+});
+
+window.addEventListener("blur", () => {
+  clearTouchDragPreview();
+  activeDragMatchResult = null;
+  activePlantLabel = null;
+  activeGhostSumAnswer = null;
+  ghostSumAnswerPointerStart = null;
+});
 
 document.addEventListener("dragstart", (event) => {
   const result = event.target.closest('[data-action="drag-match-result"]');
   if (!result) return;
+  if (touchDragPreview) {
+    event.preventDefault();
+    return;
+  }
   activeDragMatchResult = result.dataset.result;
   event.dataTransfer.effectAllowed = "move";
   event.dataTransfer.setData("text/plain", activeDragMatchResult);
@@ -1911,6 +2477,7 @@ document.addEventListener("dragstart", (event) => {
 
 document.addEventListener("dragend", (event) => {
   event.target.closest('[data-action="drag-match-result"]')?.classList.remove("is-dragging");
+  clearTouchDragPreview();
   activeDragMatchResult = null;
 });
 
@@ -1931,16 +2498,21 @@ document.addEventListener("pointerdown", (event) => {
   if (!result || result.disabled) return;
   activeDragMatchResult = result.dataset.result;
   result.classList.add("is-dragging");
+  startTouchDragPreview(result, event, '[data-action="drag-match-slot"]');
 });
 
 document.addEventListener("pointerup", (event) => {
   if (!activeDragMatchResult) return;
   const slot = document.elementFromPoint(event.clientX, event.clientY)?.closest('[data-action="drag-match-slot"]');
   const resultId = activeDragMatchResult;
+  clearTouchDragPreview();
   document.querySelectorAll(".is-dragging").forEach((element) => element.classList.remove("is-dragging"));
   activeDragMatchResult = null;
   if (slot) {
     suppressDragMatchClick = true;
+    window.setTimeout(() => {
+      suppressDragMatchClick = false;
+    }, 0);
     placeDragMatchingResult(resultId, slot.dataset.pair);
   }
 });
@@ -1948,6 +2520,10 @@ document.addEventListener("pointerup", (event) => {
 document.addEventListener("dragstart", (event) => {
   const label = event.target.closest('[data-action="plant-label"]');
   if (!label) return;
+  if (touchDragPreview) {
+    event.preventDefault();
+    return;
+  }
   activePlantLabel = label.dataset.label;
   event.dataTransfer.effectAllowed = "move";
   event.dataTransfer.setData("text/plain", activePlantLabel);
@@ -1956,6 +2532,7 @@ document.addEventListener("dragstart", (event) => {
 
 document.addEventListener("dragend", (event) => {
   event.target.closest('[data-action="plant-label"]')?.classList.remove("is-dragging");
+  clearTouchDragPreview();
   activePlantLabel = null;
 });
 
@@ -1976,17 +2553,83 @@ document.addEventListener("pointerdown", (event) => {
   if (!label || label.disabled) return;
   activePlantLabel = label.dataset.label;
   label.classList.add("is-dragging");
+  startTouchDragPreview(label, event, '[data-action="plant-slot"]');
 });
 
 document.addEventListener("pointerup", (event) => {
   if (!activePlantLabel) return;
   const slot = document.elementFromPoint(event.clientX, event.clientY)?.closest('[data-action="plant-slot"]');
   const labelId = activePlantLabel;
+  clearTouchDragPreview();
   document.querySelectorAll(".plant-label-chip.is-dragging").forEach((element) => element.classList.remove("is-dragging"));
   activePlantLabel = null;
   if (slot) {
     suppressPlantClick = true;
+    window.setTimeout(() => {
+      suppressPlantClick = false;
+    }, 0);
     placePlantLabel(labelId, slot.dataset.position);
+  }
+});
+
+document.addEventListener("dragstart", (event) => {
+  const option = event.target.closest('[data-action="ghost-sum-answer"]');
+  if (!option || option.disabled) return;
+  if (touchDragPreview) {
+    event.preventDefault();
+    return;
+  }
+  activeGhostSumAnswer = option.dataset.answer;
+  event.dataTransfer.effectAllowed = "move";
+  event.dataTransfer.setData("text/plain", activeGhostSumAnswer);
+  option.classList.add("is-dragging");
+});
+
+document.addEventListener("dragend", (event) => {
+  event.target.closest('[data-action="ghost-sum-answer"]')?.classList.remove("is-dragging");
+  clearTouchDragPreview();
+  activeGhostSumAnswer = null;
+  ghostSumAnswerPointerStart = null;
+});
+
+document.addEventListener("dragover", (event) => {
+  if (event.target.closest('[data-action="ghost-sum-answer-slot"]')) event.preventDefault();
+});
+
+document.addEventListener("drop", (event) => {
+  const slot = event.target.closest('[data-action="ghost-sum-answer-slot"]');
+  if (!slot) return;
+  event.preventDefault();
+  const answer = event.dataTransfer.getData("text/plain") || activeGhostSumAnswer;
+  if (answer) selectGhostSumAnswer(answer);
+});
+
+document.addEventListener("pointerdown", (event) => {
+  const option = event.target.closest('[data-action="ghost-sum-answer"]');
+  if (!option || option.disabled) return;
+  activeGhostSumAnswer = option.dataset.answer;
+  ghostSumAnswerPointerStart = { x: event.clientX, y: event.clientY };
+  option.classList.add("is-dragging");
+  startTouchDragPreview(option, event, '[data-action="ghost-sum-answer-slot"]');
+});
+
+document.addEventListener("pointerup", (event) => {
+  if (!activeGhostSumAnswer) return;
+  const slot = document.elementFromPoint(event.clientX, event.clientY)?.closest('[data-action="ghost-sum-answer-slot"]');
+  const answer = activeGhostSumAnswer;
+  const distance = ghostSumAnswerPointerStart
+    ? Math.hypot(event.clientX - ghostSumAnswerPointerStart.x, event.clientY - ghostSumAnswerPointerStart.y)
+    : Number.POSITIVE_INFINITY;
+  clearTouchDragPreview();
+  document.querySelectorAll(".ghost-sum-answer-option.is-dragging").forEach((element) => element.classList.remove("is-dragging"));
+  activeGhostSumAnswer = null;
+  ghostSumAnswerPointerStart = null;
+  if (slot || distance < 14) {
+    suppressGhostSumClick = true;
+    window.setTimeout(() => {
+      suppressGhostSumClick = false;
+    }, 0);
+    selectGhostSumAnswer(answer);
   }
 });
 
@@ -2042,6 +2685,25 @@ document.addEventListener("click", (event) => {
   if (action === "check-drag-matching") return checkDragMatching();
   if (action === "sum-choice-select") return selectSumChoice(target.dataset.row, Number(target.dataset.option));
   if (action === "check-sum-choice") return checkSumChoice();
+  if (action === "multiplication-help-open") return openMultiplicationHelp();
+  if (action === "multiplication-help-close") return closeMultiplicationHelp();
+  if (action === "multiplication-help-axis") return selectMultiplicationHelpAxis(target.dataset.axis, target.dataset.value);
+  if (action === "ghost-sum-toggle-ghost") return toggleGhostSumGhost(target.dataset.token);
+  if (action === "ghost-sum-answer") {
+    if (suppressGhostSumClick) {
+      suppressGhostSumClick = false;
+      return;
+    }
+    return selectGhostSumAnswer(target.dataset.answer);
+  }
+  if (action === "ghost-sum-answer-slot") {
+    if (suppressGhostSumClick) {
+      suppressGhostSumClick = false;
+      return;
+    }
+    return clearGhostSumAnswer();
+  }
+  if (action === "check-ghost-sum") return checkGhostSum();
   if (action === "sound-gallery-show") return showSoundGalleryItem(target.dataset.item);
   if (action === "sound-gallery-close") return closeSoundGalleryItem();
   if (action === "answer") return answer(Number(target.dataset.index));
