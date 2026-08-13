@@ -82,6 +82,10 @@ const COMMUNICATION_PICTOS = {
   bano: { label: "Baño", phrase: "ir al baño", image: "bano.png", color: "#4f9d69" },
   pis: { label: "Pis", phrase: "hacer pis", image: "pis.png", color: "#4f9d69" },
   caca: { label: "Caca", phrase: "hacer caca", image: "caca.png", color: "#4f9d69" },
+  "lavarse-manos": { label: "Lavarse las manos", phrase: "lavarse las manos", image: "lavarse-manos.png", color: "#1f7a8c" },
+  "limpiarse-cola": { label: "Limpiarse la cola", phrase: "limpiarse la cola", image: "limpiarse-cola.png", color: "#4f9d69" },
+  "cepillarse-dientes": { label: "Cepillarse los dientes", phrase: "cepillarse los dientes", image: "cepillarse-dientes.png", color: "#1f7a8c" },
+  banarse: { label: "Bañarse", phrase: "bañarse", image: "banarse.png", color: "#4b7bec" },
   descanso: { label: "Descanso", phrase: "descanso", image: "descanso.png", color: "#ffb703" },
   silencio: { label: "Silencio", phrase: "silencio", image: "silencio.png", color: "#7c5cdb" },
   ruido: { label: "Ruido", phrase: "me molesta el ruido", image: "ruido.png", color: "#c44747" },
@@ -138,6 +142,11 @@ const COMMUNICATION_PICTOS = {
   gracias: { label: "Gracias", phrase: "gracias", image: "gracias.png", color: "#4f9d69" },
   perdon: { label: "Perdon", phrase: "perdon", image: "perdon.png", color: "#ffb703" },
   abrazo: { label: "Abrazo", phrase: "abrazo", image: "abrazo.png", color: "#f07167" },
+  beso: { label: "Beso", phrase: "un beso", image: "beso.png", color: "#f07167" },
+  cosquillas: { label: "Cosquillas", phrase: "cosquillas", image: "cosquillas.png", color: "#ffb703" },
+  carino: { label: "Cariño", phrase: "cariño", image: "carino.png", color: "#f07167" },
+  amigo: { label: "Amigo", phrase: "un amigo", image: "amigo.png", color: "#4b7bec" },
+  "dar-mano": { label: "Dar la mano", phrase: "dar la mano", image: "dar-mano.png", color: "#4f9d69" },
   cabeza: { label: "Cabeza", phrase: "cabeza", image: "cabeza.png", color: "#c44747" },
   oido: { label: "Oido", phrase: "oido", image: "oido.png", color: "#c44747" },
   mano: { label: "Mano", phrase: "mano", image: "mano.png", color: "#c44747" },
@@ -166,11 +175,13 @@ const COMMUNICATION_STARTERS = [
     sequence: ["yo", "quiero"],
     groups: [
       { id: "bienestar", title: "Bienestar", pictos: ["descanso", "silencio", "auriculares", "abrazo", "solo", "medicina", "frio", "calor"] },
+      { id: "bano", title: "Baño", pictos: ["pis", "caca", "limpiarse-cola", "lavarse-manos", "cepillarse-dientes", "banarse"] },
+      { id: "amor", title: "Amor", pictos: ["abrazo", "beso", "cosquillas", "carino", "amigo", "dar-mano"] },
       { id: "comida", title: "Comida", pictos: ["agua", "pan", "gaseosa", "jugo", "leche", "galletas", "helado", "comer"] },
       { id: "actividades", title: "Hacer", pictos: ["jugar", "dibujar", "leer", "escribir", "recreo", "tarea", "otra-vez", "terminar"] },
-      { id: "personas", title: "Personas y lugares", pictos: ["mama", "papa", "maestra", "companero", "terapeuta", "casa", "escuela", "aula"] },
+      { id: "personas", title: "Personas", pictos: ["mama", "papa", "maestra", "companero", "terapeuta", "aula"] },
       { id: "escuela", title: "Escuela", pictos: ["lapiz", "cuaderno", "tarea", "recreo", "leer", "escribir", "seno-carla", "seno-maribel"] },
-      { id: "salidas", title: "Salidas", pictos: ["rio", "plaza", "supermercado", "shopping", "panaderia", "casa", "escuela", "recreo"] },
+      { id: "lugares", title: "Lugares", pictos: ["rio", "plaza", "supermercado", "shopping", "panaderia", "casa", "escuela", "recreo"] },
       { id: "compras", title: "Compras", pictos: ["comprar-pan", "comprar-gaseosa", "comprar-helado", "comprar-zapatillas", "comprar-juguete"] }
     ]
   },
@@ -219,55 +230,106 @@ const DEFAULT_DATA = {
       color: "#f07167",
       themes: [
         {
-          id: "vocales",
-          title: "Vocales",
-          description: "Reconocer letras por vista y sonido.",
+          id: "onomatopeyas-animales",
+          title: "Sonidos de animales",
+          description: "Relacionar cada onomatopeya con el animal correcto.",
+          activityLabel: "6 sonidos diferentes",
+          randomExerciseCount: 6,
+          animalSoundPool: [
+            { id: "gato", label: "Gato", visual: "🐱", sound: "MIAU MIAU" },
+            { id: "lobo", label: "Lobo", visual: "🐺", sound: "AUUUU" },
+            { id: "pollito", label: "Pollito", visual: "🐥", sound: "PÍO PÍO" },
+            { id: "gallo", label: "Gallo", visual: "🐓", sound: "COCOROCÓ" },
+            { id: "abeja", label: "Abeja", visual: "🐝", sound: "BZZZZZ" },
+            { id: "pato", label: "Pato", visual: "🦆", sound: "CUAC CUAC" }
+          ],
           exercises: [
             {
-              id: "vocal-a",
-              prompt: "Toca la letra A",
-              support: "A",
-              options: [
-                { text: "A", visual: "A" },
-                { text: "E", visual: "E" },
-                { text: "O", visual: "O" },
-                { text: "I", visual: "I" }
-              ],
-              correctIndex: 0
-            },
-            {
-              id: "vocal-o",
-              prompt: "Toca la letra O",
-              support: "O",
-              options: [
-                { text: "U", visual: "U" },
-                { text: "O", visual: "O" },
-                { text: "A", visual: "A" },
-                { text: "E", visual: "E" }
-              ],
-              correctIndex: 1
+              id: "elegir-animal-por-sonido",
+              type: "animal-sound",
+              prompt: "¿Qué animal hace este sonido?"
             }
           ]
         },
         {
-          id: "silabas",
-          title: "Silabas simples",
-          description: "Unir sonido y silaba escrita.",
+          id: "rompecabezas-rimas",
+          title: "Rompecabezas de rimas",
+          description: "Unir las palabras que terminan con sonidos parecidos.",
+          activityLabel: "9 rompecabezas",
+          randomExerciseCount: 9,
+          rhymePairPool: [
+            {
+              id: "pato-gato",
+              words: [
+                { id: "pato", label: "Pato", visual: "🦆" },
+                { id: "gato", label: "Gato", visual: "🐱" }
+              ]
+            },
+            {
+              id: "queso-hueso",
+              words: [
+                { id: "queso", label: "Queso", visual: "🧀" },
+                { id: "hueso", label: "Hueso", visual: "🦴" }
+              ]
+            },
+            {
+              id: "lechuga-tortuga",
+              words: [
+                { id: "lechuga", label: "Lechuga", visual: "🥬" },
+                { id: "tortuga", label: "Tortuga", visual: "🐢" }
+              ]
+            },
+            {
+              id: "fresa-mesa",
+              words: [
+                { id: "fresa", label: "Fresa", visual: "🍓" },
+                { id: "mesa", label: "Mesa", visual: "╦" }
+              ]
+            },
+            {
+              id: "avion-camion",
+              words: [
+                { id: "avion", label: "Avión", visual: "✈️" },
+                { id: "camion", label: "Camión", visual: "🚚" }
+              ]
+            },
+            {
+              id: "dinero-cartero",
+              words: [
+                { id: "dinero", label: "Dinero", visual: "💰" },
+                { id: "cartero", label: "Cartero", visual: "📬" }
+              ]
+            },
+            {
+              id: "vestido-nido",
+              words: [
+                { id: "vestido", label: "Vestido", visual: "👗" },
+                { id: "nido", label: "Nido", visual: "🪺" }
+              ]
+            },
+            {
+              id: "foca-boca",
+              words: [
+                { id: "foca", label: "Foca", visual: "🦭" },
+                { id: "boca", label: "Boca", visual: "👄" }
+              ]
+            },
+            {
+              id: "galleta-bicicleta",
+              words: [
+                { id: "galleta", label: "Galleta", visual: "🍪" },
+                { id: "bicicleta", label: "Bicicleta", visual: "🚲" }
+              ]
+            }
+          ],
           exercises: [
             {
-              id: "ma",
-              prompt: "Toca MA",
-              support: "MA",
-              options: [
-                { text: "MA", visual: "MA" },
-                { text: "ME", visual: "ME" },
-                { text: "PA", visual: "PA" },
-                { text: "SA", visual: "SA" }
-              ],
-              correctIndex: 0
+              id: "unir-palabras-que-riman",
+              type: "rhyme-puzzle",
+              prompt: "Buscá la palabra que rima"
             }
           ]
-        },
+        }
       ]
     },
     {
@@ -593,6 +655,42 @@ function createGhostMultiplicationExercises(theme) {
   });
 }
 
+function createAnimalSoundExercises(theme) {
+  const animals = theme.animalSoundPool || [];
+  return shuffled(animals).map((animal, index) => {
+    const distractors = shuffled(animals.filter((candidate) => candidate.id !== animal.id)).slice(0, 2);
+    return {
+      id: uid(`sonido-animal-${index + 1}`),
+      type: "animal-sound",
+      prompt: "¿Qué animal hace este sonido?",
+      sound: animal.sound,
+      correctAnimalId: animal.id,
+      options: shuffled([animal, ...distractors]).map((option) => ({ ...option }))
+    };
+  });
+}
+
+function createRhymePuzzleExercises(theme) {
+  const pairs = theme.rhymePairPool || [];
+  const allWords = pairs.flatMap((pair) => pair.words || []);
+  return shuffled(pairs).map((pair, index) => {
+    const reverse = Math.random() < 0.5;
+    const sourceWord = pair.words[reverse ? 1 : 0];
+    const correctWord = pair.words[reverse ? 0 : 1];
+    const pairWordIds = new Set(pair.words.map((word) => word.id));
+    const distractors = shuffled(allWords.filter((word) => !pairWordIds.has(word.id))).slice(0, 2);
+    return {
+      id: uid(`rompecabezas-rima-${index + 1}`),
+      type: "rhyme-puzzle",
+      prompt: "Buscá la palabra que rima",
+      pairId: pair.id,
+      sourceWord: { ...sourceWord },
+      correctWordId: correctWord.id,
+      options: shuffled([correctWord, ...distractors]).map((word) => ({ ...word }))
+    };
+  });
+}
+
 function loadData() {
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
@@ -640,6 +738,10 @@ function normalizeData(value) {
             theme?.exercises?.length === 4 &&
             theme.exercises.every((exercise) => exercise?.type === "sound-choice")
         );
+      const hasPreviousLanguageActivity =
+        fixed.id === "lengua" &&
+        (!savedThemes?.some((theme) => theme?.id === "onomatopeyas-animales") ||
+          !savedThemes?.some((theme) => theme?.id === "rompecabezas-rimas"));
       const hasPreviousMathActivity =
         fixed.id === "matematicas" &&
         !(savedThemes?.length === 1 &&
@@ -653,7 +755,7 @@ function normalizeData(value) {
       return {
         ...fixed,
           themes: clone(
-            hasLegacySocialActivity || hasPreviousSoundActivity || hasPreviousTwoSoundActivities || hasPreviousSoundChoiceActivity || hasPreviousMathActivity || hasPreviousNaturalActivity
+            hasLegacySocialActivity || hasPreviousSoundActivity || hasPreviousTwoSoundActivities || hasPreviousSoundChoiceActivity || hasPreviousLanguageActivity || hasPreviousMathActivity || hasPreviousNaturalActivity
               ? fallback?.themes || []
             : savedThemes || fallback?.themes || []
         )
@@ -710,7 +812,7 @@ function subtitleForRoute() {
 }
 
 function render() {
-  const focusedActivityTypes = ["matching", "sound-choice", "sound-gallery", "drag-matching", "sum-choice-grid", "ghost-sum", "ghost-multiplication", "plant-labeling"];
+  const focusedActivityTypes = ["matching", "sound-choice", "sound-gallery", "drag-matching", "sum-choice-grid", "ghost-sum", "ghost-multiplication", "animal-sound", "rhyme-puzzle", "plant-labeling"];
   const isFocusedActivity =
     route.view === "run" && focusedActivityTypes.includes(session?.exercises?.[session.index]?.type);
   document.documentElement.classList.toggle("communication-mode", route.view === "communication");
@@ -993,6 +1095,10 @@ function renderTheme(subjectId, themeId) {
                 ? `<div class="pill-row">${exercise.pairs
                     .map((pair) => `<span class="pill">${escapeHtml(pair.visual)} ${escapeHtml(pair.label)}</span>`)
                     .join("")}</div>`
+                : exercise.type === "animal-sound"
+                  ? `<div class="pill-row"><span class="pill">${theme.randomExerciseCount || 6} sonidos para descubrir</span></div>`
+                : exercise.type === "rhyme-puzzle"
+                  ? `<div class="pill-row"><span class="pill">${theme.randomExerciseCount || 9} parejas para unir</span></div>`
                 : exercise.type === "drag-matching"
                   ? `<div class="pill-row"><span class="pill">${exercise.pairs.length} multiplicaciones para relacionar</span></div>`
                 : exercise.type === "sum-choice-grid"
@@ -1049,6 +1155,10 @@ function startSession(subjectId, themeId, mode) {
     ? createGhostSumExercises(theme)
     : theme.multiplicationPool
       ? createGhostMultiplicationExercises(theme)
+      : theme.animalSoundPool
+        ? createAnimalSoundExercises(theme)
+        : theme.rhymePairPool
+          ? createRhymePuzzleExercises(theme)
       : clone(theme.exercises);
   session = {
     id: uid("session"),
@@ -1107,6 +1217,7 @@ function startSession(subjectId, themeId, mode) {
           exercise.id,
           {
             movedGhosts: [],
+            countedGhosts: [],
             selectedAnswer: null,
             checked: false,
             isCorrect: false,
@@ -1119,6 +1230,22 @@ function startSession(subjectId, themeId, mode) {
             helpRow: null,
             helpColumn: null
           }
+        ])
+    ),
+    animalSounds: Object.fromEntries(
+      exercises
+        .filter((exercise) => exercise.type === "animal-sound")
+        .map((exercise) => [
+          exercise.id,
+          { selectedAnimalId: null, checked: false, isCorrect: false, message: "" }
+        ])
+    ),
+    rhymePuzzles: Object.fromEntries(
+      exercises
+        .filter((exercise) => exercise.type === "rhyme-puzzle")
+        .map((exercise) => [
+          exercise.id,
+          { selectedWordId: null, checked: false, isCorrect: false, message: "" }
         ])
     ),
     plantLabeling: Object.fromEntries(
@@ -1293,10 +1420,12 @@ function renderGhostSumRunner(exercise) {
   const total = exercise.left + exercise.right;
   const allMoved = state.movedGhosts.length === total;
   const ready = allMoved && state.selectedAnswer !== null;
+  const counted = new Set(state.countedGhosts || []);
   const movedGhosts = state.movedGhosts
     .map((token) => {
       const arrivingClass = state.lastMovedGhost === token ? "is-arriving" : "";
-      return `<button class="ghost-token ghost-tray-token ${arrivingClass}" type="button" data-action="ghost-sum-toggle-ghost" data-token="${escapeHtml(token)}" aria-label="Fantasma reunido; tocar para devolver"><span aria-hidden="true">👻</span></button>`;
+      const countedClass = counted.has(token) ? "is-counted" : "";
+      return `<button class="ghost-token ghost-tray-token ${arrivingClass} ${countedClass}" type="button" data-action="ghost-tray-count-toggle" data-token="${escapeHtml(token)}" aria-label="${counted.has(token) ? "Fantasma ya contado; tocar para desmarcar" : "Marcar este fantasma como contado"}" aria-pressed="${counted.has(token)}"><span aria-hidden="true">👻</span></button>`;
     })
     .join("");
   const answerStatus = state.checked ? (state.isCorrect ? "is-correct" : "is-wrong") : state.selectedAnswer !== null ? "has-answer" : "";
@@ -1310,7 +1439,7 @@ function renderGhostSumRunner(exercise) {
   if (!feedbackMessage) {
     if (!state.movedGhosts.length) feedbackMessage = "Tocá los fantasmas para juntarlos.";
     else if (!allMoved) feedbackMessage = "Seguí tocando los fantasmas.";
-    else if (state.selectedAnswer === null) feedbackMessage = "Ahora contalos y elegí o arrastrá el resultado.";
+    else if (state.selectedAnswer === null) feedbackMessage = "Tocá cada fantasma para marcarlo mientras contás y elegí el resultado.";
     else feedbackMessage = "Ya podés verificar el resultado.";
   }
   const feedbackClass = state.checked && state.isCorrect ? "good" : state.checked ? "bad" : "wait";
@@ -1332,6 +1461,7 @@ function renderGhostSumRunner(exercise) {
           </div>
           <div class="ghost-sum-result-panel">
             <section class="ghost-sum-tray" aria-label="Lugar para juntar los fantasmas">
+              <div class="ghost-tray-toolbar"><button class="ghost-clear-button" type="button" data-action="ghost-tray-clear" ${state.movedGhosts.length ? "" : "disabled"}>Limpiar</button></div>
               <div class="ghost-tray-grid">${movedGhosts || `<span class="ghost-tray-hint">Tocá los fantasmas</span>`}</div>
             </section>
             <section class="ghost-sum-answer-area">
@@ -1356,6 +1486,8 @@ function renderGhostSumRunner(exercise) {
 function renderGhostMultiplicationGroup(exercise, state, groupIndex) {
   const moved = new Set(state.movedGhosts);
   const groupId = `group-${groupIndex + 1}`;
+  const sourceColumns = Math.min(exercise.groupSize, 2);
+  const sourceTokenSize = exercise.groupCount >= 5 || exercise.groupSize >= 4 ? 24 : exercise.groupCount >= 4 || exercise.groupSize >= 3 ? 26 : 30;
   const ghosts = Array.from({ length: exercise.groupSize }, (_, ghostIndex) => {
     const token = `group-${groupIndex + 1}-${ghostIndex + 1}`;
     if (moved.has(token)) return `<span class="ghost-origin-placeholder" aria-hidden="true"></span>`;
@@ -1363,7 +1495,7 @@ function renderGhostMultiplicationGroup(exercise, state, groupIndex) {
     return `<button class="ghost-token ghost-origin-token ${returnedClass}" type="button" data-action="ghost-sum-toggle-ghost" data-token="${token}" aria-label="Mover este conjunto de fantasmas"><span aria-hidden="true">👻</span></button>`;
   }).join("");
   return `
-    <section class="ghost-multiply-group" aria-label="Conjunto de fantasmas">
+    <section class="ghost-multiply-group" style="--source-columns: ${sourceColumns}; --source-token-size: ${sourceTokenSize}px" aria-label="Conjunto de fantasmas">
       <div class="ghost-multiply-group-grid">${ghosts}</div>
     </section>
   `;
@@ -1422,10 +1554,12 @@ function renderMultiplicationHelp(exercise, state) {
 function renderGhostMultiplicationRunner(exercise) {
   const state = session.ghostSums[exercise.id];
   const total = exercise.result;
+  const trayTokenSize = exercise.groupCount >= 5 || total >= 20 ? 18 : exercise.groupCount >= 4 || total >= 15 ? 20 : exercise.groupCount >= 3 || total >= 10 ? 22 : 24;
   const allMoved = state.movedGhosts.length === total;
   const ready = allMoved && state.selectedAnswer !== null;
   const groups = Array.from({ length: exercise.groupCount }, (_, index) => renderGhostMultiplicationGroup(exercise, state, index)).join("");
   const movedSet = new Set(state.movedGhosts);
+  const countedSet = new Set(state.countedGhosts || []);
   const movedGroups = Array.from({ length: exercise.groupCount }, (_, groupIndex) => {
     const groupId = `group-${groupIndex + 1}`;
     const groupTokens = Array.from({ length: exercise.groupSize }, (_, ghostIndex) => `${groupId}-${ghostIndex + 1}`)
@@ -1433,7 +1567,7 @@ function renderGhostMultiplicationRunner(exercise) {
     if (!groupTokens.length) return "";
     const arrivingClass = state.lastMovedGroup === groupId ? "is-arriving" : "";
     const ghosts = groupTokens
-      .map((token) => `<button class="ghost-token ghost-tray-token" type="button" data-action="ghost-sum-toggle-ghost" data-token="${escapeHtml(token)}" aria-label="Fantasma reunido; tocar para devolver su conjunto"><span aria-hidden="true">👻</span></button>`)
+      .map((token) => `<button class="ghost-token ghost-tray-token ${countedSet.has(token) ? "is-counted" : ""}" type="button" data-action="ghost-tray-count-toggle" data-token="${escapeHtml(token)}" aria-label="${countedSet.has(token) ? "Fantasma ya contado; tocar para desmarcar" : "Marcar este fantasma como contado"}" aria-pressed="${countedSet.has(token)}"><span aria-hidden="true">👻</span></button>`)
       .join("");
     return `<div class="ghost-multiply-tray-group ${arrivingClass}" style="--group-size: ${exercise.groupSize}" aria-label="Conjunto acumulado">${ghosts}</div>`;
   })
@@ -1449,7 +1583,7 @@ function renderGhostMultiplicationRunner(exercise) {
   if (!feedbackMessage) {
     if (!state.movedGhosts.length) feedbackMessage = "Tocá los fantasmas para llevarlos al total.";
     else if (!allMoved) feedbackMessage = "Seguí tocando los fantasmas.";
-    else if (state.selectedAnswer === null) feedbackMessage = "Ahora contalos y elegí o arrastrá el resultado.";
+    else if (state.selectedAnswer === null) feedbackMessage = "Tocá cada fantasma para marcarlo mientras contás y elegí el resultado.";
     else feedbackMessage = "Ya podés verificar el resultado.";
   }
   const feedbackClass = state.checked && state.isCorrect ? "good" : state.checked ? "bad" : "wait";
@@ -1472,7 +1606,8 @@ function renderGhostMultiplicationRunner(exercise) {
           </div>
           <div class="ghost-sum-result-panel ghost-multiply-result-panel">
             <div class="ghost-sum-tray">
-              <div class="ghost-tray-grid ghost-multiply-tray-grid">${movedGroups || `<span class="ghost-tray-hint">Tocá los fantasmas</span>`}</div>
+              <div class="ghost-tray-toolbar"><button class="ghost-clear-button" type="button" data-action="ghost-tray-clear" ${state.movedGhosts.length ? "" : "disabled"}>Limpiar</button></div>
+              <div class="ghost-tray-grid ghost-multiply-tray-grid" style="--group-count: ${exercise.groupCount}; --group-size: ${exercise.groupSize}; --tray-token-size: ${trayTokenSize}px">${movedGroups || `<span class="ghost-tray-hint">Tocá los fantasmas</span>`}</div>
             </div>
             <div class="ghost-sum-answer-area">
               <span>Resultado</span>
@@ -1490,6 +1625,97 @@ function renderGhostMultiplicationRunner(exercise) {
         <button class="btn btn-primary" type="button" data-action="check-ghost-sum" ${ready && !state.checked ? "" : "disabled"}>${icon("check")}Verificar resultado</button>
       </div>
       ${state.helpOpen ? renderMultiplicationHelp(exercise, state) : ""}
+    </section>
+  `);
+}
+
+function renderAnimalSoundRunner(exercise) {
+  const state = session.animalSounds[exercise.id];
+  const selectedAnimal = exercise.options.find((animal) => animal.id === state.selectedAnimalId) || null;
+  const ready = selectedAnimal && !state.checked;
+  const targetStatus = state.checked ? (state.isCorrect ? "is-correct" : "is-wrong") : selectedAnimal ? "has-answer" : "";
+  const options = exercise.options
+    .map((animal) => {
+      const selected = state.selectedAnimalId === animal.id;
+      const checkedStatus = state.checked && selected ? (state.isCorrect ? "is-correct" : "is-wrong") : "";
+      return `
+        <button class="animal-sound-option ${selected ? "is-selected" : ""} ${checkedStatus}" type="button" draggable="true" data-action="animal-sound-option" data-animal="${escapeHtml(animal.id)}" ${selected ? "disabled" : ""} aria-label="${escapeHtml(animal.label)}">
+          <span class="animal-sound-option-visual" aria-hidden="true">${escapeHtml(animal.visual)}</span>
+          <strong>${escapeHtml(animal.label)}</strong>
+        </button>
+      `;
+    })
+    .join("");
+  const feedbackMessage = state.message || (selectedAnimal ? "Ya podés verificar tu respuesta." : "Tocá o arrastrá un animal hasta el cuadro.");
+  const feedbackClass = state.checked && state.isCorrect ? "good" : state.checked ? "bad" : "wait";
+
+  renderShell(`
+    <section class="runner matching-runner animal-sound-runner">
+      <div class="matching-session-bar">
+        <button class="btn btn-ghost" type="button" data-action="cancel-run">${icon("arrow")}Salir</button>
+        <div class="matching-session-status"><span>${session.index + 1} de ${session.exercises.length}</span><span>Lengua</span></div>
+      </div>
+      <article class="question-panel animal-sound-panel">
+        <p class="question-text">${escapeHtml(exercise.prompt)}</p>
+        <button class="animal-sound-target ${targetStatus}" type="button" data-action="animal-sound-slot" aria-label="${escapeHtml(exercise.sound)}. Espacio para colocar el animal">
+          <span class="animal-sound-word">${escapeHtml(exercise.sound)}</span>
+          <span class="animal-sound-target-answer">
+            ${selectedAnimal ? `<span class="animal-sound-target-visual" aria-hidden="true">${escapeHtml(selectedAnimal.visual)}</span><strong>${escapeHtml(selectedAnimal.label)}</strong>` : ""}
+          </span>
+        </button>
+        <div class="animal-sound-options" aria-label="Animales para elegir">${options}</div>
+        <div class="feedback ${feedbackClass}" aria-live="polite">${escapeHtml(feedbackMessage)}</div>
+      </article>
+      <div class="answer-actions">
+        <button class="btn btn-primary" type="button" data-action="check-animal-sound" ${ready ? "" : "disabled"}>${icon("check")}Verificar resultado</button>
+      </div>
+    </section>
+  `);
+}
+
+function renderRhymePuzzleRunner(exercise) {
+  const state = session.rhymePuzzles[exercise.id];
+  const selectedWord = exercise.options.find((word) => word.id === state.selectedWordId) || null;
+  const ready = selectedWord && !state.checked;
+  const targetStatus = state.checked ? (state.isCorrect ? "is-correct" : "is-wrong") : selectedWord ? "has-answer" : "";
+  const options = exercise.options
+    .map((word) => {
+      const selected = state.selectedWordId === word.id;
+      const checkedStatus = state.checked && selected ? (state.isCorrect ? "is-correct" : "is-wrong") : "";
+      return `
+        <button class="rhyme-option ${selected ? "is-selected" : ""} ${checkedStatus}" type="button" draggable="true" data-action="rhyme-option" data-word="${escapeHtml(word.id)}" ${selected ? "disabled" : ""} aria-label="${escapeHtml(word.label)}">
+          <span class="rhyme-word-visual rhyme-word-${escapeHtml(word.id)}" aria-hidden="true">${escapeHtml(word.visual)}</span>
+          <strong>${escapeHtml(word.label)}</strong>
+        </button>
+      `;
+    })
+    .join("");
+  const feedbackMessage = state.message || (selectedWord ? "Las piezas están listas para verificar." : "Tocá o arrastrá la pieza que rima.");
+  const feedbackClass = state.checked && state.isCorrect ? "good" : state.checked ? "bad" : "wait";
+
+  renderShell(`
+    <section class="runner matching-runner rhyme-puzzle-runner">
+      <div class="matching-session-bar">
+        <button class="btn btn-ghost" type="button" data-action="cancel-run">${icon("arrow")}Salir</button>
+        <div class="matching-session-status"><span>${session.index + 1} de ${session.exercises.length}</span><span>Lengua</span></div>
+      </div>
+      <article class="question-panel rhyme-puzzle-panel">
+        <p class="question-text">${escapeHtml(exercise.prompt)}</p>
+        <div class="rhyme-puzzle-join ${selectedWord ? "is-joined" : ""}">
+          <div class="rhyme-puzzle-piece rhyme-source-piece">
+            <span class="rhyme-word-visual rhyme-word-${escapeHtml(exercise.sourceWord.id)}" aria-hidden="true">${escapeHtml(exercise.sourceWord.visual)}</span>
+            <strong>${escapeHtml(exercise.sourceWord.label)}</strong>
+          </div>
+          <button class="rhyme-puzzle-piece rhyme-target-piece ${targetStatus}" type="button" data-action="rhyme-slot" aria-label="Espacio para la palabra que rima con ${escapeHtml(exercise.sourceWord.label)}">
+            ${selectedWord ? `<span class="rhyme-word-visual rhyme-word-${escapeHtml(selectedWord.id)}" aria-hidden="true">${escapeHtml(selectedWord.visual)}</span><strong>${escapeHtml(selectedWord.label)}</strong>` : `<span class="rhyme-piece-empty" aria-hidden="true">?</span>`}
+          </button>
+        </div>
+        <div class="rhyme-options" aria-label="Piezas para elegir">${options}</div>
+        <div class="feedback ${feedbackClass}" aria-live="polite">${escapeHtml(feedbackMessage)}</div>
+      </article>
+      <div class="answer-actions">
+        <button class="btn btn-primary" type="button" data-action="check-rhyme" ${ready ? "" : "disabled"}>${icon("check")}Verificar resultado</button>
+      </div>
     </section>
   `);
 }
@@ -1611,6 +1837,8 @@ function renderRunner() {
   if (exercise.type === "sum-choice-grid") return renderSumChoiceRunner(exercise);
   if (exercise.type === "ghost-sum") return renderGhostSumRunner(exercise);
   if (exercise.type === "ghost-multiplication") return renderGhostMultiplicationRunner(exercise);
+  if (exercise.type === "animal-sound") return renderAnimalSoundRunner(exercise);
+  if (exercise.type === "rhyme-puzzle") return renderRhymePuzzleRunner(exercise);
   if (exercise.type === "plant-labeling") {
     const plantState = session.plantLabeling[exercise.id];
     return plantState.learning ? renderPlantLearningRunner(exercise, plantState) : renderPlantLabelingRunner(exercise);
@@ -1837,9 +2065,7 @@ function toggleGhostSumGhost(tokenId) {
     const groupTokens = Array.from({ length: exercise.groupSize }, (_, index) => `${groupId}-${index + 1}`);
     const groupIsMoved = groupTokens.every((token) => state.movedGhosts.includes(token));
     if (groupIsMoved) {
-      state.movedGhosts = state.movedGhosts.filter((token) => !groupTokens.includes(token));
-      state.lastMovedGroup = null;
-      state.lastReturnedGroup = groupId;
+      return;
     } else {
       state.movedGhosts = [...state.movedGhosts.filter((token) => !groupTokens.includes(token)), ...groupTokens];
       state.lastMovedGroup = groupId;
@@ -1848,9 +2074,7 @@ function toggleGhostSumGhost(tokenId) {
     state.lastMovedGhost = null;
     state.lastReturnedGhost = null;
   } else if (state.movedGhosts.includes(tokenId)) {
-    state.movedGhosts = state.movedGhosts.filter((token) => token !== tokenId);
-    state.lastMovedGhost = null;
-    state.lastReturnedGhost = tokenId;
+    return;
   } else {
     state.movedGhosts.push(tokenId);
     state.lastMovedGhost = tokenId;
@@ -1870,6 +2094,36 @@ function toggleGhostSumGhost(tokenId) {
     currentState.lastMovedGroup = null;
     currentState.lastReturnedGroup = null;
   }, 320);
+}
+
+function toggleCountedGhost(tokenId) {
+  if (!session) return;
+  const exercise = session.exercises[session.index];
+  const state = session.ghostSums[exercise?.id];
+  if (!['ghost-sum', 'ghost-multiplication'].includes(exercise?.type) || !state?.movedGhosts.includes(tokenId)) return;
+  const counted = new Set(state.countedGhosts || []);
+  if (counted.has(tokenId)) counted.delete(tokenId);
+  else counted.add(tokenId);
+  state.countedGhosts = [...counted];
+  render();
+}
+
+function clearGhostTray() {
+  if (!session) return;
+  const exercise = session.exercises[session.index];
+  const state = session.ghostSums[exercise?.id];
+  if (!['ghost-sum', 'ghost-multiplication'].includes(exercise?.type) || !state || !state.movedGhosts.length) return;
+  state.movedGhosts = [];
+  state.countedGhosts = [];
+  state.selectedAnswer = null;
+  state.checked = false;
+  state.isCorrect = false;
+  state.message = "";
+  state.lastMovedGhost = null;
+  state.lastReturnedGhost = null;
+  state.lastMovedGroup = null;
+  state.lastReturnedGroup = null;
+  render();
 }
 
 function selectGhostSumAnswer(value) {
@@ -1923,6 +2177,110 @@ function checkGhostSum() {
     window.setTimeout(() => {
       if (session?.exercises[session.index]?.id === exercise.id) nextQuestion();
     }, 1000);
+  }
+}
+
+function selectAnimalSoundAnswer(animalId) {
+  if (!session) return;
+  const exercise = session.exercises[session.index];
+  const state = session.animalSounds?.[exercise?.id];
+  if (exercise?.type !== "animal-sound" || !state || !exercise.options.some((animal) => animal.id === animalId)) return;
+  state.selectedAnimalId = animalId;
+  state.checked = false;
+  state.isCorrect = false;
+  state.message = "";
+  render();
+}
+
+function clearAnimalSoundAnswer() {
+  if (!session) return;
+  const exercise = session.exercises[session.index];
+  const state = session.animalSounds?.[exercise?.id];
+  if (exercise?.type !== "animal-sound" || !state || state.selectedAnimalId === null) return;
+  state.selectedAnimalId = null;
+  state.checked = false;
+  state.isCorrect = false;
+  state.message = "";
+  render();
+}
+
+function checkAnimalSoundAnswer() {
+  if (!session) return;
+  const exercise = session.exercises[session.index];
+  const state = session.animalSounds?.[exercise?.id];
+  if (exercise?.type !== "animal-sound" || !state || state.selectedAnimalId === null || state.checked) return;
+  state.checked = true;
+  state.isCorrect = state.selectedAnimalId === exercise.correctAnimalId;
+  state.message = state.isCorrect ? "¡Muy bien! Encontraste el animal." : "Ese animal no corresponde. Probá con otro.";
+  if (state.isCorrect) {
+    const selectedAnimal = exercise.options.find((animal) => animal.id === state.selectedAnimalId);
+    session.selectedIndex = 0;
+    session.score += 1;
+    session.answers.push({
+      prompt: exercise.sound,
+      support: "Sonido de animal",
+      selected: selectedAnimal?.label || "",
+      correct: selectedAnimal?.label || "",
+      isCorrect: true
+    });
+  }
+  render();
+  if (state.isCorrect) {
+    window.setTimeout(() => {
+      if (session?.exercises[session.index]?.id === exercise.id) nextQuestion();
+    }, 900);
+  }
+}
+
+function selectRhymeAnswer(wordId) {
+  if (!session) return;
+  const exercise = session.exercises[session.index];
+  const state = session.rhymePuzzles?.[exercise?.id];
+  if (exercise?.type !== "rhyme-puzzle" || !state || !exercise.options.some((word) => word.id === wordId)) return;
+  state.selectedWordId = wordId;
+  state.checked = false;
+  state.isCorrect = false;
+  state.message = "";
+  render();
+}
+
+function clearRhymeAnswer() {
+  if (!session) return;
+  const exercise = session.exercises[session.index];
+  const state = session.rhymePuzzles?.[exercise?.id];
+  if (exercise?.type !== "rhyme-puzzle" || !state || state.selectedWordId === null) return;
+  state.selectedWordId = null;
+  state.checked = false;
+  state.isCorrect = false;
+  state.message = "";
+  render();
+}
+
+function checkRhymeAnswer() {
+  if (!session) return;
+  const exercise = session.exercises[session.index];
+  const state = session.rhymePuzzles?.[exercise?.id];
+  if (exercise?.type !== "rhyme-puzzle" || !state || state.selectedWordId === null || state.checked) return;
+  state.checked = true;
+  state.isCorrect = state.selectedWordId === exercise.correctWordId;
+  state.message = state.isCorrect ? "¡Muy bien! Las palabras riman." : "Estas palabras no riman. Probá con otra pieza.";
+  if (state.isCorrect) {
+    const selectedWord = exercise.options.find((word) => word.id === state.selectedWordId);
+    session.selectedIndex = 0;
+    session.score += 1;
+    session.answers.push({
+      prompt: exercise.sourceWord.label,
+      support: "Palabras que riman",
+      selected: selectedWord?.label || "",
+      correct: selectedWord?.label || "",
+      isCorrect: true
+    });
+  }
+  render();
+  if (state.isCorrect) {
+    window.setTimeout(() => {
+      if (session?.exercises[session.index]?.id === exercise.id) nextQuestion();
+    }, 900);
   }
 }
 
@@ -2384,6 +2742,12 @@ let suppressPlantClick = false;
 let activeGhostSumAnswer = null;
 let ghostSumAnswerPointerStart = null;
 let suppressGhostSumClick = false;
+let activeAnimalSound = null;
+let animalSoundPointerStart = null;
+let suppressAnimalSoundClick = false;
+let activeRhymeWord = null;
+let rhymePointerStart = null;
+let suppressRhymeClick = false;
 let touchDragPreview = null;
 let touchDragSource = null;
 let touchDragPointerId = null;
@@ -2452,6 +2816,10 @@ document.addEventListener("pointercancel", (event) => {
   activePlantLabel = null;
   activeGhostSumAnswer = null;
   ghostSumAnswerPointerStart = null;
+  activeAnimalSound = null;
+  animalSoundPointerStart = null;
+  activeRhymeWord = null;
+  rhymePointerStart = null;
 });
 
 window.addEventListener("blur", () => {
@@ -2460,6 +2828,10 @@ window.addEventListener("blur", () => {
   activePlantLabel = null;
   activeGhostSumAnswer = null;
   ghostSumAnswerPointerStart = null;
+  activeAnimalSound = null;
+  animalSoundPointerStart = null;
+  activeRhymeWord = null;
+  rhymePointerStart = null;
 });
 
 document.addEventListener("dragstart", (event) => {
@@ -2633,6 +3005,128 @@ document.addEventListener("pointerup", (event) => {
   }
 });
 
+document.addEventListener("dragstart", (event) => {
+  const option = event.target.closest('[data-action="animal-sound-option"]');
+  if (!option || option.disabled) return;
+  if (touchDragPreview) {
+    event.preventDefault();
+    return;
+  }
+  activeAnimalSound = option.dataset.animal;
+  event.dataTransfer.effectAllowed = "move";
+  event.dataTransfer.setData("text/plain", activeAnimalSound);
+  option.classList.add("is-dragging");
+});
+
+document.addEventListener("dragend", (event) => {
+  event.target.closest('[data-action="animal-sound-option"]')?.classList.remove("is-dragging");
+  clearTouchDragPreview();
+  activeAnimalSound = null;
+  animalSoundPointerStart = null;
+});
+
+document.addEventListener("dragover", (event) => {
+  if (event.target.closest('[data-action="animal-sound-slot"]')) event.preventDefault();
+});
+
+document.addEventListener("drop", (event) => {
+  const slot = event.target.closest('[data-action="animal-sound-slot"]');
+  if (!slot) return;
+  event.preventDefault();
+  const animalId = event.dataTransfer.getData("text/plain") || activeAnimalSound;
+  if (animalId) selectAnimalSoundAnswer(animalId);
+});
+
+document.addEventListener("pointerdown", (event) => {
+  const option = event.target.closest('[data-action="animal-sound-option"]');
+  if (!option || option.disabled) return;
+  activeAnimalSound = option.dataset.animal;
+  animalSoundPointerStart = { x: event.clientX, y: event.clientY };
+  option.classList.add("is-dragging");
+  startTouchDragPreview(option, event, '[data-action="animal-sound-slot"]');
+});
+
+document.addEventListener("pointerup", (event) => {
+  if (!activeAnimalSound) return;
+  const slot = document.elementFromPoint(event.clientX, event.clientY)?.closest('[data-action="animal-sound-slot"]');
+  const animalId = activeAnimalSound;
+  const distance = animalSoundPointerStart
+    ? Math.hypot(event.clientX - animalSoundPointerStart.x, event.clientY - animalSoundPointerStart.y)
+    : Number.POSITIVE_INFINITY;
+  clearTouchDragPreview();
+  document.querySelectorAll(".animal-sound-option.is-dragging").forEach((element) => element.classList.remove("is-dragging"));
+  activeAnimalSound = null;
+  animalSoundPointerStart = null;
+  if (slot || distance < 14) {
+    suppressAnimalSoundClick = true;
+    window.setTimeout(() => {
+      suppressAnimalSoundClick = false;
+    }, 0);
+    selectAnimalSoundAnswer(animalId);
+  }
+});
+
+document.addEventListener("dragstart", (event) => {
+  const option = event.target.closest('[data-action="rhyme-option"]');
+  if (!option || option.disabled) return;
+  if (touchDragPreview) {
+    event.preventDefault();
+    return;
+  }
+  activeRhymeWord = option.dataset.word;
+  event.dataTransfer.effectAllowed = "move";
+  event.dataTransfer.setData("text/plain", activeRhymeWord);
+  option.classList.add("is-dragging");
+});
+
+document.addEventListener("dragend", (event) => {
+  event.target.closest('[data-action="rhyme-option"]')?.classList.remove("is-dragging");
+  clearTouchDragPreview();
+  activeRhymeWord = null;
+  rhymePointerStart = null;
+});
+
+document.addEventListener("dragover", (event) => {
+  if (event.target.closest('[data-action="rhyme-slot"]')) event.preventDefault();
+});
+
+document.addEventListener("drop", (event) => {
+  const slot = event.target.closest('[data-action="rhyme-slot"]');
+  if (!slot) return;
+  event.preventDefault();
+  const wordId = event.dataTransfer.getData("text/plain") || activeRhymeWord;
+  if (wordId) selectRhymeAnswer(wordId);
+});
+
+document.addEventListener("pointerdown", (event) => {
+  const option = event.target.closest('[data-action="rhyme-option"]');
+  if (!option || option.disabled) return;
+  activeRhymeWord = option.dataset.word;
+  rhymePointerStart = { x: event.clientX, y: event.clientY };
+  option.classList.add("is-dragging");
+  startTouchDragPreview(option, event, '[data-action="rhyme-slot"]');
+});
+
+document.addEventListener("pointerup", (event) => {
+  if (!activeRhymeWord) return;
+  const slot = document.elementFromPoint(event.clientX, event.clientY)?.closest('[data-action="rhyme-slot"]');
+  const wordId = activeRhymeWord;
+  const distance = rhymePointerStart
+    ? Math.hypot(event.clientX - rhymePointerStart.x, event.clientY - rhymePointerStart.y)
+    : Number.POSITIVE_INFINITY;
+  clearTouchDragPreview();
+  document.querySelectorAll(".rhyme-option.is-dragging").forEach((element) => element.classList.remove("is-dragging"));
+  activeRhymeWord = null;
+  rhymePointerStart = null;
+  if (slot || distance < 14) {
+    suppressRhymeClick = true;
+    window.setTimeout(() => {
+      suppressRhymeClick = false;
+    }, 0);
+    selectRhymeAnswer(wordId);
+  }
+});
+
 document.addEventListener("click", (event) => {
   const target = event.target.closest("[data-action]");
   if (!target) return;
@@ -2689,6 +3183,8 @@ document.addEventListener("click", (event) => {
   if (action === "multiplication-help-close") return closeMultiplicationHelp();
   if (action === "multiplication-help-axis") return selectMultiplicationHelpAxis(target.dataset.axis, target.dataset.value);
   if (action === "ghost-sum-toggle-ghost") return toggleGhostSumGhost(target.dataset.token);
+  if (action === "ghost-tray-count-toggle") return toggleCountedGhost(target.dataset.token);
+  if (action === "ghost-tray-clear") return clearGhostTray();
   if (action === "ghost-sum-answer") {
     if (suppressGhostSumClick) {
       suppressGhostSumClick = false;
@@ -2704,6 +3200,36 @@ document.addEventListener("click", (event) => {
     return clearGhostSumAnswer();
   }
   if (action === "check-ghost-sum") return checkGhostSum();
+  if (action === "animal-sound-option") {
+    if (suppressAnimalSoundClick) {
+      suppressAnimalSoundClick = false;
+      return;
+    }
+    return selectAnimalSoundAnswer(target.dataset.animal);
+  }
+  if (action === "animal-sound-slot") {
+    if (suppressAnimalSoundClick) {
+      suppressAnimalSoundClick = false;
+      return;
+    }
+    return clearAnimalSoundAnswer();
+  }
+  if (action === "check-animal-sound") return checkAnimalSoundAnswer();
+  if (action === "rhyme-option") {
+    if (suppressRhymeClick) {
+      suppressRhymeClick = false;
+      return;
+    }
+    return selectRhymeAnswer(target.dataset.word);
+  }
+  if (action === "rhyme-slot") {
+    if (suppressRhymeClick) {
+      suppressRhymeClick = false;
+      return;
+    }
+    return clearRhymeAnswer();
+  }
+  if (action === "check-rhyme") return checkRhymeAnswer();
   if (action === "sound-gallery-show") return showSoundGalleryItem(target.dataset.item);
   if (action === "sound-gallery-close") return closeSoundGalleryItem();
   if (action === "answer") return answer(Number(target.dataset.index));

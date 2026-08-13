@@ -4,4 +4,6 @@
     <string name="title_activity_main">Ian Escuela</string>
     <string name="package_name">com.ian.escuela</string>
     <string name="custom_url_scheme">com.ian.escuela</string>
+    <string name="device_admin_label">Administración de Ian Escuela</string>
+    <string name="device_admin_description">Permite que Ian Escuela mantenga esta tablet en modo dedicado.</string>
 </resources>
