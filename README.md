@@ -29,6 +29,7 @@ Ian Escuela App/
   docs/
     APK.md               Pasos para generar APK
     CONTENIDO.md         Como cargar materias, temas y ejercicios
+    TABLET_KIOSCO.md     Estado y mantenimiento de la Tab A8 en modo kiosco
   scripts/
     setup-android-cli.ps1 Instala/prepara SDK Android por comandos
     build-debug-apk.ps1   Genera APK debug por comandos
@@ -105,3 +106,5 @@ http://192.168.1.50:4173
 ## Siguiente paso
 
 El APK debug queda en `Ian-Escuela-debug.apk`. Para regenerarlo despues de nuevos cambios, ejecutar los pasos de `docs/APK.md`.
+
+Si se va a modificar o mantener la tablet dedicada a Ian, leer primero `docs/TABLET_KIOSCO.md`.

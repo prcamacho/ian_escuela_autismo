@@ -1155,15 +1155,16 @@ button {
 
 .compact-picto-grid {
   min-height: 0;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 9px;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-rows: repeat(3, minmax(0, 1fr));
+  gap: 7px;
   overflow: hidden;
 }
 
 .compact-picto-grid .picto-card {
-  min-height: 126px;
-  padding: 8px;
-  gap: 7px;
+  min-height: 0;
+  padding: 6px;
+  gap: 5px;
 }
 
 .compact-picto-grid .picto-card.is-selected {
@@ -3423,7 +3424,7 @@ body.matching-mode .main {
   }
 
   .compact-picto-grid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(5, minmax(0, 1fr));
     gap: 7px;
   }
 

@@ -1,5 +1,6 @@
 const STORAGE_KEY = "ian-escuela-data-v1";
 const MULTIPLICATION_BAG_KEY = "ian-multiplication-bag-v1";
+const COMMUNICATION_RECENTS_KEY = "ian-communication-recents-v1";
 
 const ICONS = {
   home: '<path d="M3 10.5 12 3l9 7.5"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/>',
@@ -152,7 +153,60 @@ const COMMUNICATION_PICTOS = {
   mano: { label: "Mano", phrase: "mano", image: "mano.png", color: "#c44747" },
   brazo: { label: "Brazo", phrase: "brazo", image: "brazo.png", color: "#c44747" },
   pierna: { label: "Pierna", phrase: "pierna", image: "pierna.png", color: "#c44747" },
-  espalda: { label: "Espalda", phrase: "espalda", image: "espalda.png", color: "#c44747" }
+  espalda: { label: "Espalda", phrase: "espalda", image: "espalda.png", color: "#c44747" },
+  clinica: { label: "Clinica", phrase: "clinica", image: "clinica.png", color: "#c44747" },
+  farmacia: { label: "Farmacia", phrase: "farmacia", image: "farmacia.png", color: "#4f9d69" },
+  dormir: { label: "Dormir", phrase: "dormir", image: "dormir.png", color: "#7c5cdb" },
+  tele: { label: "Tele", phrase: "ver la tele", image: "tele.png", color: "#7c5cdb" },
+  musica: { label: "Musica", phrase: "musica", image: "musica.png", color: "#7c5cdb" },
+  pelota: { label: "Pelota", phrase: "jugar con la pelota", image: "pelota.png", color: "#4f9d69" },
+  columpio: { label: "Columpio", phrase: "columpio", image: "columpio.png", color: "#4f9d69" },
+  familia: { label: "Familia", phrase: "familia", image: "familia.png", color: "#f07167" },
+  abuela: { label: "Abuela", phrase: "abuela", image: "abuela.png", color: "#f07167" },
+  cocinar: { label: "Cocinar", phrase: "cocinar", image: "cocinar.png", color: "#ffb703" },
+  dinero: { label: "Dinero", phrase: "dinero", image: "dinero.png", color: "#ffb703" },
+  ropa: { label: "Ropa", phrase: "ropa", image: "ropa.png", color: "#f07167" },
+  carro: { label: "Carrito", phrase: "carrito de compra", image: "carro.png", color: "#4b7bec" },
+  bolsa: { label: "Bolsa", phrase: "bolsa", image: "bolsa.png", color: "#f07167" },
+  ticket: { label: "Ticket", phrase: "ticket", image: "ticket.png", color: "#ffb703" },
+  escoger: { label: "Elegir", phrase: "elegir", image: "escoger.png", color: "#1f7a8c" },
+  precio: { label: "Precio", phrase: "precio", image: "precio.png", color: "#ffb703" },
+  "papel-higienico": { label: "Papel higienico", phrase: "papel higienico", image: "papel-higienico.png", color: "#1f7a8c" },
+  banera: { label: "Banera", phrase: "banera", image: "banera.png", color: "#1f7a8c" },
+  jabon: { label: "Jabon", phrase: "jabon", image: "jabon.png", color: "#4f9d69" },
+  toalla: { label: "Toalla", phrase: "toalla", image: "toalla.png", color: "#4b7bec" },
+  "agua-caliente": { label: "Agua caliente", phrase: "agua caliente", image: "agua-caliente.png", color: "#f07167" },
+  "agua-fria": { label: "Ducha refrescante", phrase: "ducha refrescante", image: "agua-fria.png", color: "#4b7bec" },
+  ducha: { label: "Ducha", phrase: "ducha", image: "ducha.png", color: "#1f7a8c" },
+  champu: { label: "Champu", phrase: "champu", image: "champu.png", color: "#7c5cdb" },
+  secar: { label: "Secarse", phrase: "secarse", image: "secar.png", color: "#4b7bec" },
+  "lavarse-cara": { label: "Lavarse la cara", phrase: "lavarse la cara", image: "lavarse-cara.png", color: "#1f7a8c" },
+  autobus: { label: "Autobus", phrase: "autobus", image: "autobus.png", color: "#4b7bec" },
+  coche: { label: "Coche", phrase: "coche", image: "coche.png", color: "#4b7bec" },
+  parque: { label: "Parque", phrase: "ir al parque", image: "parque.png", color: "#4f9d69" },
+  "cuarto-bano": { label: "Bano", phrase: "ir al bano", image: "cuarto-bano.png", color: "#4f9d69" },
+  tos: { label: "Tos", phrase: "tos", image: "tos.png", color: "#c44747" },
+  fiebre: { label: "Fiebre", phrase: "fiebre", image: "fiebre.png", color: "#c44747" },
+  asustado: { label: "Asustado", phrase: "asustado", image: "asustado.png", color: "#7c5cdb" },
+  calma: { label: "Calma", phrase: "calma", image: "calma.png", color: "#4f9d69" },
+  hablar: { label: "Hablar", phrase: "hablar", image: "hablar.png", color: "#1f7a8c" },
+  oir: { label: "Oir", phrase: "oir", image: "oir.png", color: "#1f7a8c" },
+  compartir: { label: "Compartir", phrase: "compartir", image: "compartir.png", color: "#4f9d69" },
+  juntos: { label: "Juntos", phrase: "juntos", image: "juntos.png", color: "#4f9d69" },
+  mimos: { label: "Mimos", phrase: "mimos", image: "mimos.png", color: "#f07167" },
+  caricias: { label: "Caricias", phrase: "caricias", image: "caricias.png", color: "#f07167" },
+  "dormir-acompanado": { label: "Dormir acompanado", phrase: "dormir acompanado", image: "dormir-acompanado.png", color: "#7c5cdb" },
+  consuelo: { label: "Consuelo", phrase: "consuelo", image: "consuelo.png", color: "#4b7bec" },
+  "estar-juntos": { label: "Estar juntos", phrase: "estar juntos", image: "juntos.png", color: "#4f9d69" },
+  escuchar: { label: "Escuchar", phrase: "escuchar", image: "oir.png", color: "#1f7a8c" },
+  cuidar: { label: "Cuidar", phrase: "cuidar", image: "cuidar.png", color: "#4f9d69" },
+  "leche-chocolatada": { label: "Leche chocolatada", phrase: "leche chocolatada", image: "leche-chocolatada.png", color: "#7c5cdb" },
+  tomate: { label: "Tomate", phrase: "tomate", image: "tomate.png", color: "#f07167" },
+  naranja: { label: "Naranja", phrase: "naranja", image: "naranja.png", color: "#ffb703" },
+  frutilla: { label: "Frutilla", phrase: "frutilla", image: "frutilla.png", color: "#f07167" },
+  banana: { label: "Banana", phrase: "banana", image: "banana.png", color: "#ffb703" },
+  carne: { label: "Carne", phrase: "carne", image: "carne.png", color: "#c44747" },
+  pollo: { label: "Pollo", phrase: "pollo", image: "pollo.png", color: "#ffb703" }
 };
 
 const COMMUNICATION_QUICK_ACTIONS = [
@@ -174,15 +228,16 @@ const COMMUNICATION_STARTERS = [
     color: "#1f7a8c",
     sequence: ["yo", "quiero"],
     groups: [
-      { id: "bienestar", title: "Bienestar", pictos: ["descanso", "silencio", "auriculares", "abrazo", "solo", "medicina", "frio", "calor"] },
-      { id: "bano", title: "Baño", pictos: ["pis", "caca", "limpiarse-cola", "lavarse-manos", "cepillarse-dientes", "banarse"] },
-      { id: "amor", title: "Amor", pictos: ["abrazo", "beso", "cosquillas", "carino", "amigo", "dar-mano"] },
-      { id: "comida", title: "Comida", pictos: ["agua", "pan", "gaseosa", "jugo", "leche", "galletas", "helado", "comer"] },
-      { id: "actividades", title: "Hacer", pictos: ["jugar", "dibujar", "leer", "escribir", "recreo", "tarea", "otra-vez", "terminar"] },
-      { id: "personas", title: "Personas", pictos: ["mama", "papa", "maestra", "companero", "terapeuta", "aula"] },
-      { id: "escuela", title: "Escuela", pictos: ["lapiz", "cuaderno", "tarea", "recreo", "leer", "escribir", "seno-carla", "seno-maribel"] },
-      { id: "lugares", title: "Lugares", pictos: ["rio", "plaza", "supermercado", "shopping", "panaderia", "casa", "escuela", "recreo"] },
-      { id: "compras", title: "Compras", pictos: ["comprar-pan", "comprar-gaseosa", "comprar-helado", "comprar-zapatillas", "comprar-juguete"] }
+      { id: "recientes", title: "Recientes", pictos: [] },
+      { id: "bienestar", title: "Bienestar", pictos: ["descanso", "silencio", "auriculares", "abrazo", "solo", "medicina", "frio", "calor", "dormir", "tele", "musica", "ruido", "esperar", "parar", "mas"] },
+      { id: "bano", title: "Baño", pictos: ["pis", "caca", "limpiarse-cola", "lavarse-manos", "cepillarse-dientes", "banarse", "papel-higienico", "banera", "jabon", "toalla", "agua-caliente", "agua-fria", "lavarse-cara", "champu", "secar"] },
+      { id: "amor", title: "Amor", pictos: ["abrazo", "beso", "cosquillas", "carino", "amigo", "dar-mano", "mimos", "caricias", "dormir-acompanado", "consuelo", "estar-juntos", "hablar", "escuchar", "compartir", "cuidar"] },
+      { id: "comida", title: "Comida", pictos: ["agua", "pan", "gaseosa", "jugo", "galletas", "helado", "comer", "mas", "leche-chocolatada", "tomate", "naranja", "frutilla", "banana", "carne", "pollo"] },
+      { id: "actividades", title: "Hacer", pictos: ["jugar", "dibujar", "leer", "escribir", "recreo", "tarea", "otra-vez", "terminar", "trabajar", "musica", "pelota", "columpio", "cocinar", "esperar", "parar"] },
+      { id: "personas", title: "Personas", pictos: ["mama", "papa", "maestra", "companero", "terapeuta", "aula", "familia", "abuela", "doctor", "fono", "psicologa", "amigo", "abrazo", "hola", "gracias"] },
+      { id: "escuela", title: "Escuela", pictos: ["lapiz", "cuaderno", "tarea", "recreo", "leer", "escribir", "seno-carla", "seno-maribel", "matematicas", "lengua", "trabajar", "hablar", "oir", "compartir", "juntos"] },
+      { id: "lugares", title: "Lugares", pictos: ["rio", "plaza", "supermercado", "shopping", "panaderia", "casa", "escuela", "recreo", "parque", "autobus", "coche", "clinica", "farmacia", "cuarto-bano", "salir"] },
+      { id: "compras", title: "Compras", pictos: ["comprar-pan", "comprar-gaseosa", "comprar-helado", "comprar-zapatillas", "comprar-juguete", "carro", "bolsa", "ticket", "escoger", "precio", "supermercado", "shopping", "panaderia", "dinero", "ropa"] }
     ]
   },
   {
@@ -191,8 +246,8 @@ const COMMUNICATION_STARTERS = [
     color: "#c44747",
     sequence: ["doler"],
     groups: [
-      { id: "cuerpo", title: "Cuerpo", pictos: ["cabeza", "oido", "mano", "brazo", "pierna", "espalda", "dolor-estomago", "dolor-garganta"] },
-      { id: "ayuda", title: "Ayuda", pictos: ["necesito-ayuda", "doctor", "medicina", "descanso", "silencio", "maestra"] }
+      { id: "cuerpo", title: "Cuerpo", pictos: ["cabeza", "oido", "mano", "brazo", "pierna", "espalda", "dolor-estomago", "dolor-garganta", "dolor-cabeza", "dolor-oido", "dolor-mano", "dolor-brazo", "doler", "tos", "fiebre"] },
+      { id: "ayuda", title: "Ayuda", pictos: ["necesito-ayuda", "doctor", "medicina", "descanso", "silencio", "maestra", "terapeuta", "terapia", "psicologa", "fono", "esperar", "no-entiendo", "gracias", "hablar", "oir"] }
     ]
   },
   {
@@ -201,8 +256,8 @@ const COMMUNICATION_STARTERS = [
     color: "#7c5cdb",
     sequence: ["me-siento"],
     groups: [
-      { id: "emociones", title: "Emociones", pictos: ["contento", "triste", "enfadado", "miedo", "nervioso", "cansado", "aburrido", "tranquilo"] },
-      { id: "cuerpo", title: "Cuerpo", pictos: ["mareado", "enfermo", "frio", "calor", "dolor", "solo"] }
+      { id: "emociones", title: "Emociones", pictos: ["contento", "triste", "enfadado", "miedo", "nervioso", "cansado", "aburrido", "tranquilo", "asustado", "calma", "me-gusta", "no-me-gusta", "no-quiero", "quiero", "hola"] },
+      { id: "cuerpo", title: "Cuerpo", pictos: ["mareado", "enfermo", "frio", "calor", "dolor", "solo", "dolor-cabeza", "dolor-estomago", "dolor-garganta", "dolor-oido", "dolor-mano", "dolor-brazo", "tos", "fiebre", "clinica"] }
     ]
   },
   {
@@ -211,8 +266,8 @@ const COMMUNICATION_STARTERS = [
     color: "#ffb703",
     sequence: ["yo", "tengo"],
     groups: [
-      { id: "sensaciones", title: "Sensaciones", pictos: ["hambre", "frio", "calor", "miedo", "dolor", "mareado", "cansado", "enfermo"] },
-      { id: "social", title: "Social", pictos: ["turno", "lapiz", "cuaderno", "tarea", "agua", "medicina"] }
+      { id: "sensaciones", title: "Sensaciones", pictos: ["hambre", "frio", "calor", "miedo", "dolor", "mareado", "cansado", "enfermo", "beber", "comer", "descanso", "ruido", "dormir", "tos", "fiebre"] },
+      { id: "social", title: "Social", pictos: ["turno", "lapiz", "cuaderno", "tarea", "agua", "medicina", "hablar", "oir", "compartir", "juntos", "hola", "gracias", "perdon", "familia", "esperar"] }
     ]
   }
 ];
@@ -887,6 +942,26 @@ function communicationStarterSequence(starter) {
   return starter?.sequence || [];
 }
 
+function readCommunicationRecents() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(COMMUNICATION_RECENTS_KEY) || "[]");
+    if (!Array.isArray(saved)) return [];
+    return [...new Set(saved.filter((id) => communicationPicto(id)))].slice(0, 15);
+  } catch {
+    return [];
+  }
+}
+
+function rememberCommunicationPicto(id) {
+  if (!communicationPicto(id)) return;
+  const recents = [id, ...readCommunicationRecents().filter((recentId) => recentId !== id)].slice(0, 15);
+  try {
+    localStorage.setItem(COMMUNICATION_RECENTS_KEY, JSON.stringify(recents));
+  } catch {
+    // La app sigue funcionando aunque el almacenamiento local no este disponible.
+  }
+}
+
 function communicationPhrase() {
   return communicationSentence
     .map((id) => communicationPicto(id)?.phrase || "")
@@ -922,6 +997,7 @@ function renderCommunication() {
   const starterSequence = communicationStarterSequence(activeStarter);
   const activeGroup =
     activeStarter?.groups.find((group) => group.id === communicationGroup) || activeStarter?.groups[0];
+  const activeGroupPictos = activeGroup?.id === "recientes" ? readCommunicationRecents() : activeGroup?.pictos || [];
   const phrase = communicationPhrase();
   const canPresent =
     communicationSentence.length > 0 &&
@@ -997,7 +1073,7 @@ function renderCommunication() {
         ${showButton}
       </div>
       <div class="builder-chips">${groupTabs}</div>
-      <div class="picto-grid compact-picto-grid">${(activeGroup?.pictos || []).map((id) => renderPictoButton(id)).join("")}</div>
+      <div class="picto-grid compact-picto-grid">${activeGroupPictos.map((id) => renderPictoButton(id)).join("")}</div>
     `
     : `
       ${
@@ -2655,6 +2731,7 @@ function toast(message) {
 
 function addCommunicationPicto(id) {
   if (!communicationPicto(id)) return;
+  rememberCommunicationPicto(id);
   const activeStarter = communicationStarterById(communicationStarter);
   if (activeStarter) {
     communicationSentence = [...communicationStarterSequence(activeStarter), id];
@@ -2677,6 +2754,7 @@ function setCommunicationSequence(ids) {
 function selectCommunicationQuick(id) {
   const quick = COMMUNICATION_QUICK_ACTIONS.find((item) => item.id === id);
   if (!quick) return;
+  quick.sequence.forEach((pictoId) => rememberCommunicationPicto(pictoId));
   const activeStarter = communicationStarterById(communicationStarter);
   const starterSequence = communicationStarterSequence(activeStarter);
   const canToggleNegation =
