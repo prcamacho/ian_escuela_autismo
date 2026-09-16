@@ -42,6 +42,31 @@ android\app\build\outputs\apk\debug\app-debug.apk
 
 ## Actualizar la tablet sin perder Device Owner
 
+### Camino habitual: una sola orden
+
+Esta PC ya quedó autorizada de forma permanente por la tablet. Conectarla por USB y, desde la raíz del proyecto, ejecutar:
+
+```powershell
+npm run tablet:update
+```
+
+El script `scripts/update-tablet.ps1` verifica que sea la tablet de Ian y que conserve Device Owner, sincroniza y compila la app, instala con `adb install -r`, reactiva el kiosco y comprueba que termine en estado `LOCKED`. No hace falta salir manualmente de la app.
+
+Para reinstalar una APK que ya fue compilada, sin volver a compilar:
+
+```powershell
+npm run tablet:update -- -SkipBuild
+```
+
+No borrar estos dos archivos de esta PC ni regenerarlos:
+
+- `C:\Users\pablo\.android\adbkey`: autorización ADB aceptada por la tablet.
+- `C:\Users\pablo\.android\debug.keystore`: firma que permite actualizar la app sin desinstalarla.
+
+El modo seguro queda solamente como recuperación excepcional si cambia la computadora, se borra `adbkey` o se revoca manualmente la autorización USB.
+
+### Camino manual
+
 Con la tablet conectada por USB, depuración USB autorizada y PowerShell abierto dentro de `platform-tools`:
 
 ```powershell
@@ -51,6 +76,19 @@ Con la tablet conectada por USB, depuración USB autorizada y PowerShell abierto
 ```
 
 La instalación debe responder `Success`. **No desinstalar** `com.ian.escuela`: para conservar Device Owner hay que actualizar sobre la instalación existente (`install -r`) y firmar con la misma clave. En este proyecto se está usando la firma debug de esta PC; no cambiar de equipo/keystore sin preservar la clave de firma.
+
+### Si ADB muestra `unauthorized` y el kiosco tapa el permiso
+
+No borrar ni regenerar `C:\Users\pablo\.android\adbkey`. Iniciar el servidor indicándole explícitamente la clave que ya fue autorizada por la tablet:
+
+```powershell
+$env:ADB_VENDOR_KEYS='C:\Users\pablo\.android\adbkey'
+adb kill-server
+adb start-server
+adb devices -l
+```
+
+La Tab A8 debe aparecer como `device`, no como `unauthorized`. Si la clave es la misma pero Samsung igualmente no muestra el diálogo, reiniciar temporalmente en modo seguro, aceptar **Permitir siempre desde esta computadora** y reiniciar normalmente. No quitar Device Owner ni desinstalar la app.
 
 ## Comandos adultos de mantenimiento
 
@@ -71,14 +109,22 @@ Mientras está pausado, la app puede seguir figurando como pantalla HOME. Para a
 ### Reanudar el kiosco
 
 ```powershell
-.\adb.exe shell am start -n com.ian.escuela/.KioskRecoveryActivity -a com.ian.escuela.action.RESUME_KIOSK
+.\adb.exe shell am start -W -f 0x18000000 -n com.ian.escuela/.KioskRecoveryActivity -a com.ian.escuela.action.RESUME_KIOSK
 ```
 
-La actividad de recuperación intenta activar Lock Task directamente y luego vuelve a Ian Escuela. Si la app no queda al frente, ejecutar además:
+Las banderas crean una tarea de mantenimiento separada. Esto evita que Samsung entregue la orden a la instancia HOME anterior de `MainActivity` y deje guardado `paused=true`. La actividad de recuperación activa Lock Task directamente y luego vuelve a Ian Escuela. Si la app no queda al frente, ejecutar además:
 
 ```powershell
 .\adb.exe shell am start -n com.ian.escuela/.MainActivity
 ```
+
+Para verificar el resultado:
+
+```powershell
+.\adb.exe shell dumpsys activity activities | Select-String -Pattern "mLockTaskModeState|topResumedActivity"
+```
+
+El estado esperado es `mLockTaskModeState=LOCKED` y `com.ian.escuela/.MainActivity` como actividad reanudada.
 
 ### Reiniciar desde la PC
 

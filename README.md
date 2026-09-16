@@ -33,6 +33,7 @@ Ian Escuela App/
   scripts/
     setup-android-cli.ps1 Instala/prepara SDK Android por comandos
     build-debug-apk.ps1   Genera APK debug por comandos
+    update-tablet.ps1     Compila, instala y reactiva el kiosco en una orden
   capacitor.config.json  Configuracion para Android con Capacitor
   package.json           Scripts y dependencias para compilar
 ```
@@ -91,7 +92,7 @@ http://192.168.1.50:4173
 ## Que ya hace
 
 - Inicio limpio con "Hola, Ian" y dos tarjetas lado a lado: Escuela y Me comunico.
-- Materias fijas: Lengua, Cs Naturales, Cs Sociales y Matematicas.
+- Materias fijas: Lengua, Cs Naturales, Cs Sociales, Matematicas e Inglés.
 - Temas dentro de cada materia.
 - Ejercicios de eleccion tactil.
 - Me Comunico inmersivo, sin encabezado ni scroll, con pictogramas ARASAAC offline.
@@ -108,3 +109,9 @@ http://192.168.1.50:4173
 El APK debug queda en `Ian-Escuela-debug.apk`. Para regenerarlo despues de nuevos cambios, ejecutar los pasos de `docs/APK.md`.
 
 Si se va a modificar o mantener la tablet dedicada a Ian, leer primero `docs/TABLET_KIOSCO.md`.
+
+Con la tablet conectada y autorizada, la actualización completa se hace desde la raíz del proyecto con:
+
+```powershell
+npm run tablet:update
+```

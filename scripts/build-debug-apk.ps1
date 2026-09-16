@@ -53,7 +53,19 @@ Write-Host "Usando Android SDK: $sdkRoot"
 
 Set-Location (Join-Path $projectRoot "android")
 Write-Host "Compilando APK debug..."
-.\gradlew.bat assembleDebug
+$profilePath = $env:USERPROFILE
+if (!$profilePath) {
+  $profilePath = [Environment]::GetFolderPath("UserProfile")
+}
+$env:GRADLE_USER_HOME = Join-Path $profilePath ".gradle"
+$gradleCacheRoot = Join-Path $profilePath ".gradle\wrapper\dists\gradle-8.11.1-all"
+$cachedGradle = Get-ChildItem -LiteralPath $gradleCacheRoot -Filter "gradle.bat" -Recurse -File -ErrorAction SilentlyContinue | Select-Object -First 1
+if ($cachedGradle) {
+  Write-Host "Usando Gradle local: $($cachedGradle.FullName)"
+  & $cachedGradle.FullName assembleDebug
+} else {
+  .\gradlew.bat assembleDebug
+}
 if ($LASTEXITCODE -ne 0) {
   throw "Gradle fallo con codigo $LASTEXITCODE"
 }

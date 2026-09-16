@@ -1,4 +1,4 @@
-const CACHE_NAME = "ian-escuela-v95";
+const CACHE_NAME = "ian-escuela-v114";
 const PICTO_FILES = [
   "./assets/pictos/adios.png",
   "./assets/pictos/abrazo.png",
@@ -162,18 +162,82 @@ const PICTO_FILES = [
   "./assets/pictos/agua-fria.png",
   "./assets/pictos/ticket.png",
   "./assets/pictos/bolsa.png",
+  "./assets/pictos/pizza.png",
+  "./assets/pictos/macarrones.png",
+  "./assets/pictos/arroz.png",
+  "./assets/pictos/empanada.png",
+  "./assets/pictos/pure.png",
+  "./assets/pictos/yogur.png",
+  "./assets/pictos/chocolate.png",
+  "./assets/pictos/caramelo.png",
+  "./assets/pictos/medialuna.png",
+  "./assets/pictos/tostada.png",
+  "./assets/pictos/magdalena.png",
+  "./assets/pictos/sandwich-jamon-queso.png",
+  "./assets/pictos/sandwich-salame-queso.jpg",
+  "./assets/pictos/sandwich-milanesa.jpg",
+  "./assets/pictos/hamburguesa.png",
+  "./assets/pictos/choripan.png",
   "./assets/pictos/yo.png"
+];
+const ENGLISH_FILES = [
+  "./assets/english/book.png",
+  "./assets/english/eraser.png",
+  "./assets/english/ruler.png",
+  "./assets/english/scissors.png",
+  "./assets/english/glue.png",
+  "./assets/english/backpack.png",
+  "./assets/english/pen.png",
+  "./assets/english/crayons.png",
+  "./assets/english/audio/red.mp3",
+  "./assets/english/audio/blue.mp3",
+  "./assets/english/audio/yellow.mp3",
+  "./assets/english/audio/green.mp3",
+  "./assets/english/audio/orange.mp3",
+  "./assets/english/audio/purple.mp3",
+  "./assets/english/audio/black.mp3",
+  "./assets/english/audio/white.mp3",
+  "./assets/english/audio/pencil.mp3",
+  "./assets/english/audio/notebook.mp3",
+  "./assets/english/audio/book.mp3",
+  "./assets/english/audio/eraser.mp3",
+  "./assets/english/audio/ruler.mp3",
+  "./assets/english/audio/scissors.mp3",
+  "./assets/english/audio/glue.mp3",
+  "./assets/english/audio/backpack.mp3",
+  "./assets/english/audio/pen.mp3",
+  "./assets/english/audio/crayons.mp3",
+  "./assets/english/audio/one.mp3",
+  "./assets/english/audio/two.mp3",
+  "./assets/english/audio/three.mp3",
+  "./assets/english/audio/four.mp3",
+  "./assets/english/audio/five.mp3",
+  "./assets/english/audio/six.mp3",
+  "./assets/english/audio/seven.mp3",
+  "./assets/english/audio/eight.mp3",
+  "./assets/english/audio/nine.mp3",
+  "./assets/english/audio/ten.mp3"
+];
+const RECIPE_FILES = [
+  "./assets/recipe/paso-1-arroz-agua.jpg",
+  "./assets/recipe/paso-2-arroz-cocido.jpg",
+  "./assets/recipe/paso-3-bife-plancha.jpg",
+  "./assets/recipe/paso-4-tomate-sal.jpg",
+  "./assets/recipe/paso-5-plato-listo.jpg"
 ];
 const APP_FILES = [
   "./",
   "./index.html",
   "./styles.css",
   "./app.js",
+  "./vendor/gsap.min.js",
   "./manifest.json",
   "./icon.svg",
   "./assets/plantas-partes-ejemplo.jpeg",
   "./assets/plantas-partes-actividad.png",
-  ...PICTO_FILES
+  ...PICTO_FILES,
+  ...ENGLISH_FILES,
+  ...RECIPE_FILES
 ];
 
 self.addEventListener("install", (event) => {
