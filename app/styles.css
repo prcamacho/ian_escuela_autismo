@@ -232,6 +232,38 @@ button {
   margin: 0;
 }
 
+.pwa-credits-link {
+  justify-self: center;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 0.86rem;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.pwa-credits-link:hover,
+.pwa-credits-link:focus-visible {
+  color: var(--teal-dark);
+}
+
+.pwa-credits-copy {
+  display: grid;
+  gap: 14px;
+  line-height: 1.55;
+}
+
+.pwa-credits-copy p {
+  margin: 0;
+}
+
+.pwa-credits-copy a {
+  color: var(--teal-dark);
+  font-weight: 800;
+}
+
 @media (display-mode: standalone) {
   .pwa-install-card {
     display: none;
