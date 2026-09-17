@@ -1,4 +1,4 @@
-const CACHE_NAME = "ian-escuela-v114";
+const CACHE_NAME = "ian-escuela-v123";
 const PICTO_FILES = [
   "./assets/pictos/adios.png",
   "./assets/pictos/abrazo.png",
@@ -218,12 +218,62 @@ const ENGLISH_FILES = [
   "./assets/english/audio/nine.mp3",
   "./assets/english/audio/ten.mp3"
 ];
+const SUPPORT_AUDIO_FILES = [
+  ...Array.from({ length: 21 }, (_, value) => `./assets/supports/audio/numbers/${value}.mp3`),
+  ...[
+    "rojo",
+    "azul",
+    "amarillo",
+    "verde",
+    "naranja",
+    "violeta",
+    "rosa",
+    "celeste",
+    "marron",
+    "gris",
+    "blanco",
+    "negro"
+  ].map((color) => `./assets/supports/audio/colors/${color}.mp3`)
+];
 const RECIPE_FILES = [
   "./assets/recipe/paso-1-arroz-agua.jpg",
   "./assets/recipe/paso-2-arroz-cocido.jpg",
   "./assets/recipe/paso-3-bife-plancha.jpg",
   "./assets/recipe/paso-4-tomate-sal.jpg",
   "./assets/recipe/paso-5-plato-listo.jpg"
+];
+const SOFIA_LANGUAGE_FILES = [
+  "./assets/language/sofia/audio/grammar/prompts/armar-oracion.mp3",
+  "./assets/language/sofia/audio/grammar/prompts/tocar-sujeto.mp3",
+  "./assets/language/sofia/audio/grammar/prompts/tocar-verbo.mp3",
+  "./assets/language/sofia/audio/grammar/prompts/tocar-predicado.mp3",
+  "./assets/language/sofia/audio/grammar/prompts/probar-otra-vez.mp3",
+  ...[
+    "01-ian-come-una-manzana.mp3",
+    "02-sofia-lee-un-cuento.mp3",
+    "03-el-perro-corre-en-el-patio.mp3",
+    "04-la-nena-patea-la-pelota.mp3",
+    "05-el-gato-duerme-en-la-cama.mp3",
+    "06-papa-cocina-la-cena.mp3",
+    "07-la-maestra-escribe-una-palabra.mp3",
+    "08-ian-guarda-los-juguetes.mp3"
+  ].map((file) => `./assets/language/sofia/audio/grammar/sentences/${file}`),
+  "./assets/language/sofia/audio/recipe/intro.mp3",
+  "./assets/language/sofia/audio/recipe/complete.mp3",
+  ...[
+    "01-pelar-las-papas.mp3",
+    "02-papas-en-la-olla.mp3",
+    "03-hervir-las-papas.mp3",
+    "04-papas-al-colador.mp3",
+    "05-aplastar-las-papas.mp3",
+    "06-manteca-y-leche.mp3",
+    "07-agregar-sal.mp3",
+    "08-preparar-el-huevo.mp3",
+    "09-carne-por-el-huevo.mp3",
+    "10-carne-por-pan-rallado.mp3",
+    "11-cocinar-la-milanesa.mp3",
+    "12-servir-el-plato.mp3"
+  ].map((file) => `./assets/language/sofia/audio/recipe/steps/${file}`)
 ];
 const APP_FILES = [
   "./",
@@ -233,11 +283,15 @@ const APP_FILES = [
   "./vendor/gsap.min.js",
   "./manifest.json",
   "./icon.svg",
+  "./icon-192.png",
+  "./icon-512.png",
   "./assets/plantas-partes-ejemplo.jpeg",
   "./assets/plantas-partes-actividad.png",
   ...PICTO_FILES,
   ...ENGLISH_FILES,
-  ...RECIPE_FILES
+  ...SUPPORT_AUDIO_FILES,
+  ...RECIPE_FILES,
+  ...SOFIA_LANGUAGE_FILES
 ];
 
 self.addEventListener("install", (event) => {

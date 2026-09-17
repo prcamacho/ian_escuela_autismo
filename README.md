@@ -60,6 +60,16 @@ http://localhost:4173
 
 Si Python no esta instalado, se puede abrir el HTML con doble clic igual.
 
+## Publicar como PWA
+
+La carpeta `app` tambien puede publicarse como una PWA independiente. El comando de produccion escucha en `0.0.0.0` y respeta la variable `PORT` del proveedor:
+
+```powershell
+npm start
+```
+
+El manifiesto, los iconos y el service worker usan rutas relativas, por lo que la misma version puede exponerse bajo una ruta como `https://autismo.ar/apps/ian/`. La instalacion web se ofrece solo en navegadores compatibles; el codigo detecta Capacitor y no muestra ni registra componentes PWA dentro de la APK.
+
 ## Probar en la tablet Samsung
 
 1. Conectar la PC y la tablet a la misma red WiFi.

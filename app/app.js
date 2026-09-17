@@ -7,6 +7,29 @@ const CIRCLE_GEOMETRY_REVIEW_KEY = "ian-circle-geometry-review-v2";
 const COMMUNICATION_RECENTS_KEY = "ian-communication-recents-v2";
 const COMMUNICATION_MESSAGE_RECENTS_KEY = "ian-communication-message-recents-v1";
 const COMMUNICATION_GENERAL_RECENTS_SCOPE = "general";
+const TURN_GROUPS_KEY = "ian-turn-groups-v1";
+
+const TURN_COLORS = ["#2b7a78", "#7c5cdb", "#c95f50", "#3b8f5a", "#b36b00", "#2f6fb0", "#a34272", "#5d6b82", "#00838f", "#8a5a44"];
+
+const SUPPORT_NUMBER_WORDS = [
+  "cero", "uno", "dos", "tres", "cuatro", "cinco", "seis", "siete", "ocho", "nueve", "diez",
+  "once", "doce", "trece", "catorce", "quince", "dieciséis", "diecisiete", "dieciocho", "diecinueve", "veinte"
+];
+
+const SUPPORT_COLORS = [
+  { id: "rojo", label: "Rojo", value: "#e43f3f", ink: "#ffffff" },
+  { id: "azul", label: "Azul", value: "#2878d0", ink: "#ffffff" },
+  { id: "amarillo", label: "Amarillo", value: "#f4ce3e", ink: "#272727" },
+  { id: "verde", label: "Verde", value: "#43a45b", ink: "#ffffff" },
+  { id: "naranja", label: "Naranja", value: "#ef8b32", ink: "#272727" },
+  { id: "violeta", label: "Violeta", value: "#8059cc", ink: "#ffffff" },
+  { id: "rosa", label: "Rosa", value: "#ed76a6", ink: "#272727" },
+  { id: "celeste", label: "Celeste", value: "#55bce6", ink: "#272727" },
+  { id: "marron", label: "Marrón", value: "#8d5b3e", ink: "#ffffff" },
+  { id: "gris", label: "Gris", value: "#858a91", ink: "#ffffff" },
+  { id: "blanco", label: "Blanco", value: "#ffffff", ink: "#272727" },
+  { id: "negro", label: "Negro", value: "#252525", ink: "#ffffff" }
+];
 
 const ICONS = {
   home: '<path d="M3 10.5 12 3l9 7.5"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/>',
@@ -15,6 +38,11 @@ const ICONS = {
   globe: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18"/><path d="M12 3a14 14 0 0 0 0 18"/>',
   leaf: '<path d="M11 20A7 7 0 0 1 4 13c0-4.5 4-8 12-10 1.6 8-1.8 16-8 16Z"/><path d="M4 13c4 0 7-2 10-6"/>',
   message: '<path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/><path d="M8 9h8M8 13h5"/>',
+  users: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>',
+  palette: '<path d="M12 3a9 9 0 0 0 0 18h1.4a2.1 2.1 0 0 0 0-4.2h-.8a1.7 1.7 0 0 1 0-3.4H15a6 6 0 0 0 6-6C21 4.9 16.9 3 12 3Z"/><circle cx="7.5" cy="10" r=".8" fill="currentColor" stroke="none"/><circle cx="10" cy="6.8" r=".8" fill="currentColor" stroke="none"/><circle cx="14.2" cy="6.5" r=".8" fill="currentColor" stroke="none"/><circle cx="17.2" cy="9" r=".8" fill="currentColor" stroke="none"/>',
+  turns: '<path d="M17 3l4 4-4 4"/><path d="M3 7h18"/><path d="m7 21-4-4 4-4"/><path d="M21 17H3"/>',
+  pause: '<path d="M9 5v14M15 5v14"/>',
+  undo: '<path d="M9 7 4 12l5 5"/><path d="M4 12h9a7 7 0 0 1 7 7"/>',
   language: '<path d="M4 5h9M8.5 3v2c0 4-2 7-5 9"/><path d="M5 10c2 2 4 3 7 4"/><path d="m14 20 4-10 4 10M15.5 17h5"/>',
   speaker: '<path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18 6a8.5 8.5 0 0 1 0 12"/>',
   plus: '<path d="M12 5v14M5 12h14"/>',
@@ -62,6 +90,28 @@ const PACMAN_ANGLE_CATEGORIES = {
   straight: { label: "Llano", degrees: 180, clue: "180°" },
   reflex: { label: "Cóncavo", degrees: 270, clue: "MÁS DE 180°" },
   full: { label: "Completo", degrees: 360, clue: "360°" }
+};
+
+const MATERIAL_CATEGORIES = {
+  plastic: { label: "Plástico", color: "#2f9e66" },
+  wood: { label: "Madera", color: "#b46a2d" },
+  metal: { label: "Metal", color: "#708090" }
+};
+
+const PLASTIC_OBJECTS = {
+  bottle: { label: "Botella", material: "plastic", visual: "bottle" },
+  clearBottle: { label: "Botella", material: "plastic", visual: "clear-bottle" },
+  duck: { label: "Pato", material: "plastic", visual: "duck" },
+  hanger: { label: "Percha", material: "plastic", visual: "hanger" },
+  bag: { label: "Bolsa", material: "plastic", visual: "bag" },
+  ball: { label: "Pelota", material: "plastic", visual: "ball" },
+  comb: { label: "Peine", material: "plastic", visual: "comb" },
+  raincoat: { label: "Piloto", material: "plastic", visual: "raincoat" },
+  sponge: { label: "Esponja", material: "plastic", visual: "sponge" },
+  chair: { label: "Silla", material: "wood", visual: "chair" },
+  boat: { label: "Bote", material: "wood", visual: "boat" },
+  spoon: { label: "Cuchara", material: "metal", visual: "spoon" },
+  key: { label: "Llave", material: "metal", visual: "key" }
 };
 
 const COMMUNICATION_PICTOS = {
@@ -633,6 +683,69 @@ const DEFAULT_DATA = {
               ]
             }
           ]
+        },
+        {
+          id: "oraciones-psp-sofia",
+          title: "Armamos oraciones",
+          description: "Ordenar oraciones cortas y reconocer sujeto, verbo y predicado.",
+          activityLabel: "8 oraciones · PSP Sofía",
+          randomExerciseCount: 8,
+          credit: "Propuesta por PSP Sofía",
+          exercises: [
+            {
+              id: "sujeto-verbo-predicado-sofia",
+              type: "sentence-builder",
+              prompt: "Armá la oración",
+              sentences: [
+                { id: "ian-manzana", subject: "Ian", verb: "come", complement: "una manzana", visual: "👦|🍎", audio: "01-ian-come-una-manzana.mp3" },
+                { id: "sofia-cuento", subject: "Sofía", verb: "lee", complement: "un cuento", visual: "👩‍🏫|📖", audio: "02-sofia-lee-un-cuento.mp3" },
+                { id: "perro-patio", subject: "El perro", verb: "corre", complement: "en el patio", visual: "🐕|🌳", audio: "03-el-perro-corre-en-el-patio.mp3" },
+                { id: "nena-pelota", subject: "La nena", verb: "patea", complement: "la pelota", visual: "👧|⚽", audio: "04-la-nena-patea-la-pelota.mp3" },
+                { id: "gato-cama", subject: "El gato", verb: "duerme", complement: "en la cama", visual: "🐈|🛏️", audio: "05-el-gato-duerme-en-la-cama.mp3" },
+                { id: "papa-cena", subject: "Papá", verb: "cocina", complement: "la cena", visual: "👨‍🍳|🍲", audio: "06-papa-cocina-la-cena.mp3" },
+                { id: "maestra-palabra", subject: "La maestra", verb: "escribe", complement: "una palabra", visual: "👩‍🏫|✏️", audio: "07-la-maestra-escribe-una-palabra.mp3" },
+                { id: "ian-juguetes", subject: "Ian", verb: "guarda", complement: "los juguetes", visual: "👦|🧸", audio: "08-ian-guarda-los-juguetes.mp3" }
+              ]
+            }
+          ]
+        },
+        {
+          id: "milanesa-pure-psp-sofia",
+          title: "Milanesa con puré",
+          description: "Seguir una receta paso a paso con imágenes y animaciones.",
+          activityLabel: "12 pasos · PSP Sofía",
+          randomExerciseCount: 12,
+          credit: "Propuesta por PSP Sofía",
+          exercises: [
+            {
+              id: "receta-milanesa-pure-sofia",
+              type: "sofia-recipe",
+              prompt: "Milanesa con puré",
+              ingredients: [
+                { label: "Papas", visual: "🥔" },
+                { label: "Carne", image: "assets/pictos/carne.png" },
+                { label: "Huevo", visual: "🥚" },
+                { label: "Pan rallado", visual: "🍞" },
+                { label: "Manteca", visual: "🧈" },
+                { label: "Leche", image: "assets/pictos/leche.png" },
+                { label: "Sal", visual: "🧂" }
+              ],
+              steps: [
+                { id: "peel", section: "pure", text: "Primero, un adulto pela las papas.", short: "Pelar las papas", visual: "🥔|🔪", scene: "peel", audio: "01-pelar-las-papas.mp3", options: ["peel", "bread", "serve"] },
+                { id: "pot", section: "pure", text: "Después, pone las papas en una olla con agua.", short: "Ponerlas en la olla", visual: "🥔|🍲", scene: "pot", audio: "02-papas-en-la-olla.mp3", options: ["pot", "egg", "salt"] },
+                { id: "boil", section: "pure", text: "Luego, hierve las papas.", short: "Hervir las papas", visual: "🍲|♨️", scene: "boil", audio: "03-hervir-las-papas.mp3", options: ["boil", "dip", "serve"] },
+                { id: "drain", section: "pure", text: "Pasa las papas al colador.", short: "Pasarlas al colador", visual: "🥔|💧", scene: "drain", audio: "04-papas-al-colador.mp3", options: ["drain", "cook", "milk"] },
+                { id: "mash", section: "pure", text: "Aplasta las papas para hacer el puré.", short: "Aplastar las papas", visual: "🥔|🥣", scene: "mash", audio: "05-aplastar-las-papas.mp3", options: ["mash", "egg", "bread"] },
+                { id: "milk", section: "pure", text: "Agrega manteca y leche.", short: "Agregar manteca y leche", visual: "🧈|🥛", scene: "milk", audio: "06-manteca-y-leche.mp3", options: ["milk", "peel", "cook"] },
+                { id: "salt", section: "pure", text: "Agrega un poco de sal.", short: "Agregar sal", visual: "🧂|🥣", scene: "salt", audio: "07-agregar-sal.mp3", options: ["salt", "pot", "dip"] },
+                { id: "egg", section: "milanesa", text: "Para la milanesa, prepara el huevo.", short: "Preparar el huevo", visual: "🥚|🥣", scene: "egg", audio: "08-preparar-el-huevo.mp3", options: ["egg", "drain", "serve"] },
+                { id: "dip", section: "milanesa", text: "Pasa la carne por el huevo.", short: "Pasarla por el huevo", visual: "🥩|🥚", scene: "dip", audio: "09-carne-por-el-huevo.mp3", options: ["dip", "milk", "boil"] },
+                { id: "bread", section: "milanesa", text: "Pasa la carne por el pan rallado.", short: "Pasarla por pan rallado", visual: "🥩|🍞", scene: "bread", audio: "10-carne-por-pan-rallado.mp3", options: ["bread", "mash", "salt"] },
+                { id: "cook", section: "milanesa", text: "Un adulto cocina la milanesa.", short: "Cocinar la milanesa", visual: "🍳|🥩", scene: "cook", audio: "11-cocinar-la-milanesa.mp3", options: ["cook", "pot", "egg"] },
+                { id: "serve", section: "plate", text: "Por último, sirve la milanesa con el puré.", short: "Servir el plato", visual: "🍽️|✨", scene: "serve", audio: "12-servir-el-plato.mp3", options: ["serve", "peel", "drain"] }
+              ]
+            }
+          ]
         }
       ]
     },
@@ -658,6 +771,34 @@ const DEFAULT_DATA = {
                 { id: "hoja", label: "Hoja", position: "leaf" },
                 { id: "raiz", label: "Raiz", position: "root" }
               ]
+            }
+          ]
+        },
+        {
+          id: "plasticos",
+          title: "Los plásticos",
+          description: "Reconocer materiales y observar sus propiedades.",
+          activityLabel: "3 juegos · 18 desafíos",
+          randomExerciseCount: 18,
+          plasticMaterialsSequence: true,
+          exercises: [
+            {
+              id: "plasticos-encontrar",
+              type: "plastic-materials",
+              stage: "find",
+              prompt: "Tocá el de plástico"
+            },
+            {
+              id: "plasticos-clasificar",
+              type: "plastic-materials",
+              stage: "material",
+              prompt: "¿De qué es?"
+            },
+            {
+              id: "plasticos-propiedades",
+              type: "plastic-materials",
+              stage: "property",
+              prompt: "Probamos el plástico"
             }
           ]
         }
@@ -931,6 +1072,7 @@ let data = loadData();
 let route = { view: "home" };
 let session = null;
 let englishAudio = null;
+let languageAudio = null;
 let communicationSentence = [];
 let communicationWrittenText = "";
 let communicationTextPosition = 0;
@@ -939,6 +1081,17 @@ let communicationGroup = null;
 let communicationCategory = null;
 let communicationPresentation = false;
 let communicationNegated = false;
+let turnerDraft = { title: "", participants: [] };
+let turnerSession = null;
+let supportAudio = null;
+let supportNumberMode = "show";
+let supportNumberRange = 10;
+let supportSelectedNumber = null;
+let supportCount = 0;
+let supportColorMode = "show";
+let supportSelectedColor = null;
+let deferredPwaInstallPrompt = null;
+let pwaInstallMode = null;
 
 const app = document.getElementById("app");
 const modalRoot = document.getElementById("modal-root");
@@ -1268,6 +1421,43 @@ function createPacmanAngleExercises(theme) {
   }));
 }
 
+function createPlasticMaterialsExercises(theme) {
+  const findRounds = [
+    ["bottle", "chair", "spoon"],
+    ["key", "duck", "boat"],
+    ["hanger", "spoon", "chair"],
+    ["boat", "bag", "key"],
+    ["ball", "chair", "spoon"],
+    ["key", "comb", "boat"]
+  ].map((objectIds, index) => {
+    const correctId = objectIds.find((id) => PLASTIC_OBJECTS[id]?.material === "plastic");
+    return {
+      id: `encontrar-${index + 1}`,
+      correctId,
+      objectIds: shuffled(objectIds)
+    };
+  });
+  const materialRounds = ["bottle", "chair", "key", "duck", "boat", "spoon"].map((objectId, index) => ({
+    id: `material-${index + 1}`,
+    objectId,
+    correctId: PLASTIC_OBJECTS[objectId].material,
+    options: shuffled(["plastic", "wood", "metal"])
+  }));
+  const propertyRounds = [
+    { id: "propiedad-1", objectId: "bag", prompt: "¿Se dobla?", correctId: "yes", effect: "bend" },
+    { id: "propiedad-2", objectId: "hanger", prompt: "¿Se dobla?", correctId: "no", effect: "rigid" },
+    { id: "propiedad-3", objectId: "clearBottle", prompt: "¿Se ve a través?", correctId: "yes", effect: "transparent" },
+    { id: "propiedad-4", objectId: "duck", prompt: "¿Se ve a través?", correctId: "no", effect: "opaque" },
+    { id: "propiedad-5", objectId: "raincoat", prompt: "¿Absorbe agua?", correctId: "no", effect: "repel" },
+    { id: "propiedad-6", objectId: "sponge", prompt: "¿Absorbe agua?", correctId: "yes", effect: "absorb" }
+  ];
+  const roundsByStage = { find: findRounds, material: materialRounds, property: propertyRounds };
+  return theme.exercises.map((exercise) => ({
+    ...clone(exercise),
+    rounds: roundsByStage[exercise.stage] || []
+  }));
+}
+
 function createCircleGeometryScenarioPool() {
   const fills = ["#168aad", "#ef476f", "#7b2cbf", "#f77f00", "#2a9d8f", "#4361ee"];
   const classify = Array.from({ length: 12 }, (_, index) => ({
@@ -1477,7 +1667,9 @@ function normalizeData(value) {
         fixed.id === "matematicas" &&
         !savedThemes?.some((theme) => theme?.id === "angulos-pacman");
       const hasPreviousNaturalActivity =
-        fixed.id === "cs-naturales" && !savedThemes?.some((theme) => theme?.id === "partes-planta");
+        fixed.id === "cs-naturales" &&
+        (!savedThemes?.some((theme) => theme?.id === "partes-planta") ||
+          !savedThemes?.some((theme) => theme?.id === "plasticos"));
       const baseThemes =
         hasLegacySocialActivity || hasPreviousSoundActivity || hasPreviousTwoSoundActivities || hasPreviousSoundChoiceActivity || hasPreviousLanguageActivity || hasPreviousMathActivity || hasPreviousNaturalActivity
           ? fallback?.themes || []
@@ -1520,6 +1712,8 @@ function allExercisesCount(subject) {
 
 function setRoute(nextRoute) {
   if (nextRoute.view !== "run") stopEnglishAudio();
+  if (nextRoute.view !== "run") stopLanguageAudio();
+  if (nextRoute.view !== "support-numbers" && nextRoute.view !== "support-colors") stopSupportAudio();
   route = nextRoute;
   window.scrollTo({ top: 0, behavior: "smooth" });
   render();
@@ -1542,6 +1736,11 @@ function renderShell(content) {
 function subtitleForRoute() {
   if (route.view === "school") return "Escuela";
   if (route.view === "communication") return "Me Comunico";
+  if (route.view === "supports") return "Mis apoyos";
+  if (route.view === "support-numbers") return "Mis apoyos / Números";
+  if (route.view === "support-colors") return "Mis apoyos / Colores";
+  if (route.view === "turner-setup") return "Mis apoyos / Turnos";
+  if (route.view === "turner-live" || route.view === "turner-finish") return "Turnos";
   if (route.view === "subject") return subjectById(route.subjectId)?.title || "Materia";
   if (route.view === "theme") {
     const subject = subjectById(route.subjectId);
@@ -1551,11 +1750,17 @@ function subtitleForRoute() {
 }
 
 function render() {
-  const focusedActivityTypes = ["matching", "sound-choice", "sound-gallery", "drag-matching", "sum-choice-grid", "ghost-sum", "ghost-multiplication", "animal-sound", "rhyme-puzzle", "plant-labeling", "english-vocabulary", "circle-geometry", "pacman-angle", "instructional-recipe", "recipe-photo-matching"];
+  const focusedActivityTypes = ["matching", "sound-choice", "sound-gallery", "drag-matching", "sum-choice-grid", "ghost-sum", "ghost-multiplication", "animal-sound", "rhyme-puzzle", "plant-labeling", "english-vocabulary", "circle-geometry", "pacman-angle", "plastic-materials", "instructional-recipe", "recipe-photo-matching", "sentence-builder", "sofia-recipe"];
   const isFocusedActivity =
     route.view === "run" && focusedActivityTypes.includes(session?.exercises?.[session.index]?.type);
   document.documentElement.classList.toggle("communication-mode", route.view === "communication");
   document.body.classList.toggle("communication-mode", route.view === "communication");
+  const supportFocusMode = route.view === "support-numbers" || route.view === "support-colors";
+  document.documentElement.classList.toggle("support-focus-mode", supportFocusMode);
+  document.body.classList.toggle("support-focus-mode", supportFocusMode);
+  const turnerMode = route.view === "turner-live" || route.view === "turner-finish";
+  document.documentElement.classList.toggle("turner-mode", turnerMode);
+  document.body.classList.toggle("turner-mode", turnerMode);
   document.documentElement.classList.toggle("matching-mode", isFocusedActivity);
   document.body.classList.toggle("matching-mode", isFocusedActivity);
   const isDragMatchingActivity = route.view === "run" && session?.exercises?.[session.index]?.type === "drag-matching";
@@ -1563,6 +1768,12 @@ function render() {
   document.body.classList.toggle("drag-matching-mode", isDragMatchingActivity);
   if (route.view === "school") return renderSchool();
   if (route.view === "communication") return renderCommunication();
+  if (route.view === "supports") return renderSupports();
+  if (route.view === "support-numbers") return renderSupportNumbers();
+  if (route.view === "support-colors") return renderSupportColors();
+  if (route.view === "turner-setup") return renderTurnerSetup();
+  if (route.view === "turner-live") return renderTurnerLive();
+  if (route.view === "turner-finish") return renderTurnerFinish();
   if (route.view === "subject") return renderSubject(route.subjectId);
   if (route.view === "theme") return renderTheme(route.subjectId, route.themeId);
   if (route.view === "run") return renderRunner();
@@ -1570,6 +1781,7 @@ function render() {
 }
 
 function renderHome() {
+  const installCallout = renderPwaInstallCallout();
   app.innerHTML = `
     <main class="home-screen">
       <section class="home-panel" aria-label="Inicio">
@@ -1585,10 +1797,764 @@ function renderHome() {
             <span class="home-card-icon">${icon("message")}</span>
             <span>Me comunico</span>
           </button>
+          <button class="home-card home-card-supports" type="button" data-action="supports">
+            <span class="home-card-icon">${icon("users")}</span>
+            <span>Mis apoyos</span>
+          </button>
         </div>
+        ${installCallout}
       </section>
     </main>
   `;
+}
+
+function isNativeAppRuntime() {
+  return Boolean(window.Capacitor?.isNativePlatform?.());
+}
+
+function isInstalledPwa() {
+  return window.matchMedia?.("(display-mode: standalone)").matches || window.navigator.standalone === true;
+}
+
+function isIosBrowser() {
+  return /iphone|ipad|ipod/i.test(window.navigator.userAgent) && !isNativeAppRuntime();
+}
+
+function renderPwaInstallCallout() {
+  if (!pwaInstallMode || isNativeAppRuntime() || isInstalledPwa()) return "";
+  const label = pwaInstallMode === "ios" ? "Cómo instalar" : "Instalar app";
+  const description =
+    pwaInstallMode === "ios"
+      ? "Agregala a la pantalla de inicio para usarla como una app."
+      : "Instalala en este dispositivo y tenela siempre a mano.";
+  return `
+    <aside class="pwa-install-card" aria-label="Instalar App de Ian">
+      <span class="pwa-install-icon">${icon("download")}</span>
+      <span class="pwa-install-copy"><strong>${label}</strong><small>${description}</small></span>
+      <button class="btn btn-primary" type="button" data-action="pwa-install">${icon("download")}${label}</button>
+    </aside>
+  `;
+}
+
+async function requestPwaInstall() {
+  if (deferredPwaInstallPrompt) {
+    const prompt = deferredPwaInstallPrompt;
+    deferredPwaInstallPrompt = null;
+    await prompt.prompt();
+    const choice = await prompt.userChoice;
+    if (choice?.outcome === "accepted") {
+      pwaInstallMode = null;
+      render();
+      return;
+    }
+    pwaInstallMode = "prompt";
+    return;
+  }
+
+  if (isIosBrowser()) {
+    openModal({
+      title: "Instalar en iPhone o iPad",
+      body: `
+        <div class="pwa-ios-instructions">
+          <p>1. Abrí esta página en Safari.</p>
+          <p>2. Tocá el botón <strong>Compartir</strong>.</p>
+          <p>3. Elegí <strong>Agregar a inicio</strong> y activá <strong>Abrir como app web</strong>.</p>
+        </div>
+      `,
+      submitText: "Entendido",
+      onSubmit: closeModal
+    });
+  }
+}
+
+function setupPwaInstall() {
+  if (isNativeAppRuntime() || isInstalledPwa()) return;
+
+  if (isIosBrowser()) pwaInstallMode = "ios";
+
+  window.addEventListener("beforeinstallprompt", (event) => {
+    event.preventDefault();
+    deferredPwaInstallPrompt = event;
+    pwaInstallMode = "prompt";
+    if (route.view === "home") render();
+  });
+
+  window.addEventListener("appinstalled", () => {
+    deferredPwaInstallPrompt = null;
+    pwaInstallMode = null;
+    if (route.view === "home") render();
+    toast("App instalada");
+  });
+}
+
+function renderSupports() {
+  renderShell(`
+    <section class="screen supports-screen">
+      <div class="screen-actions">
+        <button class="btn btn-ghost" type="button" data-action="home">${icon("arrow")}Inicio</button>
+      </div>
+      <div class="section-title supports-title">
+        <div>
+          <p class="eyebrow">RECURSOS VISUALES</p>
+          <h2>Mis apoyos</h2>
+        </div>
+      </div>
+      <div class="supports-grid">
+        <button class="support-tool-card support-tool-turner" type="button" data-action="turner-open">
+          <span class="support-tool-icon">${icon("turns")}</span>
+          <span class="support-tool-copy">
+            <strong>Turnos</strong>
+            <small>Ahora · Después · Esperan</small>
+          </span>
+          <span class="support-tool-arrow" aria-hidden="true">›</span>
+        </button>
+        <button class="support-tool-card support-tool-numbers" type="button" data-action="support-numbers-open">
+          <span class="support-tool-icon">123</span>
+          <span class="support-tool-copy">
+            <strong>Números</strong>
+            <small>Mostrar · Contar</small>
+          </span>
+          <span class="support-tool-arrow" aria-hidden="true">›</span>
+        </button>
+        <button class="support-tool-card support-tool-colors" type="button" data-action="support-colors-open">
+          <span class="support-tool-icon">${icon("palette")}</span>
+          <span class="support-tool-copy">
+            <strong>Colores</strong>
+            <small>Mostrar · Elegir</small>
+          </span>
+          <span class="support-tool-arrow" aria-hidden="true">›</span>
+        </button>
+      </div>
+    </section>
+  `);
+}
+
+function stopSupportAudio() {
+  if (!supportAudio) return;
+  supportAudio.pause();
+  supportAudio.currentTime = 0;
+  supportAudio = null;
+}
+
+function playSupportAudio(kind, id) {
+  stopSupportAudio();
+  supportAudio = new Audio(`./assets/supports/audio/${kind}/${id}.mp3`);
+  supportAudio.preload = "auto";
+  supportAudio.play().catch(() => {});
+}
+
+function supportNumberDots(value) {
+  if (value === 0) return `<span class="support-zero-label">NINGUNO</span>`;
+  return Array.from({ length: value }, (_, index) => `<span style="--dot-delay:${index * 0.015}s"></span>`).join("");
+}
+
+function supportNumberPreview(value, empty = false) {
+  if (empty) {
+    return `
+      <div class="support-preview-empty">
+        <span class="support-preview-empty-icon">123</span>
+        <strong>Elegí un número</strong>
+      </div>
+    `;
+  }
+  return `
+    <div class="support-number-value">${value}</div>
+    <div class="support-number-word">${escapeHtml(SUPPORT_NUMBER_WORDS[value])}</div>
+    <div class="support-number-dots ${value > 10 ? "is-many" : ""}" aria-label="${value} elementos">
+      ${supportNumberDots(value)}
+    </div>
+    <button class="support-replay-button" type="button" data-action="support-number-replay" data-value="${value}">
+      ${icon("speaker")}Escuchar
+    </button>
+  `;
+}
+
+function openSupportNumbers() {
+  supportNumberMode = "show";
+  supportNumberRange = 10;
+  supportSelectedNumber = null;
+  setRoute({ view: "support-numbers" });
+}
+
+function renderSupportNumbers() {
+  const isCounter = supportNumberMode === "count";
+  const previewValue = isCounter ? supportCount : supportSelectedNumber;
+  const numbers = Array.from({ length: supportNumberRange + 1 }, (_, value) => value)
+    .map(
+      (value) => `
+        <button class="support-number-button ${supportSelectedNumber === value ? "is-selected" : ""}" type="button" data-action="support-number-select" data-value="${value}">
+          ${value}
+        </button>
+      `
+    )
+    .join("");
+
+  const controls = isCounter
+    ? `
+      <div class="support-counter-controls">
+        <button type="button" data-action="support-count-change" data-delta="-1" ${supportCount === 0 ? "disabled" : ""} aria-label="Restar uno">−</button>
+        <strong>${supportCount}</strong>
+        <button type="button" data-action="support-count-change" data-delta="1" ${supportCount === 20 ? "disabled" : ""} aria-label="Sumar uno">+</button>
+      </div>
+      <button class="support-reset-button" type="button" data-action="support-count-reset" ${supportCount === 0 ? "disabled" : ""}>Volver a 0</button>
+    `
+    : `
+      <div class="support-range-row" aria-label="Rango de números">
+        <span>RANGO</span>
+        ${[5, 10, 20]
+          .map(
+            (range) => `<button class="${supportNumberRange === range ? "is-selected" : ""}" type="button" data-action="support-number-range" data-range="${range}">0–${range}</button>`
+          )
+          .join("")}
+      </div>
+      <div class="support-number-grid range-${supportNumberRange}">${numbers}</div>
+    `;
+
+  renderShell(`
+    <section class="screen support-resource-screen support-numbers-screen">
+      <div class="screen-actions support-resource-nav">
+        <button class="btn btn-ghost" type="button" data-action="supports">${icon("arrow")}Mis apoyos</button>
+        <div class="support-mode-tabs" role="group" aria-label="Modo de números">
+          <button class="${!isCounter ? "is-selected" : ""}" type="button" data-action="support-number-mode" data-mode="show">Mostrar</button>
+          <button class="${isCounter ? "is-selected" : ""}" type="button" data-action="support-number-mode" data-mode="count">Contar</button>
+        </div>
+      </div>
+      <div class="support-resource-heading">
+        <p class="eyebrow">NÚMEROS</p>
+        <h2>${isCounter ? "¿Cuántos hay?" : "Elegí un número"}</h2>
+      </div>
+      <div class="support-resource-layout">
+        <article class="support-control-card ${isCounter ? "is-counter" : ""}">${controls}</article>
+        <article class="support-preview-card support-number-preview ${previewValue === null ? "is-empty" : ""}" aria-live="polite">
+          ${supportNumberPreview(previewValue ?? 0, previewValue === null)}
+        </article>
+      </div>
+    </section>
+  `);
+  animateSupportPreview(".support-number-preview:not(.is-empty)");
+}
+
+function selectSupportNumber(value) {
+  const number = Math.max(0, Math.min(Number(value) || 0, supportNumberRange));
+  supportSelectedNumber = number;
+  playSupportAudio("numbers", number);
+  render();
+}
+
+function changeSupportCount(delta) {
+  supportCount = Math.max(0, Math.min(20, supportCount + Number(delta || 0)));
+  playSupportAudio("numbers", supportCount);
+  render();
+}
+
+function resetSupportCount() {
+  supportCount = 0;
+  playSupportAudio("numbers", 0);
+  render();
+}
+
+function supportColorById(id) {
+  return SUPPORT_COLORS.find((color) => color.id === id) || null;
+}
+
+function supportColorPreview(color) {
+  if (!color) {
+    return `
+      <div class="support-preview-empty">
+        <span class="support-preview-empty-icon">${icon("palette")}</span>
+        <strong>Elegí un color</strong>
+      </div>
+    `;
+  }
+  return `
+    <div class="support-color-fill" style="--support-color:${color.value};--support-ink:${color.ink}">
+      <strong>${escapeHtml(color.label)}</strong>
+      <button class="support-color-replay" type="button" data-action="support-color-replay" data-color="${color.id}">
+        ${icon("speaker")}Escuchar
+      </button>
+    </div>
+  `;
+}
+
+function openSupportColors() {
+  supportColorMode = "show";
+  supportSelectedColor = null;
+  setRoute({ view: "support-colors" });
+}
+
+function renderSupportColors() {
+  const isRandom = supportColorMode === "random";
+  const selected = supportColorById(supportSelectedColor);
+  const palette = SUPPORT_COLORS.map(
+    (color) => `
+      <button class="support-color-button ${supportSelectedColor === color.id ? "is-selected" : ""}" type="button" data-action="support-color-select" data-color="${color.id}">
+        <span style="--swatch:${color.value}"></span>
+        <strong>${escapeHtml(color.label)}</strong>
+      </button>
+    `
+  ).join("");
+
+  renderShell(`
+    <section class="screen support-resource-screen support-colors-screen">
+      <div class="screen-actions support-resource-nav">
+        <button class="btn btn-ghost" type="button" data-action="supports">${icon("arrow")}Mis apoyos</button>
+        <div class="support-mode-tabs" role="group" aria-label="Modo de colores">
+          <button class="${!isRandom ? "is-selected" : ""}" type="button" data-action="support-color-mode" data-mode="show">Mostrar</button>
+          <button class="${isRandom ? "is-selected" : ""}" type="button" data-action="support-color-mode" data-mode="random">Elegir</button>
+        </div>
+      </div>
+      <div class="support-resource-heading">
+        <p class="eyebrow">COLORES</p>
+        <h2>${isRandom ? "Elegir un color" : "Tocá un color"}</h2>
+      </div>
+      <div class="support-resource-layout">
+        <article class="support-control-card support-color-controls ${isRandom ? "is-random" : ""}">
+          ${
+            isRandom
+              ? `<button class="support-random-color-button" type="button" data-action="support-color-random">${icon("turns")}<span>Elegir color</span></button>`
+              : `<div class="support-color-grid">${palette}</div>`
+          }
+        </article>
+        <article class="support-preview-card support-color-preview ${selected ? "" : "is-empty"}" aria-live="polite">
+          ${supportColorPreview(selected)}
+        </article>
+      </div>
+    </section>
+  `);
+  animateSupportPreview(".support-color-preview:not(.is-empty)");
+}
+
+function selectSupportColor(id) {
+  const color = supportColorById(id);
+  if (!color) return;
+  supportSelectedColor = color.id;
+  playSupportAudio("colors", color.id);
+  render();
+}
+
+function pickRandomSupportColor() {
+  const choices = SUPPORT_COLORS.filter((color) => color.id !== supportSelectedColor);
+  const color = choices[Math.floor(Math.random() * choices.length)] || SUPPORT_COLORS[0];
+  supportSelectedColor = color.id;
+  playSupportAudio("colors", color.id);
+  render();
+}
+
+function animateSupportPreview(selector) {
+  if (!window.gsap || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const target = document.querySelector(selector);
+  if (!target) return;
+  gsap.from(target, { scale: 0.94, opacity: 0.35, duration: 0.35, ease: "back.out(1.3)" });
+  gsap.from(`${selector} .support-number-dots > span`, { scale: 0, duration: 0.22, stagger: 0.015, delay: 0.08, ease: "back.out(2)" });
+}
+
+function cleanTurnerName(value) {
+  return String(value || "").trim().replace(/\s+/g, " ").slice(0, 28);
+}
+
+function turnerParticipant(name, index, color) {
+  return {
+    id: uid("turn-person"),
+    name: cleanTurnerName(name),
+    color: TURN_COLORS.includes(color) ? color : TURN_COLORS[index % TURN_COLORS.length]
+  };
+}
+
+function turnerInitial(name) {
+  return Array.from(cleanTurnerName(name))[0]?.toLocaleUpperCase("es") || "?";
+}
+
+function readTurnGroups() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(TURN_GROUPS_KEY) || "[]");
+    if (!Array.isArray(saved)) return [];
+    return saved
+      .map((group) => ({
+        id: String(group?.id || uid("turn-group")),
+        label: cleanTurnerName(group?.label),
+        participants: Array.isArray(group?.participants)
+          ? group.participants
+              .map((person, index) => ({
+                name: cleanTurnerName(person?.name),
+                color: TURN_COLORS.includes(person?.color) ? person.color : TURN_COLORS[index % TURN_COLORS.length]
+              }))
+              .filter((person) => person.name)
+          : []
+      }))
+      .filter((group) => group.label && group.participants.length >= 2);
+  } catch {
+    return [];
+  }
+}
+
+function writeTurnGroups(groups) {
+  try {
+    localStorage.setItem(TURN_GROUPS_KEY, JSON.stringify(groups));
+  } catch {
+    toast("No se pudo guardar el grupo");
+  }
+}
+
+function captureTurnerDraftFields() {
+  const titleInput = document.querySelector("#turnerActivityTitle");
+  if (titleInput) turnerDraft.title = cleanTurnerName(titleInput.value);
+}
+
+function openTurnerSetup(reset = true) {
+  if (reset) turnerDraft = { title: "", participants: [] };
+  turnerSession = null;
+  setRoute({ view: "turner-setup" });
+}
+
+function renderTurnerSetup() {
+  const groups = readTurnGroups();
+  const groupList = groups.length
+    ? groups
+        .map(
+          (group) => `
+            <div class="turner-saved-group">
+              <button type="button" data-action="turner-use-group" data-group="${escapeHtml(group.id)}">
+                <strong>${escapeHtml(group.label)}</strong>
+                <span>${group.participants.length} personas</span>
+              </button>
+              <button class="turner-group-delete" type="button" data-action="turner-delete-group" data-group="${escapeHtml(group.id)}" aria-label="Eliminar grupo ${escapeHtml(group.label)}">${icon("trash")}</button>
+            </div>
+          `
+        )
+        .join("")
+    : `<p class="turner-saved-empty">Todavía no hay grupos guardados.</p>`;
+
+  const participants = turnerDraft.participants.length
+    ? turnerDraft.participants
+        .map(
+          (person, index) => `
+            <div class="turner-person-row" style="--turn-color:${person.color}">
+              <span class="turner-person-initial" aria-hidden="true">${escapeHtml(turnerInitial(person.name))}</span>
+              <strong>${escapeHtml(person.name)}</strong>
+              <div class="turner-person-actions">
+                <button type="button" data-action="turner-person-up" data-id="${escapeHtml(person.id)}" ${index === 0 ? "disabled" : ""} aria-label="Subir a ${escapeHtml(person.name)}">${icon("arrow")}</button>
+                <button type="button" data-action="turner-person-down" data-id="${escapeHtml(person.id)}" ${index === turnerDraft.participants.length - 1 ? "disabled" : ""} aria-label="Bajar a ${escapeHtml(person.name)}">${icon("arrow")}</button>
+                <button class="is-remove" type="button" data-action="turner-person-remove" data-id="${escapeHtml(person.id)}" aria-label="Quitar a ${escapeHtml(person.name)}">${icon("x")}</button>
+              </div>
+            </div>
+          `
+        )
+        .join("")
+    : `
+        <div class="turner-people-empty">
+          <span>${icon("users")}</span>
+          <strong>Agregá los nombres</strong>
+          <small>Se necesitan al menos 2 personas.</small>
+        </div>
+      `;
+
+  renderShell(`
+    <section class="screen turner-setup-screen">
+      <div class="screen-actions turner-setup-nav">
+        <button class="btn btn-ghost" type="button" data-action="supports">${icon("arrow")}Mis apoyos</button>
+        <span class="turner-no-photos">Sin fotos</span>
+      </div>
+      <div class="turner-setup-heading">
+        <p class="eyebrow">PREPARAR</p>
+        <h2>¿Quiénes participan?</h2>
+      </div>
+      <div class="turner-setup-layout">
+        <article class="turner-setup-card turner-people-card">
+          <form class="turner-add-form" data-form="turner-participant">
+            <label for="turnerParticipantName">Nombre</label>
+            <div>
+              <input id="turnerParticipantName" name="name" maxlength="28" autocomplete="off" placeholder="Escribí un nombre" />
+              <button class="btn btn-primary" type="submit">${icon("plus")}Agregar</button>
+            </div>
+          </form>
+          <div class="turner-person-list" aria-live="polite">${participants}</div>
+        </article>
+        <aside class="turner-setup-side">
+          <article class="turner-setup-card turner-options-card">
+            <label class="turner-title-field" for="turnerActivityTitle">
+              <span>Actividad <small>(opcional)</small></span>
+              <input id="turnerActivityTitle" maxlength="28" autocomplete="off" placeholder="Ej: Armamos una torre" value="${escapeHtml(turnerDraft.title)}" />
+            </label>
+            <button class="btn turner-save-group-button" type="button" data-action="turner-save-group" ${turnerDraft.participants.length >= 2 ? "" : "disabled"}>${icon("download")}Guardar grupo</button>
+            <button class="btn btn-primary turner-start-button" type="button" data-action="turner-start" ${turnerDraft.participants.length >= 2 ? "" : "disabled"}>${icon("play")}Empezar</button>
+          </article>
+          <article class="turner-setup-card turner-groups-card">
+            <h3>Grupos guardados</h3>
+            <div class="turner-saved-groups">${groupList}</div>
+          </article>
+        </aside>
+      </div>
+    </section>
+  `);
+}
+
+function addTurnerParticipant(name) {
+  captureTurnerDraftFields();
+  const cleanName = cleanTurnerName(name);
+  if (!cleanName) {
+    toast("Escribí un nombre");
+    document.querySelector("#turnerParticipantName")?.focus();
+    return;
+  }
+  turnerDraft.participants.push(turnerParticipant(cleanName, turnerDraft.participants.length));
+  render();
+  window.requestAnimationFrame(() => document.querySelector("#turnerParticipantName")?.focus());
+}
+
+function moveTurnerParticipant(id, direction) {
+  captureTurnerDraftFields();
+  const index = turnerDraft.participants.findIndex((person) => person.id === id);
+  const nextIndex = index + direction;
+  if (index < 0 || nextIndex < 0 || nextIndex >= turnerDraft.participants.length) return;
+  [turnerDraft.participants[index], turnerDraft.participants[nextIndex]] = [turnerDraft.participants[nextIndex], turnerDraft.participants[index]];
+  render();
+}
+
+function removeTurnerParticipant(id) {
+  captureTurnerDraftFields();
+  turnerDraft.participants = turnerDraft.participants.filter((person) => person.id !== id);
+  render();
+}
+
+function saveTurnerGroup() {
+  captureTurnerDraftFields();
+  if (turnerDraft.participants.length < 2) return;
+  openModal({
+    title: "Guardar grupo",
+    body: `
+      <label class="field">
+        <span>Nombre del grupo</span>
+        <input id="turnerGroupName" maxlength="28" autocomplete="off" placeholder="Ej: Familia" />
+      </label>
+    `,
+    submitText: "Guardar",
+    onSubmit: () => {
+      const label = cleanTurnerName(modalRoot.querySelector("#turnerGroupName")?.value);
+      if (!label) {
+        toast("Escribí un nombre para el grupo");
+        modalRoot.querySelector("#turnerGroupName")?.focus();
+        return;
+      }
+      const groups = readTurnGroups();
+      groups.push({
+        id: uid("turn-group"),
+        label,
+        participants: turnerDraft.participants.map(({ name, color }) => ({ name, color }))
+      });
+      writeTurnGroups(groups);
+      closeModal();
+      render();
+      toast("Grupo guardado");
+    }
+  });
+}
+
+function useTurnerGroup(groupId) {
+  captureTurnerDraftFields();
+  const group = readTurnGroups().find((item) => item.id === groupId);
+  if (!group) return;
+  turnerDraft.participants = group.participants.map((person, index) => turnerParticipant(person.name, index, person.color));
+  render();
+}
+
+function deleteTurnerGroup(groupId) {
+  const groups = readTurnGroups();
+  const group = groups.find((item) => item.id === groupId);
+  if (!group || !confirm(`¿Eliminar el grupo ${group.label}?`)) return;
+  writeTurnGroups(groups.filter((item) => item.id !== groupId));
+  render();
+}
+
+function startTurner() {
+  captureTurnerDraftFields();
+  if (turnerDraft.participants.length < 2) {
+    toast("Agregá al menos 2 personas");
+    return;
+  }
+  turnerSession = {
+    title: turnerDraft.title || "Nuestros turnos",
+    participants: clone(turnerDraft.participants),
+    currentIndex: 0,
+    round: 1,
+    paused: false,
+    history: []
+  };
+  setRoute({ view: "turner-live" });
+}
+
+function turnerQueue() {
+  if (!turnerSession?.participants.length) return [];
+  const { participants, currentIndex } = turnerSession;
+  return Array.from({ length: participants.length - 1 }, (_, offset) => participants[(currentIndex + offset + 1) % participants.length]);
+}
+
+function turnerPersonBadge(person, className = "") {
+  return `
+    <span class="turner-person-badge ${className}" style="--turn-color:${person.color}">
+      <span>${escapeHtml(turnerInitial(person.name))}</span>
+      <strong>${escapeHtml(person.name)}</strong>
+    </span>
+  `;
+}
+
+function renderTurnerLive() {
+  if (!turnerSession?.participants?.length) return openTurnerSetup(false);
+  const current = turnerSession.participants[turnerSession.currentIndex];
+  const queue = turnerQueue();
+  const next = queue[0];
+  const waiting = queue.slice(1);
+  const waitingMarkup = waiting.length
+    ? waiting.map((person) => turnerPersonBadge(person, "is-waiting")).join("")
+    : `<span class="turner-waiting-empty">Nadie más</span>`;
+
+  renderShell(`
+    <section class="turner-live-screen ${turnerSession.paused ? "is-paused" : ""}">
+      <div class="turner-live-bar">
+        <button class="btn btn-ghost" type="button" data-action="turner-exit">${icon("arrow")}Salir</button>
+        <div class="turner-live-title">
+          <strong>${escapeHtml(turnerSession.title)}</strong>
+          <span>Vuelta ${turnerSession.round} · ${turnerSession.participants.length} personas</span>
+        </div>
+        <span class="turner-live-count" aria-hidden="true">${turnerSession.participants.length}</span>
+      </div>
+      <div class="turner-live-content">
+        <article class="turner-now-card" style="--turn-color:${current.color}">
+          <span class="turner-stage-label">AHORA</span>
+          <span class="turner-now-initial" aria-hidden="true">${escapeHtml(turnerInitial(current.name))}</span>
+          <h2>${escapeHtml(current.name)}</h2>
+        </article>
+        <aside class="turner-queue-panel">
+          <div class="turner-next-card" style="--turn-color:${next.color}">
+            <span class="turner-stage-label">DESPUÉS</span>
+            ${turnerPersonBadge(next, "is-next")}
+          </div>
+          <div class="turner-waiting-card">
+            <span class="turner-stage-label">ESPERAN</span>
+            <div class="turner-waiting-list">${waitingMarkup}</div>
+          </div>
+        </aside>
+      </div>
+      <div class="turner-main-actions">
+        <button class="turner-decline-button" type="button" data-action="turner-decline">NO QUIERO</button>
+        <button class="turner-done-button" type="button" data-action="turner-next">${icon("check")}TERMINÉ</button>
+      </div>
+      <div class="turner-secondary-actions">
+        <button type="button" data-action="turner-undo" ${turnerSession.history.length ? "" : "disabled"}>${icon("undo")}Atrás</button>
+        <button type="button" data-action="turner-pause">${icon("pause")}Pausa</button>
+        <button type="button" data-action="turner-add-live">${icon("plus")}Agregar</button>
+        <button class="is-finish" type="button" data-action="turner-finish">${icon("x")}Finalizar</button>
+      </div>
+      ${
+        turnerSession.paused
+          ? `<div class="turner-pause-overlay"><span>${icon("pause")}</span><h2>PAUSA</h2><button type="button" data-action="turner-pause">${icon("play")}Continuar</button></div>`
+          : ""
+      }
+    </section>
+  `);
+  animateTurnerScreen();
+}
+
+function animateTurnerScreen() {
+  if (!window.gsap || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  gsap.from(".turner-now-card", { scale: 0.9, y: 18, opacity: 0, duration: 0.42, ease: "back.out(1.45)" });
+  gsap.from(".turner-next-card", { x: 20, opacity: 0, duration: 0.34, delay: 0.08, ease: "power2.out" });
+  gsap.from(".turner-person-badge.is-waiting", { y: 9, opacity: 0, duration: 0.25, stagger: 0.04, delay: 0.15 });
+}
+
+function advanceTurner() {
+  if (!turnerSession || turnerSession.paused) return;
+  turnerSession.history.push({ currentIndex: turnerSession.currentIndex, round: turnerSession.round });
+  const nextIndex = (turnerSession.currentIndex + 1) % turnerSession.participants.length;
+  if (nextIndex === 0) turnerSession.round += 1;
+  turnerSession.currentIndex = nextIndex;
+  render();
+}
+
+function undoTurner() {
+  if (!turnerSession?.history.length) return;
+  const previous = turnerSession.history.pop();
+  turnerSession.currentIndex = previous.currentIndex;
+  turnerSession.round = previous.round;
+  render();
+}
+
+function toggleTurnerPause() {
+  if (!turnerSession) return;
+  turnerSession.paused = !turnerSession.paused;
+  render();
+}
+
+function addLiveTurnerParticipant() {
+  if (!turnerSession) return;
+  openModal({
+    title: "Agregar persona",
+    body: `
+      <label class="field">
+        <span>Nombre</span>
+        <input id="turnerLiveName" maxlength="28" autocomplete="off" placeholder="Escribí un nombre" />
+      </label>
+    `,
+    submitText: "Agregar",
+    onSubmit: () => {
+      const name = cleanTurnerName(modalRoot.querySelector("#turnerLiveName")?.value);
+      if (!name) {
+        toast("Escribí un nombre");
+        modalRoot.querySelector("#turnerLiveName")?.focus();
+        return;
+      }
+      turnerSession.participants.push(turnerParticipant(name, turnerSession.participants.length));
+      closeModal();
+      render();
+    }
+  });
+}
+
+function finishTurner() {
+  if (!turnerSession) return;
+  setRoute({ view: "turner-finish" });
+}
+
+function exitTurnerToSetup() {
+  if (turnerSession) {
+    turnerDraft = {
+      title: turnerSession.title === "Nuestros turnos" ? "" : turnerSession.title,
+      participants: clone(turnerSession.participants)
+    };
+  }
+  turnerSession = null;
+  setRoute({ view: "turner-setup" });
+}
+
+function restartTurner() {
+  if (!turnerSession) return openTurnerSetup();
+  turnerSession.currentIndex = 0;
+  turnerSession.round = 1;
+  turnerSession.paused = false;
+  turnerSession.history = [];
+  setRoute({ view: "turner-live" });
+}
+
+function renderTurnerFinish() {
+  if (!turnerSession) return setRoute({ view: "supports" });
+  renderShell(`
+    <section class="turner-finish-screen">
+      <div class="turner-finish-mark">${icon("check")}</div>
+      <p class="eyebrow">TURNOS</p>
+      <h2>Actividad terminada</h2>
+      <p>${turnerSession.participants.length} personas participaron.</p>
+      <div class="turner-finish-people">
+        ${turnerSession.participants.map((person) => turnerPersonBadge(person, "is-finished")).join("")}
+      </div>
+      <div class="turner-finish-actions">
+        <button class="btn btn-primary" type="button" data-action="turner-restart">${icon("turns")}Otra vez</button>
+        <button class="btn btn-ghost" type="button" data-action="supports">${icon("arrow")}Mis apoyos</button>
+      </div>
+    </section>
+  `);
+  if (window.gsap && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    gsap.from(".turner-finish-mark", { scale: 0.2, rotation: -14, opacity: 0, duration: 0.65, ease: "elastic.out(1, 0.55)" });
+    gsap.from(".turner-person-badge.is-finished", { y: 22, opacity: 0, duration: 0.35, stagger: 0.07, delay: 0.18, ease: "back.out(1.4)" });
+  }
 }
 
 function renderSchool() {
@@ -2056,6 +3022,7 @@ function renderSubject(subjectId) {
             <div class="item-card-body">
               <h3>${escapeHtml(theme.title)}</h3>
               <p>${escapeHtml(theme.description || "Tema sin descripcion")}</p>
+              ${theme.credit ? `<span class="theme-credit-badge">★ ${escapeHtml(theme.credit)}</span>` : ""}
               <span class="pill-row">
                 <span class="pill">${escapeHtml(theme.activityLabel || `${theme.exercises.length} ${theme.exercises.length === 1 ? "ronda" : "rondas"}`)}</span>
               </span>
@@ -2118,6 +3085,12 @@ function renderTheme(subjectId, themeId) {
                   ? `<div class="pill-row"><span class="pill">${theme.randomExerciseCount || 10} desafíos variados</span><span class="pill">Banco de 48 situaciones</span></div>`
                 : exercise.type === "pacman-angle"
                   ? `<div class="pill-row"><span class="pill">6 desafíos</span><span class="pill">Juego visual</span></div>`
+                : exercise.type === "plastic-materials"
+                  ? `<div class="pill-row"><span class="pill">6 desafíos</span><span class="pill">Objetos grandes</span></div>`
+                : exercise.type === "sentence-builder"
+                  ? `<div class="pill-row"><span class="pill">${exercise.sentences.length} oraciones</span><span class="pill">Sujeto · Verbo · Predicado</span></div>`
+                : exercise.type === "sofia-recipe"
+                  ? `<div class="pill-row"><span class="pill">${exercise.steps.length} pasos visuales</span><span class="pill">Con audio</span></div>`
                 : exercise.type === "instructional-recipe"
                   ? `<div class="pill-row"><span class="pill">${exercise.steps.length} instrucciones</span><span class="pill">Sin respuestas por descarte</span></div>`
                 : exercise.type === "recipe-photo-matching"
@@ -2151,7 +3124,10 @@ function renderTheme(subjectId, themeId) {
         </div>
       </div>
       <div class="section-title">
-        <h2>${escapeHtml(theme.title)}</h2>
+        <div>
+          <h2>${escapeHtml(theme.title)}</h2>
+          ${theme.credit ? `<span class="theme-credit-badge">★ ${escapeHtml(theme.credit)}</span>` : ""}
+        </div>
         <span class="pill">${theme.randomExerciseCount || theme.exercises.length} ejercicios</span>
       </div>
       <div class="grid theme-grid">${exercises}</div>
@@ -2164,7 +3140,9 @@ function startSession(subjectId, themeId, mode) {
   const theme = themeById(subject, themeId);
   if (!subject || !theme || !theme.exercises.length) return;
 
-  const exercises = theme.pacmanAngleSequence
+  const exercises = theme.plasticMaterialsSequence
+    ? createPlasticMaterialsExercises(theme)
+    : theme.pacmanAngleSequence
     ? createPacmanAngleExercises(theme)
     : theme.circleGeometryPool
     ? createCircleGeometryExercises(theme)
@@ -2308,6 +3286,21 @@ function startSession(subjectId, themeId, mode) {
           }
         ])
     ),
+    plasticMaterials: Object.fromEntries(
+      exercises
+        .filter((exercise) => exercise.type === "plastic-materials")
+        .map((exercise) => [
+          exercise.id,
+          {
+            roundIndex: 0,
+            selectedId: null,
+            wrongId: null,
+            answered: false,
+            message: "",
+            errors: 0
+          }
+        ])
+    ),
     instructionalRecipe: Object.fromEntries(
       exercises
         .filter((exercise) => exercise.type === "instructional-recipe")
@@ -2334,6 +3327,36 @@ function startSession(subjectId, themeId, mode) {
           }
         ])
     ),
+    sentenceBuilders: Object.fromEntries(
+      exercises
+        .filter((exercise) => exercise.type === "sentence-builder")
+        .map((exercise) => [
+          exercise.id,
+          {
+            roundIndex: 0,
+            phase: "build",
+            placed: [],
+            fragmentOrder: shuffled(["subject", "verb", "complement"]),
+            identified: [],
+            wrongPart: null,
+            message: ""
+          }
+        ])
+    ),
+    sofiaRecipes: Object.fromEntries(
+      exercises
+        .filter((exercise) => exercise.type === "sofia-recipe")
+        .map((exercise) => [
+          exercise.id,
+          {
+            phase: "intro",
+            stepIndex: 0,
+            optionOrder: shuffled(exercise.steps[0]?.options || []),
+            wrongId: null,
+            message: ""
+          }
+        ])
+    ),
     circleGeometryLearning: exercises.some((exercise) => exercise.type === "circle-geometry"),
     circleRetryKeys: [],
     englishRetryWords: [],
@@ -2343,6 +3366,12 @@ function startSession(subjectId, themeId, mode) {
   render();
   if (exercises[0]?.type === "english-vocabulary") {
     window.setTimeout(() => playEnglishVocabularyAudio(), 120);
+  }
+  if (exercises[0]?.type === "sentence-builder") {
+    window.setTimeout(() => playLanguageAudio("grammar/prompts/armar-oracion.mp3"), 160);
+  }
+  if (exercises[0]?.type === "sofia-recipe") {
+    window.setTimeout(() => playLanguageAudio("recipe/intro.mp3"), 160);
   }
 }
 
@@ -3539,6 +4568,296 @@ function checkPacmanAngleBuild() {
   window.setTimeout(() => advancePacmanAngleRound(sessionId, exerciseId, roundIndex), 1500);
 }
 
+function renderPlasticObjectSvg(objectId) {
+  const object = PLASTIC_OBJECTS[objectId];
+  if (!object) return "";
+  let drawing = "";
+  if (object.visual === "bottle" || object.visual === "clear-bottle") {
+    const transparent = object.visual === "clear-bottle";
+    drawing = `
+      ${transparent ? '<g class="plastic-transparency-stripes" stroke="#ef476f" stroke-width="7" opacity="0.72"><path d="M40 54h140M40 82h140M40 110h140M40 138h140" /></g>' : ""}
+      <path d="M89 22h42v22c0 7 7 12 15 18 12 9 18 23 18 39v52c0 13-10 23-23 23H79c-13 0-23-10-23-23v-52c0-16 6-30 18-39 8-6 15-11 15-18Z" fill="${transparent ? "rgba(80,195,235,0.38)" : "#198ee8"}" stroke="#175f9e" stroke-width="7" />
+      <rect x="84" y="14" width="52" height="20" rx="7" fill="#126fbd" stroke="#174d83" stroke-width="6" />
+      <path d="M75 78c18-13 54-13 70 0M74 143h72" fill="none" stroke="#bdeeff" stroke-width="8" stroke-linecap="round" opacity="0.75" />
+    `;
+  } else if (object.visual === "duck") {
+    drawing = `
+      <ellipse cx="118" cy="120" rx="70" ry="43" fill="#ffd60a" stroke="#d89b00" stroke-width="7" />
+      <circle cx="89" cy="72" r="39" fill="#ffd60a" stroke="#d89b00" stroke-width="7" />
+      <path d="M53 73 20 83l33 17c12-4 17-17 0-27Z" fill="#f77f00" stroke="#c65c00" stroke-width="6" />
+      <circle cx="78" cy="62" r="6" fill="#24343a" /><circle cx="76" cy="60" r="2" fill="#fff" />
+      <path d="M109 117c22-19 48-18 64-4-14 22-46 29-64 4Z" fill="#f5b700" stroke="#d89b00" stroke-width="5" />
+    `;
+  } else if (object.visual === "hanger") {
+    drawing = `
+      <path d="M102 68c-16-9-17-34-2-45 18-13 40 1 36 19-2 10-12 15-20 19" fill="none" stroke="#1565c0" stroke-width="13" stroke-linecap="round" />
+      <path d="m109 64-83 80c-7 7-2 18 8 18h152c11 0 15-13 7-19l-84-79Z" fill="#2f91ea" stroke="#125a9f" stroke-width="10" stroke-linejoin="round" />
+      <path d="M60 143h100" stroke="#8ed4ff" stroke-width="7" stroke-linecap="round" />
+    `;
+  } else if (object.visual === "bag") {
+    drawing = `
+      <path d="M49 43h36v39h50V43h36l20 135H29Z" fill="#72d7f2" stroke="#2289bd" stroke-width="7" stroke-linejoin="round" />
+      <path d="M85 43v39h50V43" fill="none" stroke="#2289bd" stroke-width="7" />
+      <path d="M52 111c29-14 86-11 117 4M58 139c27-9 75-8 102 4" fill="none" stroke="#d2f7ff" stroke-width="7" stroke-linecap="round" opacity="0.8" />
+    `;
+  } else if (object.visual === "ball") {
+    drawing = `
+      <circle cx="110" cy="101" r="76" fill="#ffcf33" stroke="#24343a" stroke-width="7" />
+      <path d="M110 25c18 22 23 48 17 76-7 31-1 54 18 69" fill="none" stroke="#ef476f" stroke-width="34" />
+      <path d="M42 68c26 3 51 15 68 35 20 24 43 34 68 31" fill="none" stroke="#2f80ed" stroke-width="32" />
+      <circle cx="110" cy="101" r="10" fill="#fff" stroke="#b9c4cf" stroke-width="5" />
+    `;
+  } else if (object.visual === "comb") {
+    drawing = `
+      <path d="M32 56h156v35H32Z" fill="#2389da" stroke="#155b9a" stroke-width="7" />
+      <path d="M42 89v66M59 89v55M76 89v66M93 89v55M110 89v66M127 89v55M144 89v66M161 89v55M178 89v66" stroke="#155b9a" stroke-width="9" stroke-linecap="round" />
+      <path d="M45 68h125" stroke="#9bddff" stroke-width="6" stroke-linecap="round" />
+    `;
+  } else if (object.visual === "chair") {
+    drawing = `
+      <rect x="56" y="25" width="108" height="91" rx="8" fill="#bd6b2c" stroke="#743b17" stroke-width="8" />
+      <path d="M71 47h78M71 76h78" stroke="#f0a45c" stroke-width="11" stroke-linecap="round" />
+      <rect x="42" y="103" width="136" height="36" rx="9" fill="#d27a34" stroke="#743b17" stroke-width="8" />
+      <path d="M58 136v46M162 136v46" stroke="#743b17" stroke-width="13" stroke-linecap="round" />
+    `;
+  } else if (object.visual === "boat") {
+    drawing = `
+      <path d="M27 94h166c-14 55-47 76-83 76S42 149 27 94Z" fill="#c66b2b" stroke="#713812" stroke-width="8" />
+      <path d="M43 113h135M54 137h109" stroke="#efad68" stroke-width="7" stroke-linecap="round" />
+      <path d="m150 29-70 119M143 42l24-14" stroke="#8b4c1f" stroke-width="11" stroke-linecap="round" />
+    `;
+  } else if (object.visual === "spoon") {
+    drawing = `
+      <ellipse cx="75" cy="120" rx="48" ry="36" transform="rotate(-28 75 120)" fill="#dfe5ea" stroke="#68737c" stroke-width="8" />
+      <path d="m104 93 83-66" stroke="#aeb8c0" stroke-width="22" stroke-linecap="round" />
+      <path d="m108 89 75-59" stroke="#f7fafc" stroke-width="6" stroke-linecap="round" opacity="0.85" />
+    `;
+  } else if (object.visual === "key") {
+    drawing = `
+      <circle cx="66" cy="72" r="38" fill="none" stroke="#89949d" stroke-width="17" />
+      <path d="m93 98 82 71M140 137l17-19M158 153l16-18" fill="none" stroke="#707b84" stroke-width="18" stroke-linecap="square" />
+      <path d="m96 93 76 66" stroke="#d9e0e5" stroke-width="6" stroke-linecap="round" />
+    `;
+  } else if (object.visual === "raincoat") {
+    drawing = `
+      <path d="M78 49c3-28 61-28 64 0l29 28-20 25v72H69v-72L49 77Z" fill="#ffd23f" stroke="#be8500" stroke-width="8" stroke-linejoin="round" />
+      <path d="M89 45c8 13 34 13 42 0M110 59v108M83 116h54" fill="none" stroke="#fff0a3" stroke-width="7" stroke-linecap="round" />
+      <circle cx="110" cy="82" r="5" fill="#9c6b00" />
+    `;
+  } else if (object.visual === "sponge") {
+    drawing = `
+      <path d="M33 48c0-13 11-23 24-23h111c13 0 22 12 19 24l-25 103c-3 12-13 20-25 20H47c-14 0-25-12-23-26Z" fill="#f4c542" stroke="#b77c15" stroke-width="8" />
+      <g fill="#c68e1d" opacity="0.8"><circle cx="61" cy="61" r="7"/><circle cx="102" cy="48" r="5"/><circle cx="150" cy="68" r="9"/><circle cx="74" cy="108" r="10"/><circle cx="125" cy="99" r="6"/><circle cx="145" cy="137" r="8"/><circle cx="53" cy="148" r="5"/><circle cx="105" cy="145" r="7"/></g>
+    `;
+  }
+  return `<svg class="plastic-object-svg plastic-object-${escapeHtml(object.visual)}" viewBox="0 0 220 200" role="img" aria-label="${escapeHtml(object.label)}">${drawing}</svg>`;
+}
+
+function renderMaterialSymbol(materialId) {
+  if (materialId === "plastic") {
+    return `<svg viewBox="0 0 80 70" aria-hidden="true"><path d="M31 9h18v10c0 4 12 8 12 22v17c0 5-4 9-9 9H28c-5 0-9-4-9-9V41c0-14 12-18 12-22Z" fill="#42b883" stroke="#176744" stroke-width="5"/><path d="M29 43h22" stroke="#d9fff0" stroke-width="5"/></svg>`;
+  }
+  if (materialId === "wood") {
+    return `<svg viewBox="0 0 80 70" aria-hidden="true"><rect x="9" y="15" width="62" height="42" rx="9" fill="#c87838" stroke="#713812" stroke-width="5"/><path d="M20 29c14-9 26 9 40 0M18 44c12-8 30 8 44 0" fill="none" stroke="#8d4c20" stroke-width="4" stroke-linecap="round"/></svg>`;
+  }
+  return `<svg viewBox="0 0 80 70" aria-hidden="true"><path d="m40 8 24 14v27L40 63 16 49V22Z" fill="#b9c3ca" stroke="#5d6870" stroke-width="5"/><circle cx="40" cy="35" r="12" fill="#f7fafc" stroke="#5d6870" stroke-width="5"/></svg>`;
+}
+
+function renderPlasticFindStage(state, round) {
+  const choices = round.objectIds.map((objectId) => {
+    const object = PLASTIC_OBJECTS[objectId];
+    const status = state.answered && objectId === round.correctId ? "is-correct" : state.wrongId === objectId ? "is-wrong" : "";
+    return `
+      <button class="plastic-object-choice ${status}" type="button" data-action="plastic-material-answer" data-value="${objectId}" ${state.answered || state.wrongId ? "disabled" : ""}>
+        ${renderPlasticObjectSvg(objectId)}
+        <strong>${escapeHtml(object.label)}</strong>
+      </button>
+    `;
+  }).join("");
+  return `
+    <div class="plastic-find-board">
+      <div class="plastic-object-grid">${choices}</div>
+      <div class="plastic-collection-bin" aria-hidden="true"><span>PLÁSTICO</span></div>
+    </div>
+  `;
+}
+
+function renderPlasticMaterialStage(state, round) {
+  const object = PLASTIC_OBJECTS[round.objectId];
+  const options = round.options.map((materialId) => {
+    const category = MATERIAL_CATEGORIES[materialId];
+    const status = state.answered && materialId === round.correctId ? "is-correct" : state.wrongId === materialId ? "is-wrong" : "";
+    return `
+      <button class="plastic-material-choice ${status}" type="button" data-action="plastic-material-answer" data-value="${materialId}" ${state.answered || state.wrongId ? "disabled" : ""} style="--material-color:${category.color}">
+        <span>${renderMaterialSymbol(materialId)}</span><strong>${escapeHtml(category.label)}</strong>
+      </button>
+    `;
+  }).join("");
+  return `
+    <div class="plastic-material-layout">
+      <div class="plastic-feature-object">${renderPlasticObjectSvg(round.objectId)}<strong>${escapeHtml(object.label)}</strong></div>
+      <div class="plastic-material-options">${options}</div>
+    </div>
+  `;
+}
+
+function renderPlasticPropertyStage(state, round) {
+  const object = PLASTIC_OBJECTS[round.objectId];
+  const choices = ["yes", "no"].map((value) => {
+    const status = state.answered && value === round.correctId ? "is-correct" : state.wrongId === value ? "is-wrong" : "";
+    return `<button class="plastic-yesno-choice ${status}" type="button" data-action="plastic-material-answer" data-value="${value}" ${state.answered || state.wrongId ? "disabled" : ""}><strong>${value === "yes" ? "SÍ" : "NO"}</strong></button>`;
+  }).join("");
+  const waterDemo = ["repel", "absorb"].includes(round.effect)
+    ? `<div class="plastic-water-drops" aria-hidden="true"><i></i><i></i><i></i></div>`
+    : "";
+  return `
+    <div class="plastic-property-layout">
+      <div class="plastic-property-scene effect-${escapeHtml(round.effect)}">
+        <div class="plastic-property-stripes" aria-hidden="true"></div>
+        <div class="plastic-feature-object">${renderPlasticObjectSvg(round.objectId)}<strong>${escapeHtml(object.label)}</strong></div>
+        ${waterDemo}
+      </div>
+      <div class="plastic-yesno-options">${choices}</div>
+    </div>
+  `;
+}
+
+function animatePlasticMaterialsScreen(exercise, state, round) {
+  if (!window.gsap || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const root = document.querySelector(".plastic-materials-runner");
+  if (!root) return;
+  gsap.from(root.querySelector(".plastic-stage-card"), { y: 16, opacity: 0, duration: 0.3, ease: "power2.out" });
+  gsap.from(root.querySelectorAll(".plastic-object-choice, .plastic-material-choice, .plastic-yesno-choice"), { y: 12, opacity: 0, duration: 0.28, stagger: 0.06, delay: 0.08, ease: "power2.out" });
+  if (state.wrongId !== null) {
+    const wrong = root.querySelector(".is-wrong");
+    if (wrong) gsap.fromTo(wrong, { x: -7 }, { x: 7, duration: 0.08, repeat: 3, yoyo: true, clearProps: "x" });
+  }
+  if (!state.answered) return;
+  gsap.from(root.querySelector(".plastic-feedback"), { scale: 0.8, opacity: 0, duration: 0.3, ease: "back.out(1.8)" });
+  if (exercise.stage === "find") {
+    const source = root.querySelector(".plastic-object-choice.is-correct .plastic-object-svg");
+    const bin = root.querySelector(".plastic-collection-bin");
+    if (source && bin) {
+      const sourceBox = source.getBoundingClientRect();
+      const targetBox = bin.getBoundingClientRect();
+      gsap.to(source, { x: targetBox.left + targetBox.width / 2 - (sourceBox.left + sourceBox.width / 2), y: targetBox.top + targetBox.height / 2 - (sourceBox.top + sourceBox.height / 2), scale: 0.28, rotation: 8, opacity: 0.15, duration: 0.9, ease: "power2.in" });
+      gsap.fromTo(bin, { scale: 0.94 }, { scale: 1.06, duration: 0.18, repeat: 1, yoyo: true, delay: 0.72 });
+    }
+  } else if (exercise.stage === "material") {
+    const object = root.querySelector(".plastic-feature-object");
+    const target = root.querySelector(".plastic-material-choice.is-correct");
+    if (object && target) {
+      const sourceBox = object.getBoundingClientRect();
+      const targetBox = target.getBoundingClientRect();
+      gsap.to(object, { x: targetBox.left + targetBox.width / 2 - (sourceBox.left + sourceBox.width / 2), y: targetBox.top + targetBox.height / 2 - (sourceBox.top + sourceBox.height / 2), scale: 0.32, opacity: 0.2, duration: 0.9, ease: "power2.in" });
+    }
+  } else {
+    const visual = root.querySelector(".plastic-feature-object .plastic-object-svg");
+    const drops = root.querySelectorAll(".plastic-water-drops i");
+    if (round.effect === "bend") gsap.to(visual, { rotation: -9, skewX: 12, scaleX: 0.82, duration: 0.24, repeat: 3, yoyo: true, transformOrigin: "50% 90%" });
+    if (round.effect === "rigid") gsap.fromTo(visual, { x: -5 }, { x: 5, duration: 0.08, repeat: 7, yoyo: true, clearProps: "x" });
+    if (round.effect === "transparent") gsap.fromTo(root.querySelector(".plastic-property-stripes"), { opacity: 0 }, { opacity: 1, duration: 0.55, repeat: 1, yoyo: true });
+    if (round.effect === "opaque") gsap.to(visual, { scale: 1.08, duration: 0.28, repeat: 2, yoyo: true, ease: "power1.inOut" });
+    if (round.effect === "repel") gsap.fromTo(drops, { y: -60, opacity: 1 }, { y: 18, opacity: 1, duration: 0.42, stagger: 0.08, repeat: 1, yoyo: true, ease: "power2.in" });
+    if (round.effect === "absorb") gsap.fromTo(drops, { y: -65, opacity: 1 }, { y: 35, opacity: 0, duration: 0.65, stagger: 0.08, ease: "power2.in" });
+  }
+}
+
+function renderPlasticMaterialsRunner(exercise) {
+  const state = session.plasticMaterials[exercise.id];
+  const round = exercise.rounds?.[state?.roundIndex];
+  if (!state || !round) return;
+  const stageLabels = { find: "ENCONTRAR", material: "CLASIFICAR", property: "PROBAR" };
+  const heading = exercise.stage === "property" ? round.prompt : exercise.prompt;
+  const content = exercise.stage === "find"
+    ? renderPlasticFindStage(state, round)
+    : exercise.stage === "material"
+      ? renderPlasticMaterialStage(state, round)
+      : renderPlasticPropertyStage(state, round);
+  let result = "";
+  if (state.answered) {
+    if (exercise.stage === "find") result = "PLÁSTICO";
+    else if (exercise.stage === "material") result = MATERIAL_CATEGORIES[round.correctId].label.toUpperCase();
+    else result = round.correctId === "yes" ? "SÍ" : "NO";
+  }
+  const feedbackClass = state.answered ? "good" : state.message ? "bad" : "wait";
+  const feedback = state.answered ? `${icon("check")}${result}` : escapeHtml(state.message || " ");
+  renderShell(`
+    <section class="runner matching-runner plastic-materials-runner plastic-${exercise.stage}-runner">
+      <div class="matching-session-bar">
+        <button class="btn btn-ghost" type="button" data-action="cancel-run">${icon("arrow")}Salir</button>
+        <div class="matching-session-status"><span>${state.roundIndex + 1} de ${exercise.rounds.length}</span><span>${stageLabels[exercise.stage]}</span></div>
+      </div>
+      <article class="question-panel plastic-stage-card">
+        <div class="plastic-stage-heading"><span>${session.index + 1} / ${session.exercises.length}</span><h2>${escapeHtml(heading.toUpperCase())}</h2></div>
+        ${content}
+        <div class="feedback plastic-feedback ${feedbackClass}" aria-live="polite">${feedback}</div>
+      </article>
+    </section>
+  `);
+  animatePlasticMaterialsScreen(exercise, state, round);
+}
+
+function advancePlasticMaterialsRound(sessionId, exerciseId, roundIndex) {
+  if (session?.id !== sessionId || session.exercises[session.index]?.id !== exerciseId) return;
+  const exercise = session.exercises[session.index];
+  const state = session.plasticMaterials[exerciseId];
+  if (!state || state.roundIndex !== roundIndex) return;
+  if (state.roundIndex + 1 < exercise.rounds.length) {
+    state.roundIndex += 1;
+    state.selectedId = null;
+    state.wrongId = null;
+    state.answered = false;
+    state.message = "";
+  } else {
+    session.score += 1;
+    session.answers.push({
+      prompt: exercise.prompt,
+      support: "Los plásticos",
+      selected: "Completó los seis desafíos",
+      correct: "Completó los seis desafíos",
+      isCorrect: true,
+      errors: state.errors
+    });
+    session.index += 1;
+  }
+  render();
+}
+
+function answerPlasticMaterials(value) {
+  const exercise = session?.exercises?.[session.index];
+  if (exercise?.type !== "plastic-materials") return;
+  const state = session.plasticMaterials[exercise.id];
+  const round = exercise.rounds?.[state?.roundIndex];
+  if (!state || !round || state.answered || state.wrongId !== null) return;
+  state.selectedId = value;
+  if (value !== round.correctId) {
+    state.wrongId = value;
+    state.errors += 1;
+    state.message = exercise.stage === "find" ? "BUSCÁ OTRO" : "MIRÁ OTRA VEZ";
+    const sessionId = session.id;
+    const exerciseId = exercise.id;
+    const roundIndex = state.roundIndex;
+    render();
+    window.setTimeout(() => {
+      const currentState = session?.plasticMaterials?.[exerciseId];
+      if (session?.id !== sessionId || session?.exercises?.[session.index]?.id !== exerciseId || currentState?.roundIndex !== roundIndex || currentState.answered) return;
+      currentState.selectedId = null;
+      currentState.wrongId = null;
+      currentState.message = "";
+      render();
+    }, 850);
+    return;
+  }
+  state.answered = true;
+  state.message = "";
+  const sessionId = session.id;
+  const exerciseId = exercise.id;
+  const roundIndex = state.roundIndex;
+  render();
+  window.setTimeout(() => advancePlasticMaterialsRound(sessionId, exerciseId, roundIndex), 1450);
+}
+
 function recipeInstructionText(step) {
   return step.segments
     .map((segment) => {
@@ -3920,6 +5239,516 @@ function finishRecipePhotoMatching() {
   render();
 }
 
+function stopLanguageAudio() {
+  if (!languageAudio) return;
+  languageAudio.pause();
+  languageAudio.currentTime = 0;
+  languageAudio = null;
+}
+
+function playLanguageAudio(relativePath, onEnded) {
+  if (!relativePath) return;
+  stopLanguageAudio();
+  const audio = new Audio(`./assets/language/sofia/audio/${relativePath}`);
+  languageAudio = audio;
+  audio.preload = "auto";
+  audio.volume = 1;
+  if (typeof onEnded === "function") {
+    audio.addEventListener(
+      "ended",
+      () => {
+        if (languageAudio === audio) languageAudio = null;
+        onEnded();
+      },
+      { once: true }
+    );
+  }
+  audio.play().catch(() => {});
+}
+
+function currentSentenceBuilder() {
+  const exercise = session?.exercises?.[session.index];
+  const state = session?.sentenceBuilders?.[exercise?.id];
+  const sentence = exercise?.sentences?.[state?.roundIndex];
+  return exercise?.type === "sentence-builder" && state && sentence ? { exercise, state, sentence } : null;
+}
+
+function sentencePartText(sentence, part) {
+  return part === "subject" ? sentence.subject : part === "verb" ? sentence.verb : sentence.complement;
+}
+
+function sentencePhasePrompt(phase) {
+  if (phase === "identify-subject") return { text: "¿Quién hace la acción?", audio: "grammar/prompts/tocar-sujeto.mp3", label: "SUJETO" };
+  if (phase === "identify-verb") return { text: "¿Qué hace?", audio: "grammar/prompts/tocar-verbo.mp3", label: "VERBO" };
+  if (phase === "identify-predicate") return { text: "¿Qué decimos del sujeto?", audio: "grammar/prompts/tocar-predicado.mp3", label: "PREDICADO" };
+  return { text: "Armá la oración", audio: "grammar/prompts/armar-oracion.mp3", label: "ORACIÓN" };
+}
+
+function playCurrentSentence() {
+  const current = currentSentenceBuilder();
+  if (!current) return;
+  playLanguageAudio(`grammar/sentences/${current.sentence.audio}`);
+}
+
+function playCurrentSentencePrompt() {
+  const current = currentSentenceBuilder();
+  if (!current) return;
+  playLanguageAudio(sentencePhasePrompt(current.state.phase).audio);
+}
+
+function renderSentenceProgress(exercise, state) {
+  return exercise.sentences
+    .map((_, index) => `<span class="sofia-progress-dot ${index < state.roundIndex ? "is-complete" : index === state.roundIndex ? "is-current" : ""}">${index + 1}</span>`)
+    .join("");
+}
+
+function renderSentenceVisual(sentence) {
+  return sentence.visual
+    .split("|")
+    .map((token, index) => `<span class="sentence-visual-token token-${index + 1}" aria-hidden="true">${escapeHtml(token)}</span>`)
+    .join('<span class="sentence-visual-arrow" aria-hidden="true">→</span>');
+}
+
+function renderSentenceBuild(exercise, state, sentence) {
+  const placed = state.placed
+    .map((part) => `<span class="sentence-slot-token part-${part}">${escapeHtml(sentencePartText(sentence, part))}</span>`)
+    .join("");
+  const slots = Array.from({ length: 3 }, (_, index) => placed && index < state.placed.length ? "" : `<span class="sentence-empty-slot"></span>`).join("");
+  const choices = state.fragmentOrder
+    .filter((part) => !state.placed.includes(part))
+    .map(
+      (part) => `
+        <button class="sentence-fragment ${state.wrongPart === part ? "is-wrong" : ""}" type="button" data-action="sentence-fragment" data-part="${part}">
+          ${escapeHtml(sentencePartText(sentence, part))}
+        </button>
+      `
+    )
+    .join("");
+  return `
+    <div class="sentence-task-heading">
+      <span class="sentence-task-kicker">ORACIÓN</span>
+      <h2>Armá la oración</h2>
+      <button class="sentence-audio-button" type="button" data-action="sentence-prompt-audio" aria-label="Escuchar consigna">${icon("speaker")}</button>
+    </div>
+    <div class="sentence-slot-area">
+      <div class="sentence-build-slots" aria-label="Oración en construcción">${placed}${slots}</div>
+      <div class="sentence-kind-key" aria-hidden="true"><span>QUIÉN</span><span>QUÉ HACE</span><span>QUÉ MÁS</span></div>
+    </div>
+    <div class="sentence-fragment-bank">${choices}</div>
+  `;
+}
+
+function renderSentenceIdentify(exercise, state, sentence) {
+  const prompt = sentencePhasePrompt(state.phase);
+  const subjectFound = state.identified.includes("subject");
+  const verbFound = state.identified.includes("verb");
+  const predicatePhase = state.phase === "identify-predicate";
+  const subjectButton = `
+    <button class="sentence-identify-part part-subject ${subjectFound ? "is-found" : ""} ${state.wrongPart === "subject" ? "is-wrong" : ""}" type="button" data-action="sentence-identify" data-part="subject">
+      ${escapeHtml(sentence.subject)}${subjectFound ? "<small>SUJETO</small>" : ""}
+    </button>
+  `;
+  const remaining = predicatePhase
+    ? `
+      <button class="sentence-predicate-choice ${state.wrongPart === "predicate" ? "is-wrong" : ""}" type="button" data-action="sentence-identify" data-part="predicate">
+        <span class="part-verb is-found">${escapeHtml(sentence.verb)}<small>VERBO</small></span>
+        <span class="part-complement">${escapeHtml(sentence.complement)}</span>
+        <strong>PREDICADO</strong>
+      </button>
+    `
+    : `
+      <button class="sentence-identify-part part-verb ${verbFound ? "is-found" : ""} ${state.wrongPart === "verb" ? "is-wrong" : ""}" type="button" data-action="sentence-identify" data-part="verb">
+        ${escapeHtml(sentence.verb)}${verbFound ? "<small>VERBO</small>" : ""}
+      </button>
+      <button class="sentence-identify-part part-complement ${state.wrongPart === "complement" ? "is-wrong" : ""}" type="button" data-action="sentence-identify" data-part="complement">${escapeHtml(sentence.complement)}</button>
+    `;
+  return `
+    <div class="sentence-task-heading">
+      <span class="sentence-task-kicker">${prompt.label}</span>
+      <h2>${escapeHtml(prompt.text)}</h2>
+      <button class="sentence-audio-button" type="button" data-action="sentence-prompt-audio" aria-label="Escuchar consigna">${icon("speaker")}</button>
+    </div>
+    <div class="sentence-identify-row ${predicatePhase ? "is-predicate-phase" : ""}">${subjectButton}${remaining}</div>
+    <button class="sentence-listen-full" type="button" data-action="sentence-full-audio">${icon("speaker")}Escuchar oración</button>
+  `;
+}
+
+function renderSentenceResult(exercise, state, sentence) {
+  const isLast = state.roundIndex === exercise.sentences.length - 1;
+  return `
+    <div class="sentence-result">
+      <span class="sentence-result-check">${icon("check")}</span>
+      <h2>¡Muy bien!</h2>
+      <div class="sentence-analysis">
+        <span class="analysis-subject">${escapeHtml(sentence.subject)}<small>SUJETO</small></span>
+        <span class="analysis-predicate">
+          <span class="analysis-verb">${escapeHtml(sentence.verb)}<small>VERBO</small></span>
+          <span>${escapeHtml(sentence.complement)}</span>
+          <strong>PREDICADO</strong>
+        </span>
+      </div>
+      <button class="sentence-listen-full" type="button" data-action="sentence-full-audio">${icon("speaker")}Escuchar oración</button>
+      <button class="btn btn-primary sentence-next-button" type="button" data-action="sentence-next">${isLast ? `${icon("check")}Terminar` : "Siguiente oración"}</button>
+    </div>
+  `;
+}
+
+function animateSentenceBuilder(state) {
+  if (!window.gsap || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  window.requestAnimationFrame(() => {
+    const root = document.querySelector(".sentence-builder-runner");
+    if (!root) return;
+    gsap.from(root.querySelectorAll(".sentence-visual-token"), { scale: 0.55, y: 18, opacity: 0, duration: 0.45, stagger: 0.1, ease: "back.out(1.8)" });
+    if (state.phase === "build") gsap.from(root.querySelectorAll(".sentence-fragment"), { y: 18, opacity: 0, duration: 0.32, stagger: 0.05, ease: "power2.out" });
+    if (state.phase === "result") gsap.from(root.querySelector(".sentence-analysis"), { scale: 0.78, opacity: 0, duration: 0.5, ease: "back.out(1.55)" });
+    if (state.wrongPart) gsap.fromTo(root.querySelector(".is-wrong"), { x: -8 }, { x: 8, duration: 0.08, repeat: 4, yoyo: true, clearProps: "x" });
+  });
+}
+
+function renderSentenceBuilderRunner(exercise) {
+  const state = session.sentenceBuilders[exercise.id];
+  const sentence = exercise.sentences[state.roundIndex];
+  const content = state.phase === "build"
+    ? renderSentenceBuild(exercise, state, sentence)
+    : state.phase === "result"
+      ? renderSentenceResult(exercise, state, sentence)
+      : renderSentenceIdentify(exercise, state, sentence);
+  renderShell(`
+    <section class="runner matching-runner sentence-builder-runner">
+      <div class="matching-session-bar">
+        <button class="btn btn-ghost" type="button" data-action="cancel-run">${icon("arrow")}Salir</button>
+        <div class="sofia-session-title"><strong>Armamos oraciones</strong><span>★ PSP Sofía</span></div>
+        <div class="matching-session-status"><span>${state.roundIndex + 1} de ${exercise.sentences.length}</span><span>Lengua</span></div>
+      </div>
+      <div class="sofia-progress-row">${renderSentenceProgress(exercise, state)}</div>
+      <article class="question-panel sentence-builder-panel">
+        <aside class="sentence-picture" aria-label="Ilustración de la oración">${renderSentenceVisual(sentence)}</aside>
+        <section class="sentence-workspace">
+          ${content}
+          <div class="sentence-feedback ${state.wrongPart ? "is-retry" : ""}" role="status">${state.message ? escapeHtml(state.message) : " "}</div>
+        </section>
+      </article>
+    </section>
+  `);
+  animateSentenceBuilder(state);
+}
+
+function chooseSentenceFragment(part) {
+  const current = currentSentenceBuilder();
+  if (!current || current.state.phase !== "build" || !["subject", "verb", "complement"].includes(part)) return;
+  const { state, sentence } = current;
+  const expected = ["subject", "verb", "complement"][state.placed.length];
+  if (part !== expected) {
+    state.wrongPart = part;
+    state.message = state.placed.length === 0 ? "Buscá quién hace la acción." : "Probá con la parte que sigue.";
+    render();
+    playLanguageAudio("grammar/prompts/probar-otra-vez.mp3");
+    return;
+  }
+  state.placed.push(part);
+  state.wrongPart = null;
+  state.message = "";
+  if (state.placed.length === 3) {
+    state.phase = "identify-subject";
+    render();
+    const sessionId = session.id;
+    const roundIndex = state.roundIndex;
+    playLanguageAudio(`grammar/sentences/${sentence.audio}`, () => {
+      const latest = currentSentenceBuilder();
+      if (session?.id === sessionId && latest?.state.roundIndex === roundIndex && latest.state.phase === "identify-subject") {
+        playCurrentSentencePrompt();
+      }
+    });
+    return;
+  }
+  render();
+}
+
+function identifySentencePart(part) {
+  const current = currentSentenceBuilder();
+  if (!current || !current.state.phase.startsWith("identify-")) return;
+  const { state, sentence } = current;
+  const expected = state.phase === "identify-subject" ? "subject" : state.phase === "identify-verb" ? "verb" : "predicate";
+  if (part !== expected) {
+    state.wrongPart = part;
+    state.message = expected === "subject" ? "Buscá quién hace la acción." : expected === "verb" ? "Buscá la acción." : "El predicado incluye el verbo y lo que sigue.";
+    render();
+    playLanguageAudio("grammar/prompts/probar-otra-vez.mp3");
+    return;
+  }
+  state.identified.push(expected);
+  state.wrongPart = null;
+  state.message = "";
+  state.phase = expected === "subject" ? "identify-verb" : expected === "verb" ? "identify-predicate" : "result";
+  render();
+  if (state.phase === "result") playLanguageAudio(`grammar/sentences/${sentence.audio}`);
+  else playCurrentSentencePrompt();
+}
+
+function advanceSentenceBuilder() {
+  const current = currentSentenceBuilder();
+  if (!current || current.state.phase !== "result") return;
+  const { exercise, state } = current;
+  stopLanguageAudio();
+  if (state.roundIndex >= exercise.sentences.length - 1) {
+    session.score += 1;
+    session.answers.push({
+      prompt: exercise.prompt,
+      support: "Sujeto, verbo y predicado · PSP Sofía",
+      selected: "Completó las ocho oraciones",
+      correct: "Completó las ocho oraciones",
+      isCorrect: true
+    });
+    session.index += 1;
+    return render();
+  }
+  state.roundIndex += 1;
+  state.phase = "build";
+  state.placed = [];
+  state.fragmentOrder = shuffled(["subject", "verb", "complement"]);
+  state.identified = [];
+  state.wrongPart = null;
+  state.message = "";
+  render();
+  window.setTimeout(() => playCurrentSentencePrompt(), 120);
+}
+
+function recipeSectionInfo(section) {
+  if (section === "pure") return { title: "Primero: el puré", color: "#d88b24" };
+  if (section === "milanesa") return { title: "Después: la milanesa", color: "#c95f50" };
+  return { title: "Al final: el plato", color: "#4f9d69" };
+}
+
+function renderSofiaRecipeVisual(step, compact = false) {
+  const tokens = step.visual
+    .split("|")
+    .map((token, index) => `<span class="sofia-scene-token token-${index + 1}" aria-hidden="true">${escapeHtml(token)}</span>`)
+    .join("");
+  const effects = ["boil", "cook"].includes(step.scene)
+    ? '<span class="sofia-steam" aria-hidden="true"><i></i><i></i><i></i></span>'
+    : ["drain", "salt", "bread"].includes(step.scene)
+      ? '<span class="sofia-particles" aria-hidden="true"><i></i><i></i><i></i><i></i></span>'
+      : "";
+  return `<div class="sofia-recipe-scene scene-${step.scene} ${compact ? "is-compact" : ""}">${tokens}${effects}</div>`;
+}
+
+function renderSofiaRecipeIntro(exercise) {
+  const ingredients = exercise.ingredients
+    .map(
+      (item) => `
+        <div class="sofia-ingredient">
+          ${item.image ? `<img src="./${escapeHtml(item.image)}" alt="" aria-hidden="true" />` : `<span aria-hidden="true">${escapeHtml(item.visual)}</span>`}
+          <strong>${escapeHtml(item.label)}</strong>
+        </div>
+      `
+    )
+    .join("");
+  return `
+    <div class="sofia-recipe-intro">
+      <section class="sofia-recipe-document">
+        <span class="sofia-document-label">TÍTULO</span>
+        <h2>${escapeHtml(exercise.prompt)}</h2>
+        <span class="sofia-document-label">INGREDIENTES</span>
+        <div class="sofia-ingredients">${ingredients}</div>
+      </section>
+      <aside class="sofia-recipe-guide">
+        <div class="sofia-final-dish" aria-hidden="true"><span>🥩</span><span>🥔</span><b>🍽️</b></div>
+        <span class="theme-credit-badge">★ Propuesta por PSP Sofía</span>
+        <h3>Seguimos los pasos en orden</h3>
+        <div class="sofia-recipe-path"><span>1 Puré</span><b>→</b><span>2 Milanesa</span><b>→</b><span>3 Plato</span></div>
+        <button class="sentence-audio-button" type="button" data-action="sofia-recipe-intro-audio" aria-label="Escuchar presentación">${icon("speaker")}</button>
+        <button class="btn btn-primary sofia-recipe-main" type="button" data-action="sofia-recipe-start">${icon("play")}Empezar</button>
+      </aside>
+    </div>
+  `;
+}
+
+function renderSofiaRecipeChoice(exercise, state) {
+  const step = exercise.steps[state.stepIndex];
+  const section = recipeSectionInfo(step.section);
+  const options = state.optionOrder
+    .map((id) => exercise.steps.find((candidate) => candidate.id === id))
+    .filter(Boolean)
+    .map(
+      (option) => `
+        <button class="sofia-recipe-option ${state.wrongId === option.id ? "is-wrong" : ""}" type="button" data-action="sofia-recipe-answer" data-step="${escapeHtml(option.id)}">
+          ${renderSofiaRecipeVisual(option, true)}
+          <strong>${escapeHtml(option.short)}</strong>
+        </button>
+      `
+    )
+    .join("");
+  return `
+    <div class="sofia-recipe-choice" style="--section-color:${section.color}">
+      <div class="sofia-recipe-section-title"><span>${escapeHtml(section.title)}</span><b>Paso ${state.stepIndex + 1} de ${exercise.steps.length}</b></div>
+      <div class="sofia-instruction-card">
+        <p>${escapeHtml(step.text)}</p>
+        <button class="sentence-audio-button" type="button" data-action="sofia-recipe-step-audio" aria-label="Escuchar paso">${icon("speaker")}</button>
+      </div>
+      <h3>Tocá la imagen</h3>
+      <div class="sofia-recipe-options">${options}</div>
+      <div class="sentence-feedback ${state.wrongId ? "is-retry" : ""}" role="status">${state.message ? escapeHtml(state.message) : " "}</div>
+    </div>
+  `;
+}
+
+function sofiaRecipeNextLabel(exercise, state) {
+  const current = exercise.steps[state.stepIndex];
+  const next = exercise.steps[state.stepIndex + 1];
+  if (!next) return `${icon("check")}Ver el plato terminado`;
+  if (current.section === "pure" && next.section === "milanesa") return "Ahora, la milanesa";
+  if (current.section === "milanesa" && next.section === "plate") return "Ahora, armamos el plato";
+  return "Siguiente paso";
+}
+
+function renderSofiaRecipeResult(exercise, state) {
+  const step = exercise.steps[state.stepIndex];
+  const section = recipeSectionInfo(step.section);
+  return `
+    <div class="sofia-recipe-result" style="--section-color:${section.color}">
+      <span class="sofia-result-step">PASO ${state.stepIndex + 1}</span>
+      ${renderSofiaRecipeVisual(step)}
+      <div class="sofia-result-copy">
+        <span class="sofia-result-check">${icon("check")}</span>
+        <p>${escapeHtml(step.text)}</p>
+        <button class="sentence-audio-button" type="button" data-action="sofia-recipe-step-audio" aria-label="Escuchar paso">${icon("speaker")}</button>
+      </div>
+      <button class="btn btn-primary sofia-recipe-main" type="button" data-action="sofia-recipe-next">${sofiaRecipeNextLabel(exercise, state)}</button>
+    </div>
+  `;
+}
+
+function renderSofiaRecipeComplete(exercise) {
+  return `
+    <div class="sofia-recipe-complete">
+      <div class="sofia-recipe-confetti" aria-hidden="true">${Array.from({ length: 18 }, (_, index) => `<i style="--i:${index}"></i>`).join("")}</div>
+      <span class="theme-credit-badge">★ Propuesta por PSP Sofía</span>
+      <div class="sofia-complete-plate" aria-hidden="true"><span class="complete-milanesa">🥩</span><span class="complete-pure">🥔</span><b>🍽️</b></div>
+      <h2>¡Receta terminada!</h2>
+      <p>Milanesa con puré</p>
+      <div class="sofia-recipe-summary"><span><b>1</b>Puré</span><span><b>2</b>Milanesa</span><span><b>3</b>Servir</span></div>
+      <button class="btn btn-primary sofia-recipe-main" type="button" data-action="sofia-recipe-finish">${icon("check")}Terminar actividad</button>
+    </div>
+  `;
+}
+
+function animateSofiaRecipe(state) {
+  if (!window.gsap || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  window.requestAnimationFrame(() => {
+    const root = document.querySelector(".sofia-recipe-runner");
+    if (!root) return;
+    if (state.phase === "intro") {
+      gsap.from(root.querySelectorAll(".sofia-ingredient"), { scale: 0.65, opacity: 0, duration: 0.38, stagger: 0.045, ease: "back.out(1.7)" });
+    } else if (state.phase === "choose") {
+      gsap.from(root.querySelectorAll(".sofia-recipe-option"), { y: 20, opacity: 0, duration: 0.38, stagger: 0.06, ease: "power2.out" });
+      if (state.wrongId) gsap.fromTo(root.querySelector(".sofia-recipe-option.is-wrong"), { x: -8 }, { x: 8, duration: 0.08, repeat: 4, yoyo: true, clearProps: "x" });
+    } else if (state.phase === "result") {
+      gsap.from(root.querySelector(".sofia-recipe-scene"), { scale: 0.55, rotation: -6, opacity: 0, duration: 0.62, ease: "back.out(1.7)" });
+      gsap.from(root.querySelectorAll(".sofia-scene-token"), { y: -18, duration: 0.55, stagger: 0.12, ease: "bounce.out" });
+    } else if (state.phase === "complete") {
+      gsap.from(root.querySelector(".sofia-complete-plate"), { scale: 0.25, rotation: -16, opacity: 0, duration: 0.8, ease: "elastic.out(1, 0.55)" });
+      gsap.from(root.querySelectorAll(".sofia-recipe-confetti i"), { y: -150, x: () => gsap.utils.random(-90, 90), rotation: () => gsap.utils.random(-260, 260), opacity: 0, duration: 1.1, stagger: 0.025, ease: "bounce.out" });
+    }
+  });
+}
+
+function renderSofiaRecipeRunner(exercise) {
+  const state = session.sofiaRecipes[exercise.id];
+  const content = state.phase === "intro"
+    ? renderSofiaRecipeIntro(exercise)
+    : state.phase === "choose"
+      ? renderSofiaRecipeChoice(exercise, state)
+      : state.phase === "result"
+        ? renderSofiaRecipeResult(exercise, state)
+        : renderSofiaRecipeComplete(exercise);
+  const status = state.phase === "intro" || state.phase === "complete" ? "Texto instructivo" : `${state.stepIndex + 1} de ${exercise.steps.length}`;
+  renderShell(`
+    <section class="runner matching-runner sofia-recipe-runner">
+      <div class="matching-session-bar">
+        <button class="btn btn-ghost" type="button" data-action="cancel-run">${icon("arrow")}Salir</button>
+        <div class="sofia-session-title"><strong>Milanesa con puré</strong><span>★ PSP Sofía</span></div>
+        <div class="matching-session-status"><span>${escapeHtml(status)}</span><span>Lengua</span></div>
+      </div>
+      <article class="question-panel sofia-recipe-panel">${content}</article>
+    </section>
+  `);
+  animateSofiaRecipe(state);
+}
+
+function currentSofiaRecipe() {
+  const exercise = session?.exercises?.[session.index];
+  const state = session?.sofiaRecipes?.[exercise?.id];
+  return exercise?.type === "sofia-recipe" && state ? { exercise, state, step: exercise.steps[state.stepIndex] } : null;
+}
+
+function playCurrentRecipeStep() {
+  const current = currentSofiaRecipe();
+  if (!current?.step) return;
+  playLanguageAudio(`recipe/steps/${current.step.audio}`);
+}
+
+function startSofiaRecipe() {
+  const current = currentSofiaRecipe();
+  if (!current || current.state.phase !== "intro") return;
+  current.state.phase = "choose";
+  render();
+  window.setTimeout(() => playCurrentRecipeStep(), 120);
+}
+
+function answerSofiaRecipe(stepId) {
+  const current = currentSofiaRecipe();
+  if (!current || current.state.phase !== "choose" || !current.state.optionOrder.includes(stepId)) return;
+  const { state, step } = current;
+  if (stepId !== step.id) {
+    state.wrongId = stepId;
+    state.message = "Mirá la frase y probá otra vez.";
+    render();
+    playLanguageAudio("grammar/prompts/probar-otra-vez.mp3");
+    return;
+  }
+  state.phase = "result";
+  state.wrongId = null;
+  state.message = "";
+  render();
+  playCurrentRecipeStep();
+}
+
+function advanceSofiaRecipe() {
+  const current = currentSofiaRecipe();
+  if (!current || current.state.phase !== "result") return;
+  const { exercise, state } = current;
+  stopLanguageAudio();
+  if (state.stepIndex >= exercise.steps.length - 1) {
+    state.phase = "complete";
+    render();
+    playLanguageAudio("recipe/complete.mp3");
+    return;
+  }
+  state.stepIndex += 1;
+  state.phase = "choose";
+  state.optionOrder = shuffled(exercise.steps[state.stepIndex].options);
+  state.wrongId = null;
+  state.message = "";
+  render();
+  window.setTimeout(() => playCurrentRecipeStep(), 120);
+}
+
+function finishSofiaRecipe() {
+  const current = currentSofiaRecipe();
+  if (!current || current.state.phase !== "complete") return;
+  stopLanguageAudio();
+  session.score += 1;
+  session.answers.push({
+    prompt: current.exercise.prompt,
+    support: "Texto instructivo · PSP Sofía",
+    selected: "Completó los doce pasos",
+    correct: "Completó los doce pasos",
+    isCorrect: true
+  });
+  session.index += 1;
+  render();
+}
+
 function renderRunner() {
   if (!session) return setRoute({ view: "home" });
   const total = session.exercises.length;
@@ -3937,7 +5766,10 @@ function renderRunner() {
   if (exercise.type === "english-vocabulary") return renderEnglishVocabularyRunner(exercise);
   if (exercise.type === "instructional-recipe") return renderInstructionalRecipeRunner(exercise);
   if (exercise.type === "recipe-photo-matching") return renderRecipePhotoMatchingRunner(exercise);
+  if (exercise.type === "sentence-builder") return renderSentenceBuilderRunner(exercise);
+  if (exercise.type === "sofia-recipe") return renderSofiaRecipeRunner(exercise);
   if (exercise.type === "pacman-angle") return renderPacmanAngleRunner(exercise);
+  if (exercise.type === "plastic-materials") return renderPlasticMaterialsRunner(exercise);
   if (exercise.type === "circle-geometry") {
     return session.circleGeometryLearning ? renderCircleGeometryLearning() : renderCircleGeometryRunner(exercise);
   }
@@ -5532,14 +7364,63 @@ document.addEventListener("input", (event) => {
   }
 });
 
+document.addEventListener("submit", (event) => {
+  const form = event.target.closest('[data-form="turner-participant"]');
+  if (!form) return;
+  event.preventDefault();
+  const name = new FormData(form).get("name");
+  addTurnerParticipant(name);
+});
+
 document.addEventListener("click", (event) => {
   const target = event.target.closest("[data-action]");
   if (!target) return;
   const action = target.dataset.action;
 
+  if (action === "pwa-install") return requestPwaInstall();
   if (action === "home") return setRoute({ view: "home" });
   if (action === "school") return setRoute({ view: "school" });
   if (action === "communication") return setRoute({ view: "communication" });
+  if (action === "supports") return setRoute({ view: "supports" });
+  if (action === "support-numbers-open") return openSupportNumbers();
+  if (action === "support-number-mode") {
+    supportNumberMode = target.dataset.mode === "count" ? "count" : "show";
+    stopSupportAudio();
+    return render();
+  }
+  if (action === "support-number-range") {
+    supportNumberRange = [5, 10, 20].includes(Number(target.dataset.range)) ? Number(target.dataset.range) : 10;
+    if (supportSelectedNumber > supportNumberRange) supportSelectedNumber = null;
+    return render();
+  }
+  if (action === "support-number-select") return selectSupportNumber(target.dataset.value);
+  if (action === "support-number-replay") return playSupportAudio("numbers", target.dataset.value);
+  if (action === "support-count-change") return changeSupportCount(target.dataset.delta);
+  if (action === "support-count-reset") return resetSupportCount();
+  if (action === "support-colors-open") return openSupportColors();
+  if (action === "support-color-mode") {
+    supportColorMode = target.dataset.mode === "random" ? "random" : "show";
+    stopSupportAudio();
+    return render();
+  }
+  if (action === "support-color-select") return selectSupportColor(target.dataset.color);
+  if (action === "support-color-random") return pickRandomSupportColor();
+  if (action === "support-color-replay") return playSupportAudio("colors", target.dataset.color);
+  if (action === "turner-open") return openTurnerSetup(true);
+  if (action === "turner-person-up") return moveTurnerParticipant(target.dataset.id, -1);
+  if (action === "turner-person-down") return moveTurnerParticipant(target.dataset.id, 1);
+  if (action === "turner-person-remove") return removeTurnerParticipant(target.dataset.id);
+  if (action === "turner-save-group") return saveTurnerGroup();
+  if (action === "turner-use-group") return useTurnerGroup(target.dataset.group);
+  if (action === "turner-delete-group") return deleteTurnerGroup(target.dataset.group);
+  if (action === "turner-start") return startTurner();
+  if (action === "turner-next" || action === "turner-decline") return advanceTurner();
+  if (action === "turner-undo") return undoTurner();
+  if (action === "turner-pause") return toggleTurnerPause();
+  if (action === "turner-add-live") return addLiveTurnerParticipant();
+  if (action === "turner-finish") return finishTurner();
+  if (action === "turner-restart") return restartTurner();
+  if (action === "turner-exit") return exitTurnerToSetup();
   if (action === "communication-quick") return selectCommunicationQuick(target.dataset.quick);
   if (action === "communication-starter") return selectCommunicationStarter(target.dataset.starter);
   if (action === "communication-group") return selectCommunicationGroup(target.dataset.group);
@@ -5645,6 +7526,7 @@ document.addEventListener("click", (event) => {
   if (action === "pacman-angle-answer") return answerPacmanAngle(target.dataset.value);
   if (action === "pacman-angle-check") return checkPacmanAngleBuild();
   if (action === "pacman-angle-slider") return;
+  if (action === "plastic-material-answer") return answerPlasticMaterials(target.dataset.value);
   if (action === "recipe-start") return startInstructionalRecipe();
   if (action === "recipe-answer") return answerRecipeStep(target.dataset.item);
   if (action === "recipe-continue") return continueInstructionalRecipe();
@@ -5652,10 +7534,22 @@ document.addEventListener("click", (event) => {
   if (action === "recipe-match-step") return selectRecipeMatchStep(target.dataset.step);
   if (action === "recipe-match-photo") return selectRecipeMatchPhoto(target.dataset.photo);
   if (action === "recipe-match-finish") return finishRecipePhotoMatching();
+  if (action === "sentence-fragment") return chooseSentenceFragment(target.dataset.part);
+  if (action === "sentence-identify") return identifySentencePart(target.dataset.part);
+  if (action === "sentence-next") return advanceSentenceBuilder();
+  if (action === "sentence-full-audio") return playCurrentSentence();
+  if (action === "sentence-prompt-audio") return playCurrentSentencePrompt();
+  if (action === "sofia-recipe-intro-audio") return playLanguageAudio("recipe/intro.mp3");
+  if (action === "sofia-recipe-start") return startSofiaRecipe();
+  if (action === "sofia-recipe-answer") return answerSofiaRecipe(target.dataset.step);
+  if (action === "sofia-recipe-step-audio") return playCurrentRecipeStep();
+  if (action === "sofia-recipe-next") return advanceSofiaRecipe();
+  if (action === "sofia-recipe-finish") return finishSofiaRecipe();
   if (action === "answer") return answer(Number(target.dataset.index));
   if (action === "next") return nextQuestion();
   if (action === "cancel-run") {
     const subjectId = session?.subjectId;
+    stopLanguageAudio();
     session = null;
     return setRoute(subjectId ? { view: "subject", subjectId } : { view: "home" });
   }
@@ -5691,9 +7585,11 @@ function resetDemo() {
   toast("Plantilla restaurada");
 }
 
-if ("serviceWorker" in navigator && location.protocol !== "file:") {
+setupPwaInstall();
+
+if (!isNativeAppRuntime() && "serviceWorker" in navigator && location.protocol !== "file:") {
   window.addEventListener("load", () => {
-    navigator.serviceWorker.register("./service-worker.js").catch(() => {});
+    navigator.serviceWorker.register("./service-worker.js", { scope: "./", updateViaCache: "none" }).catch(() => {});
   });
 }
 

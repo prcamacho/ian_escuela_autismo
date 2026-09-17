@@ -58,6 +58,49 @@ Si Ian se equivoca, la respuesta correcta no se revela ni se eliminan opciones. 
 
 Los audios están en `app/assets/english/audio` y se pueden regenerar con `scripts/generate-english-audio.py` usando `edge-tts`.
 
+## Lengua: actividades de PSP Sofía
+
+La tarjeta "Armamos oraciones" contiene ocho oraciones cortas. Ian primero ordena tres fragmentos y después reconoce, de a un elemento por vez, el sujeto, el verbo y el predicado. El sujeto se marca en azul, el verbo en naranja y el predicado completo con un marco verde, dejando claro que el verbo forma parte del predicado.
+
+La tarjeta "Milanesa con puré" presenta un texto instructivo de doce pasos. La preparación se divide visualmente en puré, milanesa y plato final. Cada instrucción se escucha, se relaciona con una de tres escenas y, al acertar, se representa con una animación breve. Los pasos que requieren cuchillo o calor indican que debe realizarlos un adulto.
+
+Las dos tarjetas muestran la identificación "Propuesta por PSP Sofía". Sus 27 audios en español se guardan en `app/assets/language/sofia/audio` y pueden regenerarse con `scripts/generate-sofia-language-audio.py`.
+
+## Ciencias Naturales: los plásticos
+
+La actividad "Los plásticos" reúne tres juegos consecutivos de seis desafíos cada uno:
+
+- Encontrar el objeto de plástico entre tres materiales claramente diferentes.
+- Clasificar objetos como plástico, madera o metal.
+- Observar propiedades con preguntas breves: si se dobla, si se ve a través y si absorbe agua.
+
+Las ilustraciones son vectores guardados en el propio código para que funcionen sin internet. Se evitan objetos visualmente ambiguos. Al acertar, GSAP anima el objeto entrando en la caja de plástico, moviéndose hacia su material o mostrando la propiedad con dobleces, transparencias y gotas de agua. Una respuesta incorrecta muestra una pista corta y permite volver a intentar.
+
+## Mis apoyos
+
+### Turnos
+
+- La pantalla principal incorpora "Mis apoyos" como tercera sección.
+- El turnero permite escribir cualquier cantidad de nombres, sin fotos ni perfiles obligatorios.
+- Cada participante recibe una inicial y un color estable dentro de la actividad.
+- La vista activa diferencia "Ahora", "Después" y "Esperan", con avance cíclico por vueltas.
+- Incluye "Terminé", "No quiero", "Atrás", "Pausa", incorporación de participantes y finalización manual.
+- Los nombres se presentan de forma visual y los grupos pueden guardarse para reutilizarlos. No usa voz sintética, porque la tablet sólo reproduce de forma confiable los audios incluidos como archivos.
+
+### Números
+
+- El modo "Mostrar" permite elegir números del 0 al 5, del 0 al 10 o del 0 al 20.
+- Cada número se presenta en grande, escrito con letras y representado con una cantidad de puntos.
+- El modo "Contar" incorpora botones grandes para sumar o restar de a uno, con un máximo de 20.
+- Cada valor tiene su propio audio en español guardado dentro de la aplicación.
+
+### Colores
+
+- El modo "Mostrar" contiene rojo, azul, amarillo, verde, naranja, violeta, rosa, celeste, marrón, gris, blanco y negro.
+- Al tocar un color, la presentación ocupa todo el panel y muestra su nombre con contraste alto.
+- El modo "Elegir" selecciona un color al azar sin repetir inmediatamente el anterior.
+- Cada color tiene su propio audio en español guardado dentro de la aplicación.
+
 ## Matemáticas: círculo y circunferencia
 
 La actividad "¿Círculo o circunferencia?" comienza con una comparación visual de alto contraste: círculo significa "borde + interior" y circunferencia significa "solo borde". Después mezcla diez desafíos tomados de un banco de 48 situaciones.
