@@ -1782,7 +1782,6 @@ function render() {
 
 function renderHome() {
   const installCallout = renderPwaInstallCallout();
-  const webCredits = renderWebCreditsLink();
   app.innerHTML = `
     <main class="home-screen">
       <section class="home-panel" aria-label="Inicio">
@@ -1804,7 +1803,6 @@ function renderHome() {
           </button>
         </div>
         ${installCallout}
-        ${webCredits}
       </section>
     </main>
   `;
@@ -1836,29 +1834,6 @@ function renderPwaInstallCallout() {
       <button class="btn btn-primary" type="button" data-action="pwa-install">${icon("download")}${label}</button>
     </aside>
   `;
-}
-
-function renderWebCreditsLink() {
-  if (isNativeAppRuntime()) return "";
-  return `
-    <button class="pwa-credits-link" type="button" data-action="pwa-credits">
-      Créditos y licencias
-    </button>
-  `;
-}
-
-function openWebCredits() {
-  openModal({
-    title: "Créditos y licencias",
-    body: `
-      <div class="pwa-credits-copy">
-        <p>Los símbolos pictográficos utilizados son propiedad del Gobierno de Aragón y han sido creados por Sergio Palao para <a href="https://arasaac.org" target="_blank" rel="noreferrer">ARASAAC</a>, que los distribuye bajo licencia <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.es" target="_blank" rel="noreferrer">Creative Commons BY-NC-SA 4.0</a>.</p>
-        <p>La fotografía de sándwich de milanesa es de Horacio Cambeiro y la fotografía de sándwich de salame y queso es de Simplus Menegati. Ambas se distribuyen mediante Wikimedia Commons bajo licencia CC BY-SA 4.0.</p>
-      </div>
-    `,
-    submitText: "Cerrar",
-    onSubmit: closeModal
-  });
 }
 
 async function requestPwaInstall() {
@@ -7403,7 +7378,6 @@ document.addEventListener("click", (event) => {
   const action = target.dataset.action;
 
   if (action === "pwa-install") return requestPwaInstall();
-  if (action === "pwa-credits") return openWebCredits();
   if (action === "home") return setRoute({ view: "home" });
   if (action === "school") return setRoute({ view: "school" });
   if (action === "communication") return setRoute({ view: "communication" });
