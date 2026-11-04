@@ -1,6 +1,7 @@
 // Películas locales: solo reproducir/pausar, sin navegación ni volumen nativos.
 const STORY_VIDEO_MAX_PERCENT = 60;
 const STORY_VIDEO_RESTART_AFTER_MS = 300_000;
+const STORY_VIDEO_START_TIMEOUT_MS = 12_000;
 const STORY_VIDEO_PROGRESS_PREFIX = "ian-story-video-progress-v1:";
 let storyFilmProgressMemory = {};
 let storyFilm = null;
@@ -8,7 +9,7 @@ let storyFilmSequence = 0;
 
 function storyFilmMarkup(book) {
   return `<div class="story-film-panel">
-    <div class="story-film-frame"><video class="story-film" src="${storyAsset(book, book.video)}" poster="${storyAsset(book, "scene-01.jpg")}" preload="metadata" playsinline webkit-playsinline disablepictureinpicture disableremoteplayback controlslist="nofullscreen nodownload noremoteplayback" tabindex="-1" aria-label="Video de ${escapeHtml(book.title)}"></video></div>
+    <div class="story-film-frame"><video class="story-film" data-src="${storyAsset(book, book.video)}" poster="${storyAsset(book, "scene-01.jpg")}" preload="none" playsinline webkit-playsinline disablepictureinpicture disableremoteplayback controlslist="nofullscreen nodownload noremoteplayback" tabindex="-1" aria-label="Video de ${escapeHtml(book.title)}"></video></div>
     <div class="story-film-controls" aria-label="Reproducción del video">
       <button class="btn btn-primary" type="button" data-action="story-video-play"><span aria-hidden="true">▶</span> Reproducir</button>
       <button class="btn btn-ghost" type="button" data-action="story-video-pause" disabled><span aria-hidden="true">Ⅱ</span> Pausar</button>
@@ -52,7 +53,12 @@ function seekStoryFilmPoint(film) {
     target = 0;
     clearStoryFilmPoint(film.bookId);
   }
-  try { film.video.currentTime = target; film.pendingSeek = null; } catch {}
+  try {
+    // Buscar 0 cuando ya estamos en 0 fuerza una apertura del decodificador
+    // incluso con el video detenido en algunas versiones de WebView.
+    if (Math.abs(film.video.currentTime - target) > .01) film.video.currentTime = target;
+    film.pendingSeek = null;
+  } catch {}
 }
 
 function storyFilmIsCurrent(film) {
@@ -74,6 +80,7 @@ function storyFilmControls(message = "") {
 
 function releaseStoryFilmVolume(session) {
   if (session?.heartbeat) window.clearInterval(session.heartbeat);
+  if (session?.startTimer) window.clearTimeout(session.startTimer);
   if (session?.volume) {
     // También se llama cuando un begin tardío termina después de salir/pausar.
     // Android compara el token: nunca libera la sesión de otra reproducción.
@@ -105,6 +112,10 @@ function stopStoryFilm() {
   film.video.ontimeupdate = film.video.onvolumechange = film.video.oncontextmenu = film.video.onloadedmetadata = null;
   film.video.ondblclick = null;
   film.video.pause();
+  // Pausar o quitar el nodo no libera inmediatamente MediaCodec en la A8.
+  // Vaciar la fuente y cargar el estado vacío sí cierra el reproductor anterior.
+  film.video.removeAttribute("src");
+  film.video.load();
   releaseStoryFilmVolume(session);
   storyFilmControls();
 }
@@ -131,6 +142,7 @@ function setupStoryFilm() {
     if (!storyFilmIsCurrent(film) || !film.session) return video.pause();
     film.pending = false;
     film.playing = true;
+    if (film.session.startTimer) window.clearTimeout(film.session.startTimer);
     storyFilmControls();
   };
   video.onpause = () => { if (storyFilm === film && video.paused && film.session?.playCalled) pauseStoryFilm(); };
@@ -172,6 +184,7 @@ function playStoryFilm() {
     if (storyFilm === film && film.session === session) film.video.onerror();
     else releaseStoryFilmVolume(session);
   };
+  session.startTimer = window.setTimeout(fail, STORY_VIDEO_START_TIMEOUT_MS);
   const play = result => {
     if (!storyFilmIsCurrent(film) || film.session !== session) {
       releaseStoryFilmVolume(session);
@@ -185,6 +198,12 @@ function playStoryFilm() {
       if (!storyFilmIsCurrent(film) || film.session !== session) return releaseStoryFilmVolume(session);
       Promise.resolve(volume.refresh({ token: session.token })).catch(fail);
     }, 3000);
+    // Cargar únicamente después de pulsar Reproducir y aplicar el volumen.
+    // load() también permite reintentar un elemento que quedó con error.
+    if (!film.video.getAttribute("src") || film.video.error) {
+      film.video.src = film.video.dataset.src;
+      film.video.load();
+    }
     seekStoryFilmPoint(film);
     session.playCalled = true;
     try { Promise.resolve(film.video.play()).catch(fail); } catch { fail(); }

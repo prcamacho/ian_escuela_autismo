@@ -15,6 +15,14 @@ La regresión nativa `ScreenTimeoutGuardTest` falló en la versión anterior y p
 
 La APK de la corrección aislada conservó todos los recursos de la versión anterior y solo cambió el código nativo: SHA-256 `CDB7542B523CA6ECB8BD78FA09E37043B8CE160FC2FBB7FE6D2D5F3352404922`. El arreglo también se conserva al incorporar los videos de cuentos. Detalles de mantenimiento en `TABLET_KIOSCO.md`; evidencias locales en `tmp/screen-timeout/`, excluidas de Git.
 
+## Corrección de «Preparando el video» — 4 de noviembre de 2026
+
+Tras el aviso de Pablo se reprodujo el bloqueo en la A8. El archivo solicitado era local (`https://localhost/assets/stories/.../cuento-completo.mp4`), con metadatos y primeros segundos ya cargados. WebView tenía `PIPELINE_ERROR_DECODE`; el servicio de decodificación informó once instancias y recursos insuficientes. Se corrigió la liberación de los reproductores al salir y la carga anticipada al entrar: fuente diferida hasta Reproducir, guardado del punto antes de descargar el elemento, eliminación de `src` más `load()`, y eliminación de búsquedas redundantes a cero. Se incluyen los clips cortos. El reintento recarga un elemento con error y un inicio que no progresa deja de mostrar preparación después de doce segundos.
+
+Pasaron `verify-story-videos.mjs`, incluidas reproducción de los siete archivos offline, 35 cambios de pestaña sin fuente, descarga de reproductores y recuperación de un comienzo que no responde; también `verify-stories.mjs` y los 618 recursos PWA. Se conservan los cinco minutos, el volumen al 60 %, los datos y la corrección de apagado.
+
+La APK corregida se instaló con `update-tablet.ps1 -Tablet a8 -SkipBuild`: actualización, compañero deshabilitado, app al frente y kiosco `LOCKED` confirmados. Los 633 archivos web coinciden con la compilación. SHA-256 compilado: `417291B5C3E3572C9000D9C85D7C4314F822582E1EFFD0E2839FA5D753B77489`. La A8 se desconectó inmediatamente después: Pablo informó que Ian ya se la había llevado. Quedaron pendientes la lectura del hash instalado y la nueva prueba física con Wi-Fi apagado; no se dan por verificadas a partir de las pruebas de la versión anterior. Evidencias en `tmp/story-videos-fix/`.
+
 ## Videos completos en los siete cuentos — 4 de noviembre de 2026
 
 Samsung A8 actualizada con una pestaña **Video** en cada cuento, un cuadro centrado y solo **Reproducir / Pausar**. Los siete MP4 se incluyen localmente y funcionan sin conexión. No hay barra de avance ni volumen, controles de pantalla completa, Picture in Picture o envío a otra pantalla. El primer video se recuperó del enlace de [Argentina.gob.ar](https://www.argentina.gob.ar/educacion/historiasxleer/entrenador); los otros seis son los originales entregados por la familia.

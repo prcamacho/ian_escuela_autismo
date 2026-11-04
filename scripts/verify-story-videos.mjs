@@ -24,7 +24,7 @@ async function play(page) {
   await page.locator('[data-action="story-video-play"]').click();
   await page.waitForFunction(() => {
     const v = document.querySelector(".story-film");
-    return v && !v.paused && v.currentTime > .15;
+    return v && !v.paused && v.currentTime > .15 && storyFilm?.playing && !v.error;
   });
 }
 try {
@@ -38,6 +38,7 @@ try {
   const before = await page.evaluate(() => ({ data: JSON.stringify(data), progress: localStorage.getItem(STORY_PROGRESS_KEY), listening: localStorage.getItem(STORY_LISTENING_KEY) }));
   for (const book of books) {
     await openVideo(page, book.id);
+    assert.equal(await page.locator('.story-film').evaluate(v=>v.hasAttribute('src')),false,'Opening a tab never starts a decoder');
     assert.equal(await page.locator('.story-film-controls button').count(), 2);
     const attrs = await page.locator('.story-film').evaluate(v => ({ controls: v.controls, nativeControls: v.hasAttribute('controls'), pip: v.disablePictureInPicture,
       remote: v.disableRemotePlayback, inline: v.playsInline, paused: v.paused, time: v.currentTime, volume: v.volume }));
@@ -57,8 +58,8 @@ try {
     await page.waitForFunction(t => document.querySelector('.story-film').currentTime > t + .1, paused.time);
     await page.evaluate(() => window.__oldFilm = document.querySelector('.story-film'));
     await page.locator('[data-action="story-panel"][data-value="read"]').click();
-    assert.deepEqual(await page.evaluate(() => ({ paused: __oldFilm.paused, saved: __oldFilm.currentTime > 0, detached: storyFilm === null,
-      scene: storySupportState.scene, audio: storyAudio === null })), { paused: true, saved: true, detached: true, scene: 3, audio: true });
+    assert.deepEqual(await page.evaluate(() => ({ paused: __oldFilm.paused, released: !__oldFilm.hasAttribute('src'), detached: storyFilm === null,
+      scene: storySupportState.scene, audio: storyAudio === null })), { paused: true, released: true, detached: true, scene: 3, audio: true });
     const savedTime = await page.evaluate(id => JSON.parse(localStorage.getItem(STORY_VIDEO_PROGRESS_PREFIX+id)).time,book.id);
     await page.locator('[data-action="story-panel"][data-value="video"]').click();
     assert.equal(await page.locator('.story-film').evaluate(v => v.paused), true);
@@ -86,7 +87,7 @@ try {
     Object.defineProperty(document,'hidden',{configurable:true,get:()=>true});
     document.dispatchEvent(new Event('visibilitychange'));
   });
-  assert.equal(await page.evaluate(() => __oldFilm.paused && __oldFilm.currentTime > 0 && storyFilm === null), true);
+  assert.equal(await page.evaluate(() => __oldFilm.paused && !__oldFilm.hasAttribute('src') && storyFilm === null), true);
   await page.evaluate(() => {
     Object.defineProperty(document,'hidden',{configurable:true,get:()=>false});
     document.dispatchEvent(new Event('visibilitychange'));
@@ -94,7 +95,7 @@ try {
   assert.equal(await page.locator('.story-film').evaluate(v => v.paused), true);
   await play(page);
   await page.evaluate(() => { window.__oldFilm = document.querySelector('.story-film'); window.dispatchEvent(new Event('pagehide')); });
-  assert.equal(await page.evaluate(() => __oldFilm.paused && __oldFilm.currentTime > 0 && storyFilm === null), true);
+  assert.equal(await page.evaluate(() => __oldFilm.paused && !__oldFilm.hasAttribute('src') && storyFilm === null), true);
   // Límite exacto: se reanuda a 4:59.999; a 5:00.000 se empieza de nuevo.
   await page.evaluate(()=>{
     window.__realDateNow=Date.now;
@@ -131,6 +132,13 @@ try {
   await page.locator('.story-film').evaluate(v=>v.currentTime=v.duration-.15);
   await page.waitForFunction(()=>document.querySelector('.story-film').ended && storyFilm.session===null);
   assert.equal(await page.evaluate(id=>localStorage.getItem(STORY_VIDEO_PROGRESS_PREFIX+id),books[0].id),null,'A completed video is no longer unfinished');
+  for(let n=0;n<35;n++){
+    await openVideo(page,books[n%books.length].id);
+    assert.equal(await page.locator('.story-film').evaluate(v=>v.hasAttribute('src')),false);
+    await page.evaluate(()=>window.__oldFilm=document.querySelector('.story-film'));
+    await page.locator('[data-action="story-panel"][data-value="read"]').click();
+    assert.equal(await page.evaluate(()=>!__oldFilm.hasAttribute('src') && __oldFilm.paused),true);
+  }
   await context.close();
 
   // El puente nativo se prueba con comienzo diferido, salida temprana y error.
@@ -172,6 +180,16 @@ try {
   assert.equal(await np.locator('.story-film').evaluate(v=>v.volume),1,'Native Android caps the real media stream');
   await np.evaluate(()=>{__beginMode='fail-refresh';storyFilm.lastHeartbeat=0;storyFilm.video.ontimeupdate();});
   await np.waitForFunction(()=>storyFilm.session===null && document.querySelector('.story-film').paused);
+  await np.evaluate(()=>{
+    __beginMode='ok';
+    window.__realVideoPlay=storyFilm.video.play.bind(storyFilm.video);
+    storyFilm.video.play=()=>new Promise(()=>{});
+  });
+  await np.locator('[data-action="story-video-play"]').click();
+  await np.waitForFunction(()=>storyFilm.session===null && !document.querySelector('[data-action="story-video-play"]').disabled,{},{timeout:16000});
+  assert.doesNotMatch(await np.locator('.story-film-status').textContent(),/Preparando/);
+  await np.evaluate(()=>storyFilm.video.play=window.__realVideoPlay);
+  await play(np);
   const nativeCalls=await np.evaluate(()=>__volumeCalls);
   assert.ok(nativeCalls.filter(([type])=>type==='begin').every(([,args])=>args.maxPercent===60));
   assert.equal(errors.length,0,JSON.stringify(errors));
@@ -191,7 +209,8 @@ try {
   assert.equal(errors.length,0,JSON.stringify(errors));
   await writeFile(path.join(output,'browser-verified.json'),JSON.stringify({verified,nativeRaces:true,unsafeBridgeRejected:true,
     stopsOnHidden:true,stopsOnPageHide:true,schoolAndReadingDataPreserved:true,offlineVideos:7,resumeAcrossTabsAndReload:true,
-    resumesAt299999ms:true,restartsAt300000ms:true,pausedBrowsingDoesNotExtendWait:true,completedVideoClearsPoint:true,errors},null,2));
+    resumesAt299999ms:true,restartsAt300000ms:true,pausedBrowsingDoesNotExtendWait:true,completedVideoClearsPoint:true,
+    rapidTabsWithoutLoading:35,detachedPlayersUnloaded:true,stalledStartTimesOutAndRetries:true,errors},null,2));
   console.log('Videos verificados: 7 MP4 reales y offline, 60 %, salida y segundo plano, reanudación persistente, reinicio exacto a cinco minutos, carreras Android y datos conservados.');
 } finally {
   await browser.close();

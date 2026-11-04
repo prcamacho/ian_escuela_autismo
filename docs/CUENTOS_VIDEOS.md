@@ -6,6 +6,14 @@ Pausar, cambiar de pestaña, cuento o sección, ocultar la página o apagar la p
 
 Los puntos usan exclusivamente `ian-story-video-progress-v1:<id>` y no modifican las lecturas ni las esperas de las locuciones. No se mezclan video y locución: la voz mantiene su bloqueo de cambios y la pestaña Video no inicia audios de escenas o apoyos.
 
+## Corrección del bloqueo en «Preparando el video»
+
+La A8 mostró `PIPELINE_ERROR_DECODE`; el servicio de video registró `clear_instances(11)` y `OMX_ErrorInsufficientResources`. Los elementos anteriores se pausaban, pero mantenían sus fuentes y decodificadores. Además, la precarga con una búsqueda a cero iniciaba decodificadores aunque no se hubiera pulsado Reproducir.
+
+Ahora la fuente queda en `data-src` y solo se carga después del toque y de aplicar el límite de volumen. Al salir se guarda el punto, se quita `src` y se llama a `load()` para descargar el reproductor. Se evita buscar cero si la posición ya es cero. Los clips de cinco segundos también descargan su fuente al salir o terminar. Los errores se recargan al reintentar y un comienzo que no avanza sale del estado de preparación después de doce segundos, liberando el volumen y habilitando el reintento.
+
+La corrección pasó las pruebas de navegador con los siete MP4, también offline, 35 cambios de pestaña sin cargar decodificadores, descarga de elementos anteriores y recuperación después de un comienzo trabado. La APK con caché v177 se instaló sobre la A8; el actualizador confirmó el kiosco. La tablet se desconectó al llevársela Ian antes de la revisión final: la prueba nueva con Wi-Fi apagado y toques físicos queda pendiente. Las pruebas nativas de la versión anterior no se consideran validación de esta corrección.
+
 ## Volumen
 
 En Android se usa el puente `StoryVolume` con `maxPercent: 60` antes de reproducir. El techo se redondea hacia abajo al nivel disponible del dispositivo; por ejemplo, 9/15. La política conserva un volumen inferior y limita también los botones físicos. Pausar o salir libera la sesión; comenzar o reanudar vuelve a aplicar el techo antes de emitir sonido. Una reserva periódica mantiene el límite durante la carga del video. Una respuesta de un puente antiguo con techo del 70 % impide iniciar el video.
@@ -35,4 +43,4 @@ Los originales de los cuentos 2 al 7 se copiaron sin recodificar ni modificar. A
 - Pruebas JUnit de `StoryVolumePolicy`: techo del 60 % para diferentes escalas, botones, cambios externos, restauración y conservación del límite anterior de las locuciones.
 - `node scripts/verify-story-videos-device.mjs`: revisión real en la A8 existente, sin borrar lecturas ni esperas; conserva el almacenamiento y restaura el volumen previo. Verifica los siete archivos, botones físicos (9/15), pausa, salida, pantalla apagada, regreso sin autoplay, continuación y reinicio tras cinco minutos. Los puntos creados durante la prueba se retiran y los puntos previos de Ian se conservan. Cierra la conexión CDP al terminar.
 
-Las evidencias locales y las huellas de los siete archivos están en `tmp/story-videos/`. El precache corresponde a `ian-escuela-v176`. La corrección de apagado de `MainActivity` y su prueba `ScreenTimeoutGuardTest` se conservan.
+Las evidencias locales y las huellas de los siete archivos están en `tmp/story-videos/`; el diagnóstico y la APK de la corrección están en `tmp/story-videos-fix/`. El precache actual corresponde a `ian-escuela-v177`. La corrección de apagado de `MainActivity` y su prueba `ScreenTimeoutGuardTest` se conservan.

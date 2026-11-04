@@ -178,7 +178,7 @@ function stopStoryMedia() {
     audio.currentTime = 0;
   }
   const video = document.querySelector(".story-video");
-  if (video) { video.pause(); video.currentTime = 0; video.hidden = true; }
+  if (video) { video.onended = video.onerror = null; video.pause(); video.removeAttribute("src"); video.load(); video.hidden = true; }
   const poster = document.querySelector(".story-scene-image");
   if (poster) poster.hidden = false;
   const movement = document.querySelector('[data-action="story-clip"]');
@@ -217,7 +217,7 @@ function renderStorySupport() {
   let content;
   if (state.panel === "read") {
     content = `<div class="story-reading"><div class="story-art"><img class="story-scene-image" src="${storyAsset(book, storySceneImage(state.scene))}" alt="${scene.alt}">
-      ${scene.clip ? `<video class="story-video" src="${storyAsset(book, scene.clip)}" preload="none" controls muted playsinline disablepictureinpicture controlslist="nodownload noremoteplayback" aria-label="Cinco segundos de movimiento del entrenador, sin audio" hidden></video>` : ""}</div>
+      ${scene.clip ? `<video class="story-video" data-src="${storyAsset(book, scene.clip)}" preload="none" muted playsinline disablepictureinpicture controlslist="nofullscreen nodownload noremoteplayback" aria-label="Cinco segundos de movimiento del entrenador, sin audio" hidden></video>` : ""}</div>
       <div class="story-copy"><p class="story-kicker">ESCENA ${state.scene + 1} DE ${book.scenes.length}</p><h2 id="story-title" tabindex="-1">${scene.title}</h2><p class="story-sentence">${scene.text}</p>${storyListenButtons()}
       ${scene.clip && !window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ? '<button class="btn btn-ghost story-movement" type="button" data-action="story-clip">Ver movimiento</button>' : ""}
       <div class="story-page-action">${state.scene < book.scenes.length - 1 ? '<button class="btn btn-primary" type="button" data-action="story-next">Siguiente →</button>' : '<button class="btn btn-ghost" type="button" data-action="story-restart">Leer desde el principio</button>'}</div></div></div>`;
@@ -353,12 +353,14 @@ function storySupportAction(action, target) {
     syncStoryAudioControls();
     if (wasPlaying) return;
     video.hidden = false;
+    video.src = video.dataset.src;
     video.muted = true;
     const poster = document.querySelector(".story-scene-image");
     if (poster) poster.hidden = true;
     const button = document.querySelector('[data-action="story-clip"]');
     if (button) button.textContent = "Volver a la imagen";
     video.onerror = () => { if (document.querySelector(".story-video") !== video) return; stopStoryMedia(); syncStoryAudioControls(); const status=document.querySelector(".story-audio-status"); if(status) status.textContent="Podés seguir mirando la imagen."; };
+    video.onended = () => { if (document.querySelector(".story-video") === video) { stopStoryMedia(); syncStoryAudioControls(); } };
     try { Promise.resolve(video.play()).catch(() => video.onerror?.()); } catch { video.onerror(); }
     return;
   }

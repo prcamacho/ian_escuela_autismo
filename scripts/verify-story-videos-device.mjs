@@ -33,7 +33,7 @@ function command(method,params){return new Promise((resolve,reject)=>{
   pending.set(id,{resolve,reject,timeout});socket.send(JSON.stringify({id,method,params}));
 });}
 async function evaluate(expression){
-  const result=await command('Runtime.evaluate',{expression,awaitPromise:true,returnByValue:true,userGesture:true,timeout:15000});
+  const result=await command('Runtime.evaluate',{expression,awaitPromise:true,returnByValue:true,userGesture:false,timeout:15000});
   if(result.exceptionDetails)throw Error(result.exceptionDetails.exception?.description||result.exceptionDetails.text);
   return result.result.value;
 }
@@ -44,7 +44,7 @@ async function waitFor(expression,timeout=15000){
 }
 const hash=value=>createHash('sha256').update(JSON.stringify(value)).digest('hex');
 const entriesExpression='Object.entries(localStorage).sort(([a],[b])=>a.localeCompare(b))';
-let before,volumeBefore;
+let before,volumeBefore,wifiBefore;
 const checks=[];
 try{
   await waitFor('!document.hidden');
@@ -55,16 +55,28 @@ try{
   assert.equal(hash(beforeOther),old.otherChecksum,'The APK update must preserve the existing school data');
   const initial=await evaluate('window.Capacitor.Plugins.StoryVolume.status()');
   volumeBefore=initial.current;
+  wifiBefore=await adb('shell','settings','get','global','wifi_on');
+  if(wifiBefore==='1')await adb('shell','svc','wifi','disable');
+  assert.equal(await adb('shell','settings','get','global','wifi_on'),'0','Playback is tested with Wi-Fi off');
   const ceiling=Math.floor(initial.maximum*.6);
   const ids=await evaluate('STORY_BOOKS.map(b=>b.id)');
   const open=async id=>evaluate(`storySupportState={id:${JSON.stringify(id)},scene:storySavedProgress()[${JSON.stringify(id)}]||0,panel:'video'};setRoute({view:'support-story'});true`);
-  const click=action=>evaluate(`document.querySelector('[data-action="${action}"]').click();true`);
+  const click=async action=>{
+    const p=await evaluate(`(()=>{const r=document.querySelector('[data-action="${action}"]').getBoundingClientRect();return{x:(r.x+r.width/2)*devicePixelRatio,y:(r.y+r.height/2)*devicePixelRatio}})()`);
+    await adb('shell','input','tap',String(Math.round(p.x)),String(Math.round(p.y)));
+  };
+  for(let i=0;i<35;i++){
+    await open(ids[i%ids.length]);
+    assert.equal(await evaluate("document.querySelector('.story-film').hasAttribute('src')"),false);
+    await evaluate("window.__verifiedOldFilm=document.querySelector('.story-film');storySupportState.panel='read';render();true");
+    assert.equal(await evaluate("__verifiedOldFilm.paused && !__verifiedOldFilm.hasAttribute('src')"),true);
+  }
   for(let i=0;i<ids.length;i++){
     await open(ids[i]);
     assert.equal(await evaluate("document.querySelector('.story-film').paused && storyFilm.session===null"),true);
     if(i===0)await adb('shell','cmd','media_session','volume','--stream','3','--set',String(initial.maximum));
     await click('story-video-play');
-    await waitFor("storyFilm && !storyFilm.video.paused && storyFilm.video.currentTime>.15");
+    await waitFor("storyFilm?.playing && !storyFilm.video.paused && !storyFilm.video.error && storyFilm.video.currentTime>.15");
     const status=await evaluate('window.Capacitor.Plugins.StoryVolume.status()');
     assert.equal(status.active,true);assert.equal(status.ceiling,ceiling);assert.ok(status.current<=ceiling);
     assert.equal(await evaluate("document.querySelector('.story-film').controls"),false);
@@ -84,7 +96,7 @@ try{
     await waitFor(`document.querySelector('.story-film').currentTime>${pausedTime+.1}`);
     await evaluate("window.__verifiedOldFilm=document.querySelector('.story-film')");
     await click('story-library');
-    assert.equal(await evaluate('__verifiedOldFilm.paused && __verifiedOldFilm.currentTime>0 && storyFilm===null'),true);
+    assert.equal(await evaluate("__verifiedOldFilm.paused && !__verifiedOldFilm.hasAttribute('src') && storyFilm===null"),true);
     await waitFor('window.Capacitor.Plugins.StoryVolume.status().then(v=>!v.active)');
     checks.push({id:ids[i],ceiling,status,pauseResume:true,stopOnLeave:true});
   }
@@ -93,7 +105,7 @@ try{
   await waitFor("storyFilm && !storyFilm.video.paused && storyFilm.video.currentTime>.15");
   await evaluate("window.__verifiedOldFilm=document.querySelector('.story-film')");
   await evaluate("storySupportState.panel='read';render();true");
-  assert.equal(await evaluate('__verifiedOldFilm.paused && __verifiedOldFilm.currentTime>0 && storyFilm===null'),true);
+  assert.equal(await evaluate("__verifiedOldFilm.paused && !__verifiedOldFilm.hasAttribute('src') && storyFilm===null"),true);
   await open(ids[0]);await click('story-video-play');
   await waitFor("storyFilm && !storyFilm.video.paused && storyFilm.video.currentTime>.15");
   await adb('shell','input','keyevent','KEYCODE_SLEEP');
@@ -130,11 +142,17 @@ try{
   const shot=await command('Page.captureScreenshot',{format:'png'});
   await writeFile(new URL('a8-video.png',directory),Buffer.from(shot.data,'base64'));
   await writeFile(new URL('a8-verified.json',directory),JSON.stringify({videos:checks,tabExit:true,stopsOnScreenOff:true,noAutoplayOnWake:true,resumesBeforeFiveMinutes:true,restartsAfterFiveMinutes:true,realVolumeCeiling:ceiling,maximum:initial.maximum,
+    rapidTabChangesWithoutDecoders:35,realScreenTaps:true,wifiDisabledDuringPlayback:true,detachedPlayersUnloaded:true,
     physicalVolumeButtonsCapped:true,allStoragePreserved:true,beforeChecksum:hash(before.entries),afterChecksum:hash(await evaluate(entriesExpression))},null,2));
   console.log('A8 verificada: siete videos reales, botones físicos limitados al 60 %, pausa/reanudación, salida sin audio y datos conservados.');
 }finally{
   try{await evaluate("if(typeof stopStoryFilm==='function')stopStoryFilm();delete window.__verifiedOldFilm;true");}catch{}
+  if(before){
+    const points=before.entries.filter(([key])=>key.startsWith('ian-story-video-progress-v1:'));
+    try{await evaluate(`for(const key of Object.keys(localStorage))if(key.startsWith(STORY_VIDEO_PROGRESS_PREFIX))localStorage.removeItem(key);for(const [key,value]of ${JSON.stringify(points)})localStorage.setItem(key,value);storyFilmProgressMemory={};true`);}catch{}
+  }
   if(volumeBefore!==undefined)await adb('shell','cmd','media_session','volume','--stream','3','--set',String(volumeBefore));
+  if(wifiBefore==='1')await adb('shell','svc','wifi','enable');
   socket.close();
   await new Promise(resolve=>socket.once('close',resolve));
   await adb('forward','--remove','tcp:9226');
