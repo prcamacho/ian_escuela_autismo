@@ -1,0 +1,139 @@
+/* A calm arcade: large touch targets, no time limit, finite motion. */
+.item-card.pv-theme-card { border: 2px solid #d3def1; background: linear-gradient(130deg, #fffdf0, #f1f6ff); }
+.pv-theme-card .tile-mark { background: #162745; border-radius: 16px; }
+.pv-theme-card .tile-mark .pv-pacman { width: 36px; height: 36px; }
+.pv-theme-card .btn-primary { background: #203b67; }
+.pv-pacman, .pv-ghost { display: block; width: 100%; height: 100%; }
+html.matching-mode:has(.pv-runner), body.matching-mode:has(.pv-runner) { height: auto; overflow: auto; }
+body.matching-mode:has(.pv-runner) { background: #101e37; }
+body.matching-mode:has(.pv-runner) .main { width: min(1320px, calc(100% - 32px)); padding: 16px 0; }
+.runner.pv-runner, .pv-runner {
+  --pv-yellow: #ffdc49; --pv-muted: #bdcce5;
+  width: 100%; min-height: calc(100dvh - 32px); height: auto; max-height: none;
+  display: flex; flex-direction: column; gap: 20px; padding: 10px 16px 20px;
+  color: #f7f9ff; background: #101e37; border-radius: 24px;
+}
+.pv-runner button { cursor: pointer; touch-action: manipulation; }
+.pv-runner button:focus-visible, .pv-theme-card button:focus-visible { outline: 4px solid #7de6ff; outline-offset: 4px; }
+.pv-runner button:disabled { cursor: default; }
+.pv-topbar { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 20px; }
+.pv-exit { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 52px; padding: 10px 18px; border: 1px solid #52688d; border-radius: 14px; color: #f7f9ff; background: #203353; font-weight: 700; }
+.pv-exit svg { width: 22px; height: 22px; }
+.pv-title { display: grid; gap: 4px; }
+.pv-title > span, .pv-world-label, .pv-trail-label { font-size: .7rem; font-weight: 800; letter-spacing: .13em; color: var(--pv-muted); }
+.pv-title > strong { font-size: clamp(1.05rem, 2vw, 1.55rem); }
+.pv-round { color: var(--pv-yellow); white-space: nowrap; font-weight: 800; }
+.pv-trail { display: flex; align-items: center; gap: 24px; padding: 13px 20px; border: 1px solid #36517c; border-radius: 18px; background: #172945; }
+.pv-trail > strong { font-size: .85rem; color: var(--pv-muted); white-space: nowrap; }
+.pv-trail-track { display: flex; align-items: center; justify-content: space-between; flex: 1; min-width: 0; gap: 4px; }
+.pv-trail-stop { display: grid; place-items: center; flex: 0 0 30px; height: 30px; color: var(--pv-yellow); font-size: 27px; }
+.pv-trail-stop i { width: 8px; height: 8px; border-radius: 50%; background: #e4cf9b; }
+.pv-trail-stop.is-eaten i { width: 6px; height: 6px; background: #628a99; }
+.pv-trail-stop.is-here .pv-pacman { animation: pv-arrive .35s ease-out; }
+.pv-play-layout { display: grid; grid-template-columns: minmax(260px, .86fr) minmax(420px, 1.25fr); gap: 28px; flex: 1; align-items: center; }
+.pv-world { min-width: 0; text-align: center; padding: 22px 0; }
+.pv-world-label { color: #87cdeb; font-size: .68rem; }
+.pv-scene { position: relative; width: 100%; aspect-ratio: 440 / 260; margin: 20px auto; }
+.pv-maze-art { position: absolute; inset: 0; width: 100%; height: 100%; }
+.pv-scene-player { position: absolute; width: 24%; height: 41%; left: 19%; top: 30%; }
+.pv-scene-prop { position: absolute; left: 54%; top: 34%; font-size: clamp(40px, 5.5vw, 70px); line-height: 1; }
+.pv-scene-prop svg { display: block; width: 1em; height: 1em; }
+.pv-scene-friend { position: absolute; width: 10%; height: 19%; right: 11%; bottom: 7%; transform: rotate(-8deg); }
+.pv-world-note { margin: 20px 0 0; line-height: 1.8; color: var(--pv-muted); font-size: 1rem; }
+.pv-world-note strong { font-weight: 600; color: #f6e6ab; }
+.pv-sleep { position: absolute; top: -28%; right: -15%; color: #b6d8ff; letter-spacing: .2em; font-size: 24px; font-weight: 800; }
+.pv-scene-dormir .pv-scene-player { transform: rotate(-25deg); }
+.pv-scene-saltar .pv-scene-player { animation: pv-jump 1.4s ease-in-out 2; }
+.pv-scene-caminar .pv-scene-player, .pv-scene-empujar .pv-scene-player { animation: pv-walk 1.6s ease-in-out 2; }
+.pv-scene-comer .pv-scene-prop, .pv-scene-beber .pv-scene-prop { animation: pv-snack 1.7s ease-in-out 2; }
+.pv-scene-jugar .pv-scene-prop { animation: pv-ball 1.5s ease-in-out 2; }
+.pv-scene-spark { position: absolute; left: 46%; top: 14%; color: var(--pv-yellow); font-size: 44px; animation: pv-arrive .5s ease-out; }
+.pv-challenge { min-width: 0; padding: clamp(22px, 3vw, 38px); background: #f8faff; color: #172642; border-radius: 26px; box-shadow: 0 18px 50px #030b1926; }
+.pv-kicker { display: inline-block; color: #486287; font-size: .73rem; font-weight: 850; letter-spacing: .1em; }
+.pv-challenge h2 { margin: 9px 0 18px; font-size: clamp(1.5rem, 2.6vw, 2.2rem); line-height: 1.2; }
+.pv-challenge h2:focus, .pv-finish h2:focus { outline: none; }
+.pv-sentence { margin: 0 0 25px; font-size: clamp(1.35rem, 2.3vw, 1.85rem); line-height: 1.65; font-weight: 550; }
+.pv-blank { display: inline-block; min-width: 90px; text-align: center; border-bottom: 3px dashed #6485b6; color: #526b97; }
+.pv-found-verb { padding: 2px 5px; border-radius: 7px; color: #12553f; background: #cbefdf; }
+.pv-choices { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.pv-choice { position: relative; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 12px; min-height: 116px; padding: 16px 8px; border: 2px solid #cfdaeb; border-bottom-width: 5px; border-radius: 17px; color: #24395a; background: white; transition: border-color .15s, background .15s; }
+.pv-choice strong { max-width: 100%; font-size: clamp(1.1rem, 1.65vw, 1.45rem); overflow-wrap: anywhere; }
+.pv-choice-token { height: 30px; width: 30px; display: grid; place-items: center; color: #d4a328; font-size: 14px; }
+.pv-choice:not(:disabled):hover { background: #fff9e0; border-color: #d1aa40; }
+.pv-choice.is-retry { border-color: #b78842; background: #fff8e9; }
+.pv-choice.is-correct { border-color: #358466; background: #e1f5e9; }
+.pv-choice.is-correct .pv-pacman { animation: pv-arrive .4s ease-out; }
+.pv-choice-check { position: absolute; right: 8px; top: 4px; font-weight: 900; color: #237459; }
+.pv-feedback { display: flex; align-items: center; min-height: 70px; margin: 12px 0; color: #52627a; font-size: 1rem; line-height: 1.5; }
+.pv-feedback.is-good { color: #1c6b50; font-weight: 700; }
+.pv-next { display: flex; align-items: center; justify-content: space-between; gap: 24px; min-height: 58px; width: 100%; padding: 14px 20px; border-radius: 14px; color: #172642; background: var(--pv-yellow); font-weight: 800; }
+.pv-next:disabled { color: #71809a; background: #e7ecf4; }
+.pv-next span { font-size: 1.5rem; line-height: 1; }
+.pv-time-map { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.pv-time-map > div { display: grid; gap: 7px; padding: 14px 6px; border: 1px solid #536789; border-radius: 14px; color: #c5d3e9; }
+.pv-time-map .is-current { border: 2px solid #ffdc49; color: #ffe482; background: #2f3546; }
+.pv-time-map strong { font-size: 1.08rem; }
+.pv-time-map span { font-size: .8rem; font-weight: 700; }
+.pv-time-map small { font-size: .72rem; }
+.pv-finish { align-items: center; justify-content: center; text-align: center; padding: 35px; }
+.pv-finish > .pv-kicker { color: #92d8f5; }
+.pv-finish-friends { display: flex; align-items: center; gap: 32px; height: 100px; margin: 14px; }
+.pv-finish-friends .pv-pacman { width: 100px; }
+.pv-finish-friends .pv-ghost { width: 64px; height: 74px; }
+.pv-finish h2 { margin: 0; font-size: clamp(2rem, 4vw, 3rem); color: var(--pv-yellow); }
+.pv-finish p { margin: 0; max-width: 640px; color: var(--pv-muted); font-size: 1.2rem; line-height: 1.6; }
+.pv-finish .pv-trail { width: min(760px, 100%); }
+.pv-learned { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; max-width: 760px; }
+.pv-learned > span { display: grid; gap: 5px; padding: 12px 20px; border-radius: 12px; background: #203757; font-size: 1.15rem; }
+.pv-learned small { color: #b8cee9; font-size: .8rem; }
+.pv-finish-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 14px; margin-top: 8px; }
+.pv-finish-actions .pv-next { width: auto; }
+@keyframes pv-arrive { from { transform: translateX(-16px) scale(.85); } to { transform: translateX(0) scale(1); } }
+@keyframes pv-jump { 50% { transform: translateY(-22px) rotate(-8deg); } }
+@keyframes pv-walk { 50% { transform: translateX(24px); } }
+@keyframes pv-snack { 50% { transform: translateX(-15px) rotate(-10deg); } }
+@keyframes pv-ball { 50% { transform: translateY(-22px) rotate(30deg); } }
+@media (min-width: 801px) and (max-height: 750px) {
+  .runner.pv-runner { gap: 12px; padding-top: 0; }
+  .pv-challenge { padding: 20px 24px; }
+  .pv-sentence { margin-bottom: 18px; }
+  .pv-choice { min-height: 94px; gap: 7px; }
+  .pv-feedback { min-height: 50px; margin: 8px 0; }
+}
+@media (max-width: 800px) {
+  body.matching-mode:has(.pv-runner) .main { width: calc(100% - 20px); padding: 10px 0; }
+  .runner.pv-runner { padding: 6px; gap: 14px; }
+  .pv-topbar { gap: 12px; }
+  .pv-play-layout { grid-template-columns: 1fr; gap: 8px; }
+  .pv-world { padding: 4px 0 8px; }
+  .pv-world-label, .pv-world-note { display: none; }
+  .pv-scene { max-width: 340px; margin: 0 auto; }
+  .pv-scene-prop { font-size: 50px; }
+  .pv-time-map { max-width: 470px; margin: 8px auto 0; }
+  .pv-time-map > div { padding: 8px 6px; gap: 4px; }
+  .pv-trail { gap: 12px; padding: 10px 12px; }
+  .pv-trail-label { display: none; }
+  .pv-challenge { padding: 24px; }
+  .pv-title > span { font-size: .6rem; }
+}
+@media (max-width: 430px) {
+  .pv-topbar { grid-template-columns: auto 1fr; }
+  .pv-round { display: none; }
+  .pv-title > strong { font-size: 1rem; }
+  .pv-exit { min-height: 48px; padding: 10px 12px; }
+  .pv-scene { max-width: 270px; }
+  .pv-scene-prop { font-size: 43px; }
+  .pv-challenge { padding: 20px 14px; border-radius: 20px; }
+  .pv-challenge h2 { font-size: 1.4rem; }
+  .pv-sentence { font-size: 1.3rem; }
+  .pv-choices { gap: 7px; }
+  .pv-choice { min-height: 100px; padding: 12px 5px; }
+  .pv-choice strong { font-size: 1rem; }
+  .pv-trail-stop { flex-basis: 22px; height: 24px; }
+  .pv-trail { gap: 8px; }
+  .pv-finish { padding: 24px 12px; }
+  .pv-finish-friends { gap: 20px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pv-runner *, .pv-runner *::before, .pv-runner *::after { animation: none !important; transition: none !important; }
+}

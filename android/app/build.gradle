@@ -44,6 +44,15 @@ dependencies {
 
 apply from: 'capacitor.build.gradle'
 
+// Pack only the companion's public UI into Android; the web deployment stays unchanged.
+def companionAssets = tasks.register('copyCompanionAssets', Sync) {
+    from rootProject.file('../companion/public')
+    into layout.buildDirectory.dir('generated/companionAssets/public/companion')
+    exclude 'local-flag.js'
+}
+android.sourceSets.main.assets.srcDir(layout.buildDirectory.dir('generated/companionAssets'))
+tasks.named('preBuild').configure { dependsOn companionAssets }
+
 try {
     def servicesJSON = file('google-services.json')
     if (servicesJSON.text) {

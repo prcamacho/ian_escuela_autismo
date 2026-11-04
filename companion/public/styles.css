@@ -1,0 +1,54 @@
+:root { color-scheme: light; font-family: "Segoe UI", system-ui, sans-serif; color: #344e45; background: #edf2ee; font-synthesis: none; }
+* { box-sizing: border-box; }
+body { margin: 0; min-height: 100dvh; }
+button, a { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+button { font: inherit; cursor: pointer; border: 0; }
+button:disabled { cursor: wait; opacity: .6; }
+button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid #4b8176; outline-offset: 5px; }
+[hidden] { display: none !important; }
+.companion-shell { max-width: 1160px; margin: auto; padding: 24px 38px; }
+header { display: flex; justify-content: space-between; align-items: center; height: 48px; gap: 18px; }
+header a { display: flex; gap: 12px; align-items: center; text-decoration: none; font-size: 15px; color: #60766b; min-height: 44px; }
+header a span { font-size: 22px; }
+.brand { font-size: 16px; font-weight: 600; letter-spacing: .01em; }
+.icon-button { display: grid; place-items: center; width: 48px; height: 48px; background: transparent; color: #6c8177; border-radius: 50%; }
+.icon-button:hover { background: #e2eae4; }
+.icon-button svg { width: 23px; height: 23px; stroke: currentColor; fill: #edf2ee; stroke-width: 1.5; }
+.conversation { min-height: calc(100dvh - 140px); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px 0 50px; }
+.voice-line { width: min(560px, 90%); text-align: center; margin-bottom: 32px; }
+#wave { width: 100%; height: 100px; display: block; overflow: visible; }
+#wave path { stroke: #729b87; stroke-width: 3; stroke-linecap: round; fill: none; }
+#wave[data-speaker="companion"] path { stroke: #417966; }
+#wave[data-speaker="user"] path { stroke: #648799; }
+#voice-state { display: block; color: #74887c; font-size: 13px; letter-spacing: .035em; min-height: 18px; }
+h1 { margin: 0; font-size: clamp(28px, 3.5vw, 40px); font-weight: 500; letter-spacing: -.035em; line-height: 1.25; text-wrap: balance; }
+#welcome, #turn { text-align: center; width: 100%; }
+#welcome p { color: #748477; font-size: 17px; margin: 16px 0 0; line-height: 1.5; }
+.primary-button { display: flex; gap: 14px; align-items: center; justify-content: center; min-height: 66px; min-width: 250px; padding: 18px 32px; background: #527b67; color: #fff; border-radius: 22px; font-weight: 600; font-size: 21px; margin-top: 42px; box-shadow: 0 5px 14px #3553440c; }
+.primary-button:hover { background: #466d5a; }
+.primary-button svg { width: 24px; height: 24px; stroke: currentColor; fill: none; stroke-width: 1.65; }
+#connection-message { max-width: 580px; color: #796756; font-size: 14px; text-align: center; line-height: 1.55; margin: 16px 0 0; }
+#connection-message:empty { display: none; }
+.pictos { display: flex; justify-content: center; flex-wrap: wrap; gap: 22px; margin: 30px auto 0; }
+.picto { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; width: 180px; min-height: 204px; border: 1px solid #dce5dd; border-radius: 24px; background: #fbfcfa; color: #3e584a; padding: 22px; font-size: 21px; font-weight: 550; }
+button.picto:hover { border-color: #85aa91; background: #fff; }
+button.picto:active { background: #e6ede5; }
+.picto img { display: block; width: 108px; height: 108px; object-fit: contain; border-radius: 12px; }
+.chosen-picto { display: flex; justify-content: center; margin: 24px 0 0; }
+.chosen-picto .picto { border-color: #a9c1ad; background: #fafcf8; }
+#word-cue { color: #4e705b; font-size: 24px; font-weight: 500; margin: 20px 0 0; }
+#feedback { color: #64816c; font-size: 16px; min-height: 24px; margin: 10px 0 0; }
+.conversation-controls { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; margin-top: 30px; }
+.soft-button { background: #e1e9e1; color: #5d7462; border-radius: 15px; padding: 13px 21px; min-height: 48px; font-size: 16px; }
+.soft-button:hover { background: #d6e2d7; }
+#end-button { background: transparent; color: #68796b; }
+#cancel-button, #sound-button { margin-top: 20px; }
+.options-panel, .captions { max-width: 660px; margin: 12px auto; padding: 22px; background: #f8faf6; border: 1px solid #dae3da; border-radius: 18px; font-size: 14px; line-height: 1.65; color: #607566; }
+.options-panel p:last-child, .captions p:last-child { margin-bottom: 0; }
+.options-panel input { width: 18px; height: 18px; vertical-align: middle; margin-right: 7px; }
+.captions p { overflow-wrap: anywhere; }
+.preview-panel { text-align: center; padding: 14px; font-size: 12px; color: #647968; border-top: 1px dashed #b1c5b5; }
+.preview-panel button { font-size: 12px; margin: 4px; }
+@media(max-width: 650px) { .companion-shell { padding: 16px 20px; } .conversation { min-height: calc(100dvh - 112px); padding-bottom: 28px; } .voice-line { margin-bottom: 24px; } #wave { height: 76px; } .pictos { gap: 12px; margin-top: 24px; } .picto { width: clamp(98px, 27vw, 155px); min-height: 152px; padding: 15px 8px; gap: 12px; font-size: 17px; border-radius: 19px; } .picto img { width: 76px; height: 76px; } .chosen-picto .picto { width: 170px; min-height: 184px; } .chosen-picto .picto img { width: 102px; height: 102px; } .primary-button { margin-top: 30px; } .conversation-controls { gap: 8px; margin-top: 22px; } .soft-button { font-size: 14px; padding: 12px 16px; } }
+@media(max-height: 650px) and (min-width: 651px) { .companion-shell { padding-top: 12px; } .conversation { padding: 10px 0 16px; } .voice-line { margin-bottom: 14px; } #wave { height: 60px; } .pictos, .chosen-picto { margin-top: 18px; } .picto { min-height: 160px; padding: 12px; gap: 9px; } .picto img { width: 85px; height: 85px; } .conversation-controls { margin-top: 18px; } }
+@media(prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }

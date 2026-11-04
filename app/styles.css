@@ -1222,6 +1222,14 @@ img.is-photo {
   line-height: 1.08;
 }
 
+.presentation-audio-status {
+  margin: 0;
+  color: #fff;
+  text-align: center;
+  font-size: 1rem;
+  line-height: 1.3;
+}
+
 .communication-builder {
   min-height: 0;
   display: grid;
@@ -3175,6 +3183,11 @@ body.matching-mode .main {
   text-align: center;
 }
 
+.english-word-prompt.voice-playback-disabled {
+  grid-template-columns: 1fr;
+  grid-template-areas: "label" "word";
+}
+
 .english-touch-label {
   grid-area: label;
   color: var(--muted);
@@ -4526,7 +4539,7 @@ body.matching-mode .main {
 
 .supports-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 18px;
 }
 
@@ -4598,7 +4611,12 @@ body.matching-mode .main {
   border-color: #efd2bf;
 }
 
-/* Mis apoyos · números y colores */
+.support-tool-multiplication {
+  --tool-color: #b26a16;
+  border-color: #ead1ae;
+}
+
+/* Mis apoyos · números, colores y tablas */
 html.support-focus-mode,
 body.support-focus-mode {
   height: 100%;
@@ -4981,6 +4999,338 @@ body.support-focus-mode .main {
   border: 2px solid currentColor;
   background: color-mix(in srgb, var(--support-color) 72%, var(--support-ink));
   color: var(--support-ink);
+}
+
+.multiplication-audio-rule {
+  min-height: 48px;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 0 16px;
+  border: 2px solid #e0c18f;
+  border-radius: 999px;
+  background: #fff8e8;
+  color: #795019;
+  font-size: 0.9rem;
+  font-weight: 950;
+}
+
+.multiplication-audio-rule svg {
+  width: 22px;
+  height: 22px;
+}
+
+.multiplication-support-heading .eyebrow {
+  color: #9a5a12;
+}
+
+.multiplication-support-layout {
+  min-height: 0;
+  height: 100%;
+  display: grid;
+  grid-template-columns: minmax(280px, 0.68fr) minmax(0, 1.32fr);
+  gap: 16px;
+}
+
+.multiplication-table-panel,
+.multiplication-operation-card {
+  min-height: 0;
+  border: 1px solid #e5d4b8;
+  border-radius: 24px;
+  background: #fff;
+  box-shadow: 0 16px 42px rgba(72, 48, 18, 0.1);
+}
+
+.multiplication-table-panel {
+  display: grid;
+  align-content: center;
+  gap: 22px;
+  padding: 24px;
+  background: linear-gradient(155deg, #fffaf0, #fff);
+}
+
+.multiplication-panel-label {
+  color: #9a5a12;
+  font-size: 0.78rem;
+  font-weight: 950;
+  letter-spacing: 0.11em;
+}
+
+.multiplication-table-panel p {
+  margin: 5px 0 0;
+  color: #655b4d;
+  font-weight: 750;
+  line-height: 1.35;
+}
+
+.multiplication-table-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 9px;
+}
+
+.multiplication-table-grid button {
+  min-height: 58px;
+  border: 2px solid #e2d2b8;
+  border-radius: 15px;
+  background: #fff;
+  color: #5c5144;
+  font-size: 1.2rem;
+  font-weight: 950;
+}
+
+.multiplication-table-grid button:first-child {
+  grid-column: span 2;
+  font-size: 0.94rem;
+}
+
+.multiplication-table-grid button.is-selected {
+  border-color: #b26a16;
+  background: #b26a16;
+  color: #fff;
+  box-shadow: 0 8px 17px rgba(178, 106, 22, 0.22);
+}
+
+.multiplication-help-note {
+  display: grid;
+  gap: 4px;
+  border-left: 5px solid #e5aa49;
+  border-radius: 10px;
+  background: #fff3d8;
+  padding: 12px 14px;
+  color: #6e4b1e;
+}
+
+.multiplication-help-note span {
+  font-size: 0.84rem;
+  font-weight: 750;
+}
+
+.multiplication-operation-card {
+  display: grid;
+  grid-template-rows: auto auto minmax(110px, 1fr) auto auto auto auto;
+  place-items: center;
+  gap: 9px;
+  padding: clamp(16px, 2vw, 25px);
+  overflow: hidden;
+  background: linear-gradient(155deg, #fff, #fffaf0);
+  text-align: center;
+}
+
+.multiplication-operation-kicker {
+  border-radius: 999px;
+  background: #efe3cf;
+  color: #795019;
+  padding: 5px 13px;
+  font-size: 0.76rem;
+  font-weight: 950;
+  letter-spacing: 0.1em;
+}
+
+.multiplication-equation {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: clamp(10px, 1.5vw, 20px);
+  color: #34302a;
+  font-size: clamp(2.5rem, 6vw, 5rem);
+  font-weight: 950;
+  line-height: 0.95;
+}
+
+.multiplication-equation span {
+  color: #9a774e;
+  font-size: 0.72em;
+}
+
+.multiplication-equation b {
+  color: #9a5a12;
+}
+
+.multiplication-groups {
+  width: min(660px, 100%);
+  min-height: 0;
+  display: grid;
+  grid-template-columns: repeat(var(--group-columns), minmax(54px, 108px));
+  place-content: center;
+  gap: 7px;
+}
+
+.multiplication-visual-group {
+  min-height: 48px;
+  display: grid;
+  grid-template-columns: repeat(var(--item-columns), 11px);
+  place-content: center;
+  gap: 5px;
+  border: 2px solid #e8c987;
+  border-radius: 13px;
+  background: #fff6dc;
+  padding: 7px;
+}
+
+.multiplication-visual-group i {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: #d47a1a;
+  box-shadow: inset 0 -2px 0 rgba(98, 50, 3, 0.13);
+}
+
+.multiplication-visual-group.group-2 i,
+.multiplication-visual-group.group-4 i {
+  background: #5a8fca;
+}
+
+.multiplication-visual-group.group-3 i,
+.multiplication-visual-group.group-5 i {
+  background: #5b9d68;
+}
+
+.multiplication-repeated-addition {
+  margin: 0;
+  color: #625a50;
+  font-size: clamp(0.9rem, 1.55vw, 1.2rem);
+  font-weight: 850;
+  line-height: 1.25;
+}
+
+.multiplication-repeated-addition strong {
+  color: #9a5a12;
+}
+
+.multiplication-audio-area {
+  width: min(600px, 100%);
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.multiplication-replay-form {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 7px;
+  text-align: left;
+}
+
+.multiplication-replay-form label {
+  color: #795019;
+  font-size: 0.9rem;
+  font-weight: 850;
+}
+
+.multiplication-replay-input-row {
+  display: grid;
+  grid-template-columns: minmax(80px, 1fr) minmax(140px, 1.5fr);
+  gap: 10px;
+}
+
+.multiplication-replay-input-row input,
+.multiplication-replay-input-row button {
+  min-height: 52px;
+  border-radius: 12px;
+  font: inherit;
+  font-weight: 850;
+}
+
+.multiplication-replay-input-row input {
+  width: 100%;
+  border: 2px solid #d6b684;
+  background: #fff;
+  padding: 8px 12px;
+  font-size: 1.3rem;
+  text-align: center;
+}
+
+.multiplication-replay-input-row button {
+  background: #9a5a12;
+  color: #fff;
+  padding: 8px 12px;
+}
+
+.multiplication-answer-error {
+  min-height: 18px;
+  color: #a53e2e;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.multiplication-listen-button,
+.multiplication-next-button {
+  min-height: 66px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border-radius: 17px;
+  padding: 10px 16px;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 950;
+}
+
+.multiplication-listen-button {
+  background: #9a5a12;
+  color: #fff;
+  box-shadow: 0 9px 20px rgba(154, 90, 18, 0.22);
+}
+
+.multiplication-listen-button:disabled {
+  background: #d8d0c4;
+  color: #615b53;
+  box-shadow: none;
+  cursor: default;
+}
+
+.multiplication-next-button {
+  border: 2px solid #a8c8d5;
+  background: #edf8fb;
+  color: #28677b;
+}
+
+.multiplication-listen-button svg,
+.multiplication-next-button svg {
+  width: 28px;
+  height: 28px;
+}
+
+.multiplication-cooldown-copy {
+  min-height: 20px;
+  color: #6e675f;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.multiplication-cooldown-progress {
+  width: min(430px, 86%);
+  height: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #ece7df;
+}
+
+.multiplication-cooldown-progress i {
+  display: block;
+  width: var(--cooldown);
+  height: 100%;
+  border-radius: inherit;
+  background: #d89a3a;
+  transition: width 0.2s linear;
+}
+
+@media (max-height: 650px) {
+  html.support-focus-mode,
+  body.support-focus-mode,
+  body.support-focus-mode .main,
+  .support-resource-screen,
+  .multiplication-support-layout {
+    height: auto;
+    overflow: auto;
+  }
+
+  .multiplication-operation-card {
+    height: auto;
+    overflow: visible;
+  }
 }
 
 .support-color-controls.is-random {
@@ -5701,6 +6051,7 @@ body.turner-mode .main {
 
   .supports-grid,
   .support-resource-layout,
+  .multiplication-support-layout,
   .turner-setup-layout,
   .turner-live-content {
     grid-template-columns: 1fr;
@@ -5717,6 +6068,18 @@ body.turner-mode .main {
 
   .support-color-fill {
     min-height: 472px;
+  }
+
+  .multiplication-table-panel {
+    min-height: 380px;
+  }
+
+  .multiplication-operation-card {
+    min-height: 610px;
+  }
+
+  .multiplication-audio-area {
+    grid-template-columns: 1fr;
   }
 
   .turner-live-screen {
@@ -8697,6 +9060,11 @@ body.turner-mode .main {
   text-align: left;
 }
 
+.sentence-task-heading.voice-playback-disabled {
+  grid-template-columns: 1fr;
+  grid-template-areas: "kicker" "title";
+}
+
 .sentence-task-kicker {
   grid-area: kicker;
   color: #9b493f;
@@ -9202,6 +9570,10 @@ body.turner-mode .main {
   padding: 12px 18px 12px 25px;
 }
 
+.sofia-instruction-card.voice-playback-disabled {
+  grid-template-columns: minmax(0, 1fr);
+}
+
 .sofia-instruction-card p {
   margin: 0;
   color: #322f2a;
@@ -9534,4 +9906,374 @@ body.turner-mode .main {
   .sofia-recipe-confetti i {
     animation: none !important;
   }
+}
+
+.matching-runner.geometry-quest-runner {
+  height: calc(100dvh - 36px);
+  min-height: 0;
+  grid-template-rows: auto minmax(0, 1fr);
+  overflow: hidden;
+}
+
+.matching-runner.geometry-quest-runner .geometry-quest-panel {
+  min-height: 0;
+  overflow: hidden;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) minmax(38px, auto) auto;
+  gap: clamp(8px, 1.5vh, 16px);
+  padding: clamp(12px, 2vw, 24px);
+  border: 3px solid #d9c25d;
+  background: linear-gradient(165deg, #fffef7, #f0faff);
+}
+
+.geometry-quest-heading {
+  display: grid;
+  gap: 4px;
+  justify-items: center;
+  text-align: center;
+}
+
+.geometry-quest-heading > span {
+  color: #846800;
+  background: #fff2af;
+  border-radius: 999px;
+  padding: 3px 12px;
+  font-size: 0.79rem;
+  font-weight: 900;
+}
+
+.geometry-quest-heading h2 {
+  margin: 0;
+  color: #233541;
+  font-size: clamp(1.45rem, 3vw, 2.5rem);
+  line-height: 1.12;
+}
+
+.geometry-quest-layout {
+  min-width: 0;
+  min-height: 0;
+  width: min(1080px, 100%);
+  margin: auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(220px, 0.75fr);
+  gap: clamp(12px, 2vw, 24px);
+  align-items: center;
+}
+
+.geometry-quest-scene {
+  min-width: 0;
+  min-height: 0;
+  display: grid;
+  place-items: center;
+}
+
+.geometry-scene-svg {
+  display: block;
+  width: min(100%, 560px);
+  max-height: min(52vh, 390px);
+  filter: drop-shadow(0 9px 14px rgba(32, 73, 90, 0.12));
+}
+
+.geometry-line-a,
+.geometry-line-b {
+  stroke-width: 11;
+  stroke-linecap: round;
+}
+
+.geometry-line-a { stroke: #ffcf3b; }
+.geometry-line-b { stroke: #62d9f3; }
+.geometry-line-guide {
+  stroke: #55d793;
+  stroke-width: 8;
+  stroke-dasharray: 10 9;
+  stroke-linecap: round;
+}
+
+.geometry-choice-grid,
+.geometry-turn-controls {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+
+.geometry-choice {
+  min-height: 76px;
+  border: 4px solid #a4cad7;
+  border-radius: 19px;
+  background: #f7fcff;
+  color: #243b48;
+  padding: 10px 16px;
+  font-family: inherit;
+  font-size: clamp(1.1rem, 2.2vw, 1.6rem);
+  font-weight: 900;
+  line-height: 1.1;
+  cursor: pointer;
+  box-shadow: 0 6px 14px rgba(31, 84, 106, 0.09);
+}
+
+.geometry-choice:hover,
+.geometry-choice:focus-visible,
+.geometry-net-cell.is-option:hover,
+.geometry-net-cell.is-option:focus-visible {
+  outline: none;
+  border-color: #1f7a8c;
+  background: #e8f7fc;
+}
+
+.geometry-choice.is-correct {
+  border-color: #2f9e66;
+  background: #e5f7ea;
+}
+
+.geometry-choice.is-wrong,
+.geometry-net-cell.is-option.is-wrong {
+  border-color: #e36b63;
+  background: #ffebe9;
+}
+
+.geometry-choice:disabled {
+  cursor: default;
+  opacity: 0.7;
+}
+
+.geometry-choice.is-correct:disabled { opacity: 1; }
+
+.geometry-turn-controls {
+  border: 3px solid #a9d3df;
+  border-radius: 22px;
+  background: #f7fcff;
+  padding: clamp(16px, 2vw, 28px);
+}
+
+.geometry-turn-controls output {
+  text-align: center;
+  color: #1c6880;
+  font-size: clamp(2.3rem, 5vw, 4.3rem);
+  font-weight: 950;
+}
+
+.geometry-turn-controls input[type="range"] {
+  width: 100%;
+  height: 44px;
+  accent-color: #f2bf31;
+  cursor: pointer;
+}
+
+.geometry-turn-controls .btn {
+  min-height: 58px;
+  justify-content: center;
+}
+
+.geometry-quest-feedback {
+  min-height: 38px;
+  color: #9e3f36;
+  font-size: clamp(1rem, 1.8vw, 1.24rem);
+  font-weight: 900;
+  text-align: center;
+}
+
+.geometry-quest-feedback.is-good { color: #24804f; }
+
+.geometry-rolling-object {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.geometry-rolling-object.shape-sphere.is-rolling {
+  animation: geometry-sphere-roll 1.45s ease-in-out both;
+}
+
+.geometry-rolling-object.shape-cylinder.is-rolling {
+  animation: geometry-cylinder-roll 1.45s ease-in-out both;
+}
+
+.geometry-rolling-object.shape-cone.is-rolling {
+  transform-origin: 10% 50%;
+  animation: geometry-cone-roll 1.45s ease-in-out both;
+}
+
+@keyframes geometry-sphere-roll {
+  0% { transform: translateX(0) rotate(0); }
+  55% { transform: translateX(45px) rotate(34deg); }
+  100% { transform: translateX(65px) rotate(50deg); }
+}
+
+@keyframes geometry-cylinder-roll {
+  from { transform: translateX(0); }
+  to { transform: translateX(70px); }
+}
+
+@keyframes geometry-cone-roll {
+  from { transform: translateX(0) rotate(0); }
+  to { transform: translateX(32px) rotate(-14deg); }
+}
+
+.geometry-cube-net-runner .geometry-quest-layout {
+  grid-template-columns: 1fr;
+}
+
+.geometry-net-wrap {
+  width: min(100%, 490px);
+  display: grid;
+  justify-items: center;
+  gap: 7px;
+}
+
+.geometry-net-board {
+  width: min(100%, 340px);
+  aspect-ratio: 1;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  grid-template-rows: repeat(5, 1fr);
+}
+
+.geometry-net-cell {
+  margin: 2px;
+  border: 4px solid #255a77;
+  border-radius: 5px;
+  background: #7bc9f3;
+  box-shadow: inset 0 0 0 3px rgba(255, 255, 255, 0.45);
+}
+
+.geometry-net-cell.is-option {
+  border-style: dashed;
+  background: #fff6ca;
+  color: #a78200;
+  font-size: clamp(1.5rem, 3vw, 2.8rem);
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.geometry-net-cell.is-option.is-filled {
+  border-style: solid;
+  background: #ffd166;
+  cursor: default;
+}
+
+.geometry-net-help {
+  color: #315870;
+  font-size: 1rem;
+  font-weight: 850;
+}
+
+.geometry-net-next {
+  justify-self: center;
+  min-height: 50px;
+  min-width: 215px;
+  justify-content: center;
+}
+
+.geometry-folded-cube {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  width: min(100%, 430px);
+  animation: geometry-cube-appear 0.6s ease-out both;
+}
+
+.geometry-folded-cube strong {
+  color: #237047;
+  font-size: 1.3rem;
+}
+
+@keyframes geometry-cube-appear {
+  from { opacity: 0; transform: scale(0.65) rotate(-12deg); }
+  to { opacity: 1; transform: scale(1) rotate(0); }
+}
+
+@media (max-width: 760px) {
+  html.matching-mode:has(.geometry-quest-runner),
+  body.matching-mode:has(.geometry-quest-runner) { height: auto; overflow: auto; }
+  .matching-runner.geometry-quest-runner { height: auto; min-height: calc(100dvh - 30px); overflow: visible; }
+  .geometry-quest-panel { overflow: visible; }
+  .geometry-quest-layout { grid-template-columns: 1fr; }
+  .geometry-scene-svg { max-height: 300px; }
+  .geometry-choice-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .geometry-choice-grid.has-two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .geometry-choice { min-height: 70px; padding: 7px; font-size: clamp(0.94rem, 3vw, 1.15rem); }
+  .geometry-turn-controls { width: min(100%, 470px); margin: auto; }
+  .geometry-net-board { width: min(100%, 300px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .geometry-rolling-object.is-rolling,
+  .geometry-folded-cube { animation: none !important; }
+}
+
+.pacman-compare-layout {
+  min-height: 0;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: clamp(8px, 1.3vh, 16px);
+  width: min(960px, 100%);
+  margin: 0 auto;
+}
+
+.pacman-compare-instruction {
+  color: #305b68;
+  font-size: clamp(1rem, 1.9vw, 1.25rem);
+  font-weight: 850;
+  text-align: center;
+}
+
+.pacman-compare-cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(12px, 2vw, 26px);
+  width: 100%;
+}
+
+.pacman-compare-card {
+  min-width: 0;
+  min-height: 235px;
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 2px;
+  border: 4px solid #a9cad2;
+  border-radius: 24px;
+  background: #f8fcfe;
+  color: #1c596a;
+  padding: 8px;
+  font-family: inherit;
+  cursor: pointer;
+  box-shadow: 0 8px 18px rgba(30, 82, 99, 0.1);
+}
+
+.pacman-compare-card strong {
+  font-size: clamp(1.5rem, 3vw, 2.2rem);
+}
+
+.pacman-compare-card:hover,
+.pacman-compare-card:focus-visible { border-color: #1f7a8c; outline: none; }
+.pacman-compare-card.is-correct { border-color: #2f9e66; background: #e7f7eb; }
+.pacman-compare-card.is-wrong { border-color: #e76f61; background: #fff0ec; }
+.pacman-compare-card:disabled { cursor: default; }
+
+.pacman-compare-figure {
+  display: block;
+  width: min(100%, 210px);
+  max-height: min(34vh, 210px);
+}
+
+.pacman-compare-benchmark {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #42626e;
+  font-size: 0.95rem;
+  font-weight: 850;
+}
+
+.pacman-compare-benchmark i {
+  width: 23px;
+  height: 23px;
+  border-left: 4px solid currentColor;
+  border-bottom: 4px solid currentColor;
+}
+
+@media (max-width: 760px) {
+  .pacman-compare-card { min-height: 170px; }
+  .pacman-compare-figure { max-height: 150px; }
 }

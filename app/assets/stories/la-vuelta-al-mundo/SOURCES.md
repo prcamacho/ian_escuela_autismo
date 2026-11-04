@@ -1,0 +1,11 @@
+# La vuelta al mundo
+
+Fuentes familiares: `C:/Users/pablo/Desktop/Libro5.pdf` (19 páginas PDF) y `C:/Users/pablo/Desktop/libro5.mp4` (6:42.54, 640 × 360). Texto: Javier Villafañe. Ilustraciones: Estrellita Caracol. Historias x leer, Ministerio de Educación de la Nación, 2022. ISBN 978-950-00-1590-5.
+
+Se leyó el cuento completo y se contrastaron narración e ilustraciones del video. Ocho escenas conservan la salida de Santiago, las invitaciones a los animales, la fila, el charco imaginado como río, el molino sin viento, la ayuda de la jirafa a la hormiga y el regreso a casa. Se reducen las enumeraciones acumulativas sin pedir recordar todos los animales ni cantidades. El comienzo explicita el juego de dar la vuelta al mundo y el final conserva que recorrió la manzana. La ilustración del barco se identifica como imaginación: no se afirma que cruzaron un río en un barco real.
+
+Los apoyos **El recorrido** y **La ayuda** explican una manzana de casas y cómo la jirafa ayuda a la hormiga. `manzana.svg` es un esquema nuevo para comprender el concepto; no representa calles concretas del libro ni la ubicación de Ian. Las otras imágenes proceden del PDF. Los recortes están en `tmp/book5-analysis/asset-crops.json`. El video usa las mismas ilustraciones con transiciones, sin una acción nueva que requiera incorporar un clip.
+
+Las diez locuciones leen exactamente los textos visibles con `es-AR-ElenaNeural`, velocidad -12 %. Cada escena y apoyo tienen una espera de cinco minutos desde el inicio, independiente por libro y sección y persistente. El bloqueo durante la voz y el avance manual son los compartidos con los cuatro cuentos anteriores.
+
+Material físico: resumen de una A4 y **Mi molino de papel**, una base y un rotor que se recortan y unen con un broche mariposa preparado por el adulto. Ian puede mover el borde del rotor con un dedo y observar una aspa marcada. La guía distingue el molino del cuento, quieto por falta de viento, y esta maqueta, que se mueve con la mano. El rotor plano no se presenta como un molino probado para girar al soplar. El diseño es un esquema nuevo; no modifica las ilustraciones originales. Se puede empezar con un solo movimiento o señalar para que el adulto lo haga.

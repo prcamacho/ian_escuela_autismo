@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#edf2ee"><title>Mi compañero</title>
+  <link rel="icon" href="/icon.svg" type="image/svg+xml"><link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <main class="companion-shell">
+    <header><a href="/" id="home" aria-label="Volver al inicio"><span aria-hidden="true">←</span> Inicio</a><span class="brand">Mi compañero</span><button id="options-button" class="icon-button" aria-label="Opciones" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 17h16"/><circle cx="9" cy="7" r="3"/><circle cx="15" cy="17" r="3"/></svg></button></header>
+    <section class="conversation" aria-label="Conversación">
+      <div class="voice-line"><svg id="wave" viewBox="0 0 600 120" aria-hidden="true"><path d="M20 60 H580"/></svg><span id="voice-state">A tu ritmo</span></div>
+      <div id="welcome"><h1>¿Hablamos?</h1><p>Podés hablar, señalar o elegir.</p></div>
+      <div id="turn" hidden><h1 id="question">¿Qué te gusta?</h1><div id="pictos" class="pictos" aria-label="Elegí una opción"></div><div id="practice" hidden><div id="chosen-picto" class="chosen-picto"></div><p id="word-cue"></p><p id="feedback" role="status"></p></div></div>
+      <p id="connection-message" role="status"></p>
+      <button id="start-button" class="primary-button"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10v1a7 7 0 0 0 14 0v-1M12 18v4M8 22h8"/></svg>Quiero hablar</button>
+      <div id="conversation-controls" class="conversation-controls" hidden>
+        <button id="repeat-button" class="soft-button" hidden><span aria-hidden="true">↻</span> Otra vez</button>
+        <button id="change-button" class="soft-button" hidden>Otra cosa</button>
+        <button id="mute-button" class="soft-button"><span aria-hidden="true">Ⅱ</span> Pausa</button>
+        <button id="end-button" class="soft-button">Terminar</button>
+      </div>
+      <button id="cancel-button" class="soft-button" hidden>Cancelar</button>
+      <button id="sound-button" class="soft-button" hidden>Activar sonido</button>
+    </section>
+    <section id="options" class="options-panel" hidden aria-label="Opciones para acompañar">
+      <label><input type="checkbox" id="captions-toggle"> Mostrar texto de la conversación</label>
+      <p>«Quiero hablar» conecta la voz y consume saldo de OpenAI. «Terminar» cierra la voz y el micrófono. Cada conversación dura hasta 3 minutos.</p>
+      <p>La validación reconoce intentos y aproximaciones. Si no se entiende, propone algo más simple. Podés acompañar sin apurar la respuesta.</p>
+    </section>
+    <section id="captions" class="captions" hidden aria-label="Texto de la conversación"><p><strong>Vos:</strong> <span id="user-caption">…</span></p><p><strong>Compañero:</strong> <span id="assistant-caption">…</span></p></section>
+    <audio id="voice-audio" autoplay></audio>
+  </main>
+  <script type="module" src="./app.mjs"></script>
+</body>
+</html>

@@ -1,4 +1,5 @@
 const STORAGE_KEY = "ian-escuela-data-v1";
+let nativeCompanionEnabled = false;
 const MULTIPLICATION_BAG_KEY = "ian-multiplication-bag-v1";
 const ENGLISH_BAG_KEY = "ian-english-bag-v1";
 const ENGLISH_REVIEW_KEY = "ian-english-review-v1";
@@ -7,7 +8,19 @@ const CIRCLE_GEOMETRY_REVIEW_KEY = "ian-circle-geometry-review-v2";
 const COMMUNICATION_RECENTS_KEY = "ian-communication-recents-v2";
 const COMMUNICATION_MESSAGE_RECENTS_KEY = "ian-communication-message-recents-v1";
 const COMMUNICATION_GENERAL_RECENTS_SCOPE = "general";
+const COMMUNICATION_UNIFIED_RECENTS_KEY = "ian-communication-general-recents-v1";
 const TURN_GROUPS_KEY = "ian-turn-groups-v1";
+const APP_SPEECH_NEXT_AT_KEY = "ian-app-speech-next-at-v1";
+const APP_SPEECH_COOLDOWN_MS = 2_000;
+const COMMUNICATION_QUICK_AUDIO_STATES_KEY = "ian-communication-quick-audio-states-v1";
+const COMMUNICATION_QUICK_AUDIO_DELAYS_MS = [2_000, 5_000, 10_000, 30_000, 60_000];
+const COMMUNICATION_QUICK_AUDIO_RESET_MS = 5 * 60_000;
+const MULTIPLICATION_AUDIO_COOLDOWN_KEY = "ian-multiplication-audio-next-at-v1";
+const MULTIPLICATION_AUDIO_COOLDOWN_MS = 10_000;
+let limitedSpeechSequence = 0;
+
+// Interruptor temporal: conserva audios y lógica para poder reactivarlos más adelante.
+const VOICE_PLAYBACK_ENABLED = false;
 
 const TURN_COLORS = ["#2b7a78", "#7c5cdb", "#c95f50", "#3b8f5a", "#b36b00", "#2f6fb0", "#a34272", "#5d6b82", "#00838f", "#8a5a44"];
 
@@ -65,7 +78,8 @@ const FIXED_SUBJECTS = [
   { id: "cs-naturales", title: "Cs Naturales", icon: "leaf", color: "#4f9d69" },
   { id: "cs-sociales", title: "Cs Sociales", icon: "globe", color: "#4b7bec" },
   { id: "matematicas", title: "Matematicas", icon: "calc", color: "#1f7a8c" },
-  { id: "ingles", title: "Inglés", icon: "language", color: "#7c5cdb" }
+  { id: "ingles", title: "Inglés", icon: "language", color: "#7c5cdb" },
+  { id: "tecnologia", title: "Tecnología", icon: "settings", color: "#177e89" }
 ];
 
 const PICTO_PATH = "assets/pictos/";
@@ -119,7 +133,7 @@ const COMMUNICATION_PICTOS = {
   estoy: { label: "Estoy", phrase: "estoy", image: "yo.png", color: "#4b7bec" },
   tengo: { label: "Tengo", phrase: "tengo", image: "yo.png", color: "#4b7bec" },
   "me-siento": { label: "Me siento", phrase: "me siento", image: "yo.png", color: "#7c5cdb" },
-  si: { label: "SI", phrase: "si", image: "si.png", color: "#4f9d69" },
+  si: { label: "SÍ", phrase: "sí", image: "si.png", color: "#4f9d69" },
   no: { label: "NO", phrase: "no", image: "no.png", color: "#c44747" },
   quiero: { label: "Quiero", phrase: "quiero", image: "quiero.png", color: "#1f7a8c" },
   necesitar: { label: "Necesito", phrase: "necesito", image: "necesitar.png", color: "#1f7a8c" },
@@ -220,7 +234,7 @@ const COMMUNICATION_PICTOS = {
   fono: { label: "Fono", phrase: "fonoaudiologa", image: "fono.png", color: "#7c5cdb" },
   psicologa: { label: "Psicologa", phrase: "psicologa", image: "psicologa.png", color: "#7c5cdb" },
   hola: { label: "Hola", phrase: "hola", image: "hola.png", color: "#4f9d69" },
-  adios: { label: "Adios", phrase: "adios", image: "adios.png", color: "#4b7bec" },
+  adios: { label: "Adiós", phrase: "adiós", image: "adios.png", color: "#4b7bec" },
   gracias: { label: "Gracias", phrase: "gracias", image: "gracias.png", color: "#4f9d69" },
   perdon: { label: "Perdon", phrase: "perdon", image: "perdon.png", color: "#ffb703" },
   abrazo: { label: "Abrazo", phrase: "abrazo", image: "abrazo.png", color: "#f07167" },
@@ -382,12 +396,12 @@ const COMMUNICATION_CATEGORIES = {
 };
 
 const COMMUNICATION_QUICK_ACTIONS = [
-  { id: "quick-si", label: "SI", picto: "si", sequence: ["si"], color: "#4f9d69" },
+  { id: "quick-si", label: "SÍ", picto: "si", sequence: ["si"], color: "#4f9d69" },
   { id: "quick-no", label: "NO", picto: "no", sequence: ["no"], color: "#c44747" },
   { id: "quick-hambre", label: "Hambre", message: "Tengo hambre", picto: "hambre", sequence: ["tengo", "hambre"], color: "#f07167" },
   { id: "quick-enojado", label: "Enojado", message: "Estoy enojado", picto: "enfadado", sequence: ["estoy", "enfadado"], color: "#c44747" },
   { id: "quick-hola", label: "Hola", picto: "hola", sequence: ["hola"], color: "#4f9d69" },
-  { id: "quick-adios", label: "Adios", picto: "adios", sequence: ["adios"], color: "#4b7bec" },
+  { id: "quick-adios", label: "Adiós", picto: "adios", sequence: ["adios"], color: "#4b7bec" },
   { id: "quick-no-quiero", label: "No quiero", picto: "no-quiero", sequence: ["no-quiero"], color: "#c44747" },
   { id: "quick-bano", label: "Baño", message: "Necesito ir al baño", picto: "bano", sequence: ["necesitar", "bano"], color: "#4f9d69" },
   { id: "quick-ayuda", label: "Ayuda", message: "Necesito ayuda", picto: "necesito-ayuda", sequence: ["necesito-ayuda"], color: "#4b7bec" }
@@ -401,7 +415,7 @@ const COMMUNICATION_STARTERS = [
     sequence: ["yo", "quiero"],
     groups: [
       { id: "recientes", title: "Recientes", pictos: [] },
-      { id: "bienestar", title: "Bienestar", pictos: ["descanso", "silencio", "auriculares", "abrazo", "solo", "medicina", "frio", "calor", "dormir", "tele", "musica", "ruido", "esperar", "parar", "mas"] },
+      { id: "bienestar", title: "Bienestar", pictos: ["descanso", "silencio", "auriculares", "abrazo", "solo", "medicina", "dormir", "tele", "musica", "esperar", "parar", "mas"] },
       { id: "bano", title: "Baño", pictos: ["pis", "caca", "limpiarse-cola", "lavarse-manos", "cepillarse-dientes", "banarse", "papel-higienico", "banera", "jabon", "toalla", "agua-caliente", "agua-fria", "lavarse-cara", "champu", "secar"] },
       { id: "amor", title: "Amor", pictos: ["abrazo", "beso", "cosquillas", "carino", "amigo", "dar-mano", "mimos", "caricias", "dormir-acompanado", "consuelo", "estar-juntos", "hablar", "escuchar", "compartir", "cuidar"] },
       { id: "alimentos", title: "Alimentos", categoryId: "alimentos", pictos: [] },
@@ -419,8 +433,7 @@ const COMMUNICATION_STARTERS = [
     sequence: ["doler"],
     groups: [
       { id: "recientes", title: "Recientes", pictos: [] },
-      { id: "cuerpo", title: "Cuerpo", pictos: ["cabeza", "oido", "mano", "brazo", "pierna", "espalda", "dolor-estomago", "dolor-garganta", "dolor-cabeza", "dolor-oido", "dolor-mano", "dolor-brazo", "doler", "tos", "fiebre"] },
-      { id: "ayuda", title: "Ayuda", pictos: ["necesito-ayuda", "doctor", "medicina", "descanso", "silencio", "maestra", "terapeuta", "terapia", "psicologa", "fono", "esperar", "no-entiendo", "gracias", "hablar", "oir"] }
+      { id: "cuerpo", title: "Cuerpo", pictos: ["cabeza", "oido", "mano", "brazo", "pierna", "espalda", "dolor-estomago", "dolor-garganta"] }
     ]
   },
   {
@@ -430,8 +443,8 @@ const COMMUNICATION_STARTERS = [
     sequence: ["me-siento"],
     groups: [
       { id: "recientes", title: "Recientes", pictos: [] },
-      { id: "emociones", title: "Emociones", pictos: ["contento", "triste", "enfadado", "miedo", "nervioso", "cansado", "aburrido", "tranquilo", "asustado", "calma", "me-gusta", "no-me-gusta", "no-quiero", "quiero", "hola"] },
-      { id: "cuerpo", title: "Cuerpo", pictos: ["mareado", "enfermo", "frio", "calor", "dolor", "solo", "dolor-cabeza", "dolor-estomago", "dolor-garganta", "dolor-oido", "dolor-mano", "dolor-brazo", "tos", "fiebre", "clinica"] }
+      { id: "emociones", title: "Emociones", pictos: ["contento", "triste", "enfadado", "miedo", "nervioso", "cansado", "aburrido", "tranquilo", "asustado", "calma"] },
+      { id: "cuerpo", title: "Cuerpo", pictos: ["mareado", "enfermo", "frio", "calor", "solo"] }
     ]
   },
   {
@@ -441,11 +454,53 @@ const COMMUNICATION_STARTERS = [
     sequence: ["yo", "tengo"],
     groups: [
       { id: "recientes", title: "Recientes", pictos: [] },
-      { id: "sensaciones", title: "Sensaciones", pictos: ["hambre", "frio", "calor", "miedo", "dolor", "mareado", "cansado", "enfermo", "beber", "comer", "descanso", "ruido", "dormir", "tos", "fiebre"] },
-      { id: "social", title: "Social", pictos: ["turno", "lapiz", "cuaderno", "tarea", "agua", "medicina", "hablar", "oir", "compartir", "juntos", "hola", "gracias", "perdon", "familia", "esperar"] }
+      { id: "sensaciones", title: "Sensaciones", pictos: ["hambre", "frio", "calor", "miedo", "dolor", "tos", "fiebre"] },
+      { id: "cosas", title: "Cosas", pictos: ["lapiz", "cuaderno", "tarea", "agua", "medicina", "dinero", "ropa", "juguete", "pelota", "ticket", "bolsa"] }
     ]
   }
 ];
+
+const COMMUNICATION_STARTER_PHRASES = {
+  "yo-quiero": {
+    abrazo: "un abrazo",
+    solo: "estar solo",
+    mama: "ver a mamá",
+    papa: "ver a papá",
+    maestra: "hablar con la maestra",
+    companero: "estar con un compañero",
+    terapeuta: "hablar con mi terapeuta",
+    familia: "estar con mi familia",
+    abuela: "ver a mi abuela",
+    doctor: "ver al doctor",
+    fono: "hablar con la fonoaudióloga",
+    psicologa: "hablar con la psicóloga",
+    "seno-carla": "hablar con la seño Carla",
+    "seno-maribel": "hablar con la seño Maribel"
+  },
+  "me-duele": {
+    cabeza: "la cabeza",
+    oido: "el oído",
+    mano: "la mano",
+    brazo: "el brazo",
+    pierna: "la pierna",
+    espalda: "la espalda",
+    "dolor-estomago": "el estómago",
+    "dolor-garganta": "la garganta"
+  },
+  "me-siento": {
+    miedo: "con miedo",
+    calma: "en calma",
+    frio: "con frío",
+    calor: "con calor"
+  },
+  "yo-tengo": {
+    lapiz: "un lápiz",
+    cuaderno: "un cuaderno",
+    pelota: "una pelota",
+    ticket: "un ticket",
+    bolsa: "una bolsa"
+  }
+};
 
 const DEFAULT_DATA = {
   settings: {
@@ -454,11 +509,17 @@ const DEFAULT_DATA = {
   },
   subjects: [
     {
+      id: "tecnologia", title: "Tecnología", icon: "settings", color: "#177e89",
+      themes: withWeightLabThemes("tecnologia", TECHNOLOGY_THEMES)
+    },
+    {
       id: "lengua",
       title: "Lengua",
       icon: "book",
       color: "#f07167",
       themes: [
+        ...LANGUAGE_MISSION_THEMES,
+        ...PACMAN_LANGUAGE_THEMES,
         {
           id: "onomatopeyas-animales",
           title: "Sonidos de animales",
@@ -756,6 +817,14 @@ const DEFAULT_DATA = {
       color: "#4f9d69",
       themes: [
         {
+          id: "tierra-pacman",
+          title: "La Tierra: donde vivimos",
+          description: "Descubrí la superficie y las capas de la Tierra con Pac-Man.",
+          activityLabel: "Explorar · Abrir el modelo · Practicar",
+          earthLayers: true,
+          exercises: [{ id: "tierra-descubrir", type: "earth-layers", prompt: "La Tierra: donde vivimos" }]
+        },
+        {
           id: "partes-planta",
           title: "Las partes de la planta",
           description: "Conocer y reconocer flor, tallo, hoja y raiz.",
@@ -964,8 +1033,8 @@ const DEFAULT_DATA = {
           id: "angulos-pacman",
           title: "Ángulos con Pac-Man",
           description: "Reconocer, construir y usar ángulos jugando.",
-          activityLabel: "3 juegos · 18 desafíos",
-          randomExerciseCount: 18,
+          activityLabel: "4 juegos · 22 desafíos",
+          randomExerciseCount: 22,
           pacmanAngleSequence: true,
           exercises: [
             {
@@ -973,6 +1042,12 @@ const DEFAULT_DATA = {
               type: "pacman-angle",
               stage: "classify",
               prompt: "¿Qué ángulo es?"
+            },
+            {
+              id: "pacman-comparar-angulos",
+              type: "pacman-angle",
+              stage: "compare",
+              prompt: "Compará las bocas"
             },
             {
               id: "pacman-construir-angulos",
@@ -987,6 +1062,42 @@ const DEFAULT_DATA = {
               prompt: "¿Cuánto gira?"
             }
           ]
+        },
+        {
+          id: "rectas-laberinto",
+          title: "Cruces del laberinto",
+          description: "Distinguir rectas paralelas, perpendiculares y oblicuas.",
+          activityLabel: "8 desafíos con rectas",
+          randomExerciseCount: 8,
+          geometryQuest: "lines",
+          exercises: [{ id: "rectas-pacman", type: "geometry-quest", prompt: "Mirá los caminos" }]
+        },
+        {
+          id: "cuerpos-ruedan",
+          title: "¿Quién rueda?",
+          description: "Probar qué cuerpos geométricos ruedan suavemente.",
+          activityLabel: "6 cuerpos para probar",
+          randomExerciseCount: 6,
+          geometryQuest: "rolling",
+          exercises: [{ id: "ruedan-pacman", type: "geometry-quest", prompt: "¿Rueda suavemente?" }]
+        },
+        {
+          id: "partes-cubo",
+          title: "Explorá el cubo",
+          description: "Reconocer caras, aristas y vértices; después contarlos.",
+          activityLabel: "7 desafíos del cubo",
+          randomExerciseCount: 7,
+          geometryQuest: "cube-parts",
+          exercises: [{ id: "partes-cubo-pacman", type: "geometry-quest", prompt: "Explorá el cubo" }]
+        },
+        {
+          id: "armar-cubo",
+          title: "Armá el cubo",
+          description: "Completar seis caras y plegar el desarrollo del cubo.",
+          activityLabel: "4 cubos para armar",
+          randomExerciseCount: 4,
+          geometryQuest: "cube-net",
+          exercises: [{ id: "red-cubo-pacman", type: "geometry-quest", prompt: "Completá la cara que falta" }]
         }
       ]
     },
@@ -1068,6 +1179,10 @@ const DEFAULT_DATA = {
   ]
 };
 
+DEFAULT_DATA.subjects.forEach((subject) => {
+  subject.themes = withPacmanDiscoveryThemes(subject.id, withPacmanWorldThemes(subject.id, withPacmanQuestThemes(subject.id, withFamilyThemes(subject.id, withSchoolArcadeThemes(subject.id, subject.themes)))));
+});
+
 let data = loadData();
 let route = { view: "home" };
 let session = null;
@@ -1081,6 +1196,10 @@ let communicationGroup = null;
 let communicationCategory = null;
 let communicationPresentation = false;
 let communicationNegated = false;
+let communicationQuickAudio = null;
+let communicationQuickAudioFinish = null;
+let communicationAudioStatus = "";
+let communicationQuickAudioStatesMemory = {};
 let turnerDraft = { title: "", participants: [] };
 let turnerSession = null;
 let supportAudio = null;
@@ -1090,6 +1209,17 @@ let supportSelectedNumber = null;
 let supportCount = 0;
 let supportColorMode = "show";
 let supportSelectedColor = null;
+let multiplicationSupportTable = 0;
+let multiplicationSupportDeck = [];
+let multiplicationSupportCurrent = null;
+let multiplicationSupportAudio = null;
+let multiplicationSupportCooldownTimer = null;
+let multiplicationAudioNextAtMemory = 0;
+let multiplicationSupportAudioPlayed = false;
+let multiplicationSupportReplayUnlocked = false;
+let multiplicationSupportAnswerError = "";
+let appSpeechAudio = null;
+let appSpeechNextAtMemory = 0;
 let deferredPwaInstallPrompt = null;
 let pwaInstallMode = null;
 
@@ -1396,6 +1526,8 @@ function createPacmanAngleExercises(theme) {
     };
   });
   const buildRounds = [
+    [25, 120],
+    [85, 25],
     [45, 120],
     [90, 25],
     [130, 70],
@@ -1414,11 +1546,105 @@ function createPacmanAngleExercises(theme) {
     category: pacmanAngleCategoryForDegrees(degrees),
     options: pacmanDegreeOptions(degrees)
   }));
-  const roundsByStage = { classify: classifyRounds, build: buildRounds, maze: mazeRounds };
+  const compareRounds = [
+    { id: "comparar-mayor", degreesA: 25, degreesB: 85, prompt: "¿Cuál boca se abre más?", correctId: "B", clue: "Mirá el espacio entre los dos bordes." },
+    { id: "comparar-menor", degreesA: 25, degreesB: 85, prompt: "¿Cuál boca se abre menos?", correctId: "A", clue: "Buscá la abertura más pequeña." }
+  ];
+  const roundsByStage = { classify: classifyRounds, compare: compareRounds, build: buildRounds, maze: mazeRounds };
   return theme.exercises.map((exercise) => ({
     ...clone(exercise),
     rounds: roundsByStage[exercise.stage] || []
   }));
+}
+
+function createGeometryQuestExercises(theme) {
+  const mode = theme.geometryQuest;
+  let rounds = [];
+  if (mode === "lines") {
+    rounds = [
+      ["parallel", 0], ["perpendicular", 0], ["oblique", 0],
+      ["parallel", 50], ["perpendicular", 32], ["oblique", 80]
+    ].map(([kind, orientation], index) => ({
+      id: `rectas-${index + 1}`,
+      type: "choose",
+      kind,
+      orientation,
+      prompt: "¿Cómo son estas rectas?",
+      options: shuffled(["parallel", "perpendicular", "oblique"]),
+      correctId: kind,
+      clue: kind === "parallel" ? "No se cruzan." : kind === "perpendicular" ? "Se cruzan y forman 90°." : "Se cruzan, pero no forman 90°."
+    }));
+    rounds.push(
+      { id: "girar-90", type: "turn", prompt: "Girá hasta formar 90°", target: 90, initial: 35, clue: "Buscá el ángulo recto: 90°." },
+      { id: "girar-45", type: "turn", prompt: "Girá hasta formar 45°", target: 45, initial: 110, clue: "Buscá el ángulo agudo: 45°." }
+    );
+  } else if (mode === "rolling") {
+    rounds = shuffled([
+      ["sphere", "Esfera", true], ["cylinder", "Cilindro", true], ["cone", "Cono", true],
+      ["cube", "Cubo", false], ["pyramid", "Pirámide", false], ["prism", "Prisma rectangular", false]
+    ]).map(([shape, label, rolls]) => ({
+      id: `rueda-${shape}`,
+      type: "choose",
+      shape,
+      label,
+      prompt: `¿${shape === "sphere" || shape === "pyramid" ? "La" : "El"} ${label.toLowerCase()} rueda suavemente?`,
+      options: shuffled(["yes", "no"]),
+      correctId: rolls ? "yes" : "no",
+      clue: rolls ? "Tiene una superficie curva." : "Sus caras son planas."
+    }));
+  } else if (mode === "cube-parts") {
+    rounds = [
+      ["face", "La parte amarilla, ¿qué es?", ["face", "edge", "vertex"], "Una cara es una superficie cuadrada."],
+      ["edge", "La línea roja, ¿qué es?", ["face", "edge", "vertex"], "Una arista une dos caras."],
+      ["vertex", "El punto amarillo, ¿qué es?", ["face", "edge", "vertex"], "Un vértice es una esquina."],
+      ["faces", "¿Cuántas caras tiene?", ["6", "8", "12"], "Tiene 6 caras cuadradas."],
+      ["edges", "¿Cuántas aristas tiene?", ["6", "8", "12"], "Tiene 12 aristas."],
+      ["vertices", "¿Cuántos vértices tiene?", ["6", "8", "12"], "Tiene 8 vértices."],
+      ["equal", "¿Sus aristas son iguales?", ["yes", "no"], "En un cubo, las 12 aristas miden lo mismo."]
+    ].map(([part, prompt, options, clue], index) => ({
+      id: `cubo-parte-${index + 1}`,
+      type: "choose",
+      part,
+      prompt,
+      options: shuffled(options),
+      correctId: ({ face: "face", edge: "edge", vertex: "vertex", faces: "6", edges: "12", vertices: "8", equal: "yes" })[part],
+      clue
+    }));
+  } else if (mode === "cube-net") {
+    const netLayouts = [
+      {
+        fixed: [[2, 0], [2, 1], [2, 2], [2, 3], [3, 1]],
+        slots: { a: [1, 1], b: [3, 0], c: [3, 2] },
+        correctId: "a"
+      },
+      {
+        fixed: [[2, 0], [2, 1], [2, 2], [2, 3], [1, 2]],
+        slots: { a: [1, 1], b: [3, 0], c: [1, 3] },
+        correctId: "b"
+      },
+      {
+        fixed: [[0, 2], [1, 2], [2, 2], [3, 2], [1, 1]],
+        slots: { a: [0, 1], b: [2, 3], c: [2, 1] },
+        correctId: "b"
+      },
+      {
+        fixed: [[0, 2], [1, 2], [2, 2], [3, 2], [2, 3]],
+        slots: { a: [1, 1], b: [1, 3], c: [3, 3] },
+        correctId: "a"
+      }
+    ];
+    rounds = netLayouts.map((layout, index) => ({
+      id: `red-cubo-${index + 1}`,
+      type: "net",
+      prompt: "¿Dónde va la sexta cara para armar el cubo?",
+      fixed: layout.fixed,
+      slots: layout.slots,
+      options: shuffled(Object.keys(layout.slots)),
+      correctId: layout.correctId,
+      clue: "Evitá formar un bloque de cuatro cuadrados."
+    }));
+  }
+  return theme.exercises.map((exercise) => ({ ...clone(exercise), mode, rounds }));
 }
 
 function createPlasticMaterialsExercises(theme) {
@@ -1684,11 +1910,39 @@ function normalizeData(value) {
               ...(fallback?.themes || []).filter(
                 (defaultTheme) => !baseThemes.some((theme) => theme?.id === defaultTheme.id)
               )
-            ]
+            ].sort((a, b) => Number(Boolean(b.missionMode)) - Number(Boolean(a.missionMode)))
           : baseThemes;
+      const themesWithCurrentMathActivities = fixed.id === "matematicas"
+        ? [
+            ...themesWithCurrentLanguageActivities.map((theme) =>
+              theme?.id === "angulos-pacman"
+                ? (fallback?.themes || []).find((defaultTheme) => defaultTheme.id === theme.id) || theme
+                : theme
+            ),
+            ...(fallback?.themes || []).filter(
+              (defaultTheme) => !themesWithCurrentLanguageActivities.some((theme) => theme?.id === defaultTheme.id)
+            )
+          ]
+        : themesWithCurrentLanguageActivities;
+      const themesWithCurrentNaturalActivities = fixed.id === "cs-naturales"
+        ? [
+            ...(savedThemes || themesWithCurrentMathActivities).map((theme) =>
+              theme?.id === "tierra-pacman"
+                ? fallback.themes.find((item) => item.id === theme.id)
+                : theme
+            ),
+            ...(fallback?.themes || []).filter((theme) =>
+              !(savedThemes || themesWithCurrentMathActivities).some((item) => item?.id === theme.id)
+            )
+          ]
+        : themesWithCurrentMathActivities;
       return {
         ...fixed,
-        themes: clone(themesWithCurrentLanguageActivities)
+        themes: clone(withPacmanDiscoveryThemes(fixed.id, withPacmanWorldThemes(fixed.id, withFarmTheme(fixed.id, withPacmanQuestThemes(fixed.id, withFamilyThemes(fixed.id, withSchoolArcadeThemes(fixed.id, fixed.id === "tecnologia"
+          ? withWeightLabThemes(fixed.id, [...themesWithCurrentMathActivities, ...(fallback?.themes || []).filter(
+              (theme) => !themesWithCurrentMathActivities.some((savedTheme) => savedTheme?.id === theme.id)
+            )])
+          : themesWithCurrentNaturalActivities)))))))
       };
     })
   };
@@ -1711,9 +1965,22 @@ function allExercisesCount(subject) {
 }
 
 function setRoute(nextRoute) {
+  if (typeof storyInteractionLocked === "function" && storyInteractionLocked()) return;
+  if (typeof stopStoryMedia === "function") stopStoryMedia();
+  if (route.view === "support-memory" && nextRoute.view !== "support-memory") leavePacmanMemory();
+  if (route.view === "support-explorer" && nextRoute.view !== "support-explorer") leavePacmanExplorer();
+  stopPacmanQuestAnimation();
+  if (typeof stopCapacityAnimation === "function") stopCapacityAnimation();
+  if (typeof stopEarthAnimation === "function") stopEarthAnimation();
+  stopFamilyAudio();
   if (nextRoute.view !== "run") stopEnglishAudio();
   if (nextRoute.view !== "run") stopLanguageAudio();
   if (nextRoute.view !== "support-numbers" && nextRoute.view !== "support-colors") stopSupportAudio();
+  if (nextRoute.view !== "communication") stopCommunicationQuickAudio();
+  if (nextRoute.view !== "support-multiplication") {
+    stopMultiplicationSupportAudio();
+    stopMultiplicationCooldownTimer();
+  }
   route = nextRoute;
   window.scrollTo({ top: 0, behavior: "smooth" });
   render();
@@ -1737,8 +2004,13 @@ function subtitleForRoute() {
   if (route.view === "school") return "Escuela";
   if (route.view === "communication") return "Me Comunico";
   if (route.view === "supports") return "Mis apoyos";
+  if (route.view === "support-stories" || route.view === "support-story") return "Mis apoyos / Cuentos";
+  if (route.view === "support-memory") return "Mis apoyos / Memoria con amigos";
+  if (route.view === "support-explorer") return "Mis apoyos / Pac-Man explorador";
+  if (route.view === "support-parish-visit") return "Mis apoyos / Visita a la parroquia";
   if (route.view === "support-numbers") return "Mis apoyos / Números";
   if (route.view === "support-colors") return "Mis apoyos / Colores";
+  if (route.view === "support-multiplication") return "Mis apoyos / Tablas";
   if (route.view === "turner-setup") return "Mis apoyos / Turnos";
   if (route.view === "turner-live" || route.view === "turner-finish") return "Turnos";
   if (route.view === "subject") return subjectById(route.subjectId)?.title || "Materia";
@@ -1750,14 +2022,28 @@ function subtitleForRoute() {
 }
 
 function render() {
-  const focusedActivityTypes = ["matching", "sound-choice", "sound-gallery", "drag-matching", "sum-choice-grid", "ghost-sum", "ghost-multiplication", "animal-sound", "rhyme-puzzle", "plant-labeling", "english-vocabulary", "circle-geometry", "pacman-angle", "plastic-materials", "instructional-recipe", "recipe-photo-matching", "sentence-builder", "sofia-recipe"];
+  if (typeof storyInteractionLocked === "function" && storyInteractionLocked()) return;
+  document.documentElement.classList.toggle("story-mode", route.view === "support-story");
+  document.body.classList.toggle("story-mode", route.view === "support-story");
+  document.documentElement.classList.toggle("memory-mode", route.view === "support-memory");
+  document.body.classList.toggle("memory-mode", route.view === "support-memory");
+  document.documentElement.classList.toggle("explorer-mode", route.view === "support-explorer");
+  document.body.classList.toggle("explorer-mode", route.view === "support-explorer");
+  const focusedActivityTypes = ["earth-layers", "matching", "sound-choice", "sound-gallery", "drag-matching", "sum-choice-grid", "ghost-sum", "ghost-multiplication", "animal-sound", "rhyme-puzzle", "plant-labeling", "english-vocabulary", "circle-geometry", "pacman-angle", "pacman-verbs", "language-mission", "geometry-quest", "plastic-materials", "instructional-recipe", "recipe-photo-matching", "sentence-builder", "sofia-recipe"];
+  focusedActivityTypes.push("capacity-lab");
+  focusedActivityTypes.push("social-farm");
+  if (session?.exercises?.[0]?.type === "weight-lab") focusedActivityTypes.push("weight-lab");
+  if (session?.exercises?.[0]?.type === "pacman-world") focusedActivityTypes.push("pacman-world");
+  if (session?.exercises?.[0]?.type === "pacman-discovery") focusedActivityTypes.push("pacman-discovery");
   const isFocusedActivity =
-    route.view === "run" && focusedActivityTypes.includes(session?.exercises?.[session.index]?.type);
+    route.view === "run" && (focusedActivityTypes.includes(session?.exercises?.[session.index]?.type) || session?.exercises?.[0]?.type === "pacman-verbs" || session?.exercises?.[0]?.type === "language-mission" || session?.exercises?.[0]?.type === "technology-lab" || session?.exercises?.[0]?.type === "school-arcade" || session?.exercises?.[0]?.type === "pacman-quest" || session?.exercises?.[0]?.type === "english-family");
   document.documentElement.classList.toggle("communication-mode", route.view === "communication");
   document.body.classList.toggle("communication-mode", route.view === "communication");
-  const supportFocusMode = route.view === "support-numbers" || route.view === "support-colors";
+  const supportFocusMode = route.view === "support-numbers" || route.view === "support-colors" || route.view === "support-multiplication";
   document.documentElement.classList.toggle("support-focus-mode", supportFocusMode);
   document.body.classList.toggle("support-focus-mode", supportFocusMode);
+  document.documentElement.classList.toggle("parish-visit-mode", route.view === "support-parish-visit");
+  document.body.classList.toggle("parish-visit-mode", route.view === "support-parish-visit");
   const turnerMode = route.view === "turner-live" || route.view === "turner-finish";
   document.documentElement.classList.toggle("turner-mode", turnerMode);
   document.body.classList.toggle("turner-mode", turnerMode);
@@ -1769,8 +2055,14 @@ function render() {
   if (route.view === "school") return renderSchool();
   if (route.view === "communication") return renderCommunication();
   if (route.view === "supports") return renderSupports();
+  if (route.view === "support-stories") return renderStoryLibrary();
+  if (route.view === "support-story") return renderStorySupport();
+  if (route.view === "support-memory") return renderPacmanMemory();
+  if (route.view === "support-explorer") return renderPacmanExplorer();
+  if (route.view === "support-parish-visit") return renderParishVisit();
   if (route.view === "support-numbers") return renderSupportNumbers();
   if (route.view === "support-colors") return renderSupportColors();
+  if (route.view === "support-multiplication") return renderSupportMultiplication();
   if (route.view === "turner-setup") return renderTurnerSetup();
   if (route.view === "turner-live") return renderTurnerLive();
   if (route.view === "turner-finish") return renderTurnerFinish();
@@ -1801,6 +2093,7 @@ function renderHome() {
             <span class="home-card-icon">${icon("users")}</span>
             <span>Mis apoyos</span>
           </button>
+          ${isCompanionEnabled() ? `<button class="home-card home-card-communication" type="button" data-action="companion"><span class="home-card-icon">${icon("speaker")}</span><span>Mi compañero</span></button>` : ""}
         </div>
         ${installCallout}
       </section>
@@ -1812,6 +2105,19 @@ function isNativeAppRuntime() {
   return Boolean(window.Capacitor?.isNativePlatform?.());
 }
 
+function isCompanionEnabled() {
+  return isNativeAppRuntime() ? nativeCompanionEnabled : window.IAN_COMPANION_ENABLED === true;
+}
+
+async function loadNativeCompanion() {
+  if (!isNativeAppRuntime()) return;
+  try {
+    const config = await window.Capacitor.Plugins.Companion.getConfig();
+    nativeCompanionEnabled = config.enabled === true;
+    if (route.view === "home") render();
+  } catch { nativeCompanionEnabled = false; }
+}
+
 function isInstalledPwa() {
   return window.matchMedia?.("(display-mode: standalone)").matches || window.navigator.standalone === true;
 }
@@ -1821,6 +2127,7 @@ function isIosBrowser() {
 }
 
 function renderPwaInstallCallout() {
+  if (window.IAN_COMPANION_ENABLED === true) return "";
   if (!pwaInstallMode || isNativeAppRuntime() || isInstalledPwa()) return "";
   const label = pwaInstallMode === "ios" ? "Cómo instalar" : "Instalar app";
   const description =
@@ -1895,11 +2202,37 @@ function renderSupports() {
       </div>
       <div class="section-title supports-title">
         <div>
-          <p class="eyebrow">RECURSOS VISUALES</p>
+          <p class="eyebrow">RECURSOS DE APOYO</p>
           <h2>Mis apoyos</h2>
         </div>
       </div>
       <div class="supports-grid">
+        <button class="support-tool-card support-tool-explorer" type="button" data-action="px-open">
+          <span class="support-tool-icon">${pxArt("pac")}</span>
+          <span class="support-tool-copy"><strong>Pac-Man explorador</strong><small>Islas de código · Armá tu aventura con bloques</small></span>
+          <span class="support-tool-arrow" aria-hidden="true">›</span>
+        </button>
+        <button class="support-tool-card support-tool-stories" type="button" data-action="story-library">
+          <span class="support-tool-icon"><img src="./assets/stories/el-ultimo-entrenador/cover.jpg" alt="" /></span>
+          <span class="support-tool-copy"><strong>Cuentos</strong><small>El último entrenador · Leer a mi ritmo</small></span>
+          <span class="support-tool-arrow" aria-hidden="true">›</span>
+        </button>
+        <button class="support-tool-card support-tool-memory" type="button" data-action="pm-open">
+          <span class="support-tool-icon">${pmSprite("pacman")}</span>
+          <span class="support-tool-copy">
+            <strong>Memoria con amigos</strong>
+            <small>Pac-Man · Encontrá las parejas</small>
+          </span>
+          <span class="support-tool-arrow" aria-hidden="true">›</span>
+        </button>
+        <button class="support-tool-card support-tool-parish" type="button" data-action="pv-open">
+          <span class="support-tool-icon"><img src="./assets/supports/parish/medalla1-1.jpg" alt="" /></span>
+          <span class="support-tool-copy">
+            <strong>Visita a la parroquia</strong>
+            <small>Medalla Milagrosa · Profes de UCASAL</small>
+          </span>
+          <span class="support-tool-arrow" aria-hidden="true">›</span>
+        </button>
         <button class="support-tool-card support-tool-turner" type="button" data-action="turner-open">
           <span class="support-tool-icon">${icon("turns")}</span>
           <span class="support-tool-copy">
@@ -1924,9 +2257,159 @@ function renderSupports() {
           </span>
           <span class="support-tool-arrow" aria-hidden="true">›</span>
         </button>
+        <button class="support-tool-card support-tool-multiplication" type="button" data-action="support-multiplication-open">
+          <span class="support-tool-icon">×</span>
+          <span class="support-tool-copy">
+            <strong>Tablas</strong>
+            <small>Ver · Escuchar con pausa</small>
+          </span>
+          <span class="support-tool-arrow" aria-hidden="true">›</span>
+        </button>
       </div>
     </section>
   `);
+}
+
+function appSpeechNextAt() {
+  return boundedAudioNextAt(APP_SPEECH_NEXT_AT_KEY, appSpeechNextAtMemory, APP_SPEECH_COOLDOWN_MS, setAppSpeechNextAt);
+}
+
+// Una fecha guardada deja de ser válida si el reloj retrocede o el dato se corrompe.
+// El límite también se comprueba al leer, incluyendo el valor de esta sesión.
+function boundedAudioNextAt(key, memory, limitMs, reset) {
+  const now = Date.now();
+  const valid = (value) => Number.isFinite(value) && value > now && value - now <= limitMs;
+  let stored = 0;
+  try {
+    stored = Number(localStorage.getItem(key));
+  } catch {}
+  const nextAt = Math.max(valid(memory) ? memory : 0, valid(stored) ? stored : 0);
+  if (memory !== nextAt || stored !== nextAt) {
+    reset(nextAt);
+  }
+  return nextAt;
+}
+
+function setAppSpeechNextAt(value) {
+  appSpeechNextAtMemory = value > Date.now() ? value : 0;
+  try {
+    if (appSpeechNextAtMemory) localStorage.setItem(APP_SPEECH_NEXT_AT_KEY, String(appSpeechNextAtMemory));
+    else localStorage.removeItem(APP_SPEECH_NEXT_AT_KEY);
+  } catch {
+    // El límite sigue funcionando durante esta sesión si falla el almacenamiento.
+  }
+}
+
+function appSpeechRemainingMs() {
+  return Math.max(0, appSpeechNextAt() - Date.now());
+}
+
+function communicationQuickAudioStates() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(COMMUNICATION_QUICK_AUDIO_STATES_KEY) || "{}");
+    return { ...(saved && typeof saved === "object" && !Array.isArray(saved) ? saved : {}), ...communicationQuickAudioStatesMemory };
+  } catch {
+    return { ...communicationQuickAudioStatesMemory };
+  }
+}
+
+function communicationQuickAudioState(id) {
+  const state = communicationQuickAudioStates()[id];
+  if (!state || !Number.isFinite(state.lastAt) || Date.now() - state.lastAt >= COMMUNICATION_QUICK_AUDIO_RESET_MS || state.lastAt > Date.now()) {
+    return { plays: 0, lastAt: 0, nextAt: 0 };
+  }
+  return state;
+}
+
+function communicationQuickAudioRemainingMs(id) {
+  return Math.max(0, (Number(communicationQuickAudioState(id).nextAt) || 0) - Date.now());
+}
+
+function advanceCommunicationQuickAudio(id) {
+  const previous = communicationQuickAudioState(id);
+  const plays = Math.min(COMMUNICATION_QUICK_AUDIO_DELAYS_MS.length, (Number(previous.plays) || 0) + 1);
+  const lastAt = Date.now();
+  const state = { plays, lastAt, nextAt: lastAt + COMMUNICATION_QUICK_AUDIO_DELAYS_MS[plays - 1] };
+  communicationQuickAudioStatesMemory[id] = state;
+  try {
+    localStorage.setItem(COMMUNICATION_QUICK_AUDIO_STATES_KEY, JSON.stringify(communicationQuickAudioStates()));
+  } catch {
+    // La espera se mantiene en memoria si falla el almacenamiento.
+  }
+}
+
+function releaseAppSpeech(audio, applyCooldown) {
+  if (appSpeechAudio !== audio) return false;
+  audio.releaseVolumeCeiling?.();
+  appSpeechAudio = null;
+  if (applyCooldown) setAppSpeechNextAt(Date.now() + APP_SPEECH_COOLDOWN_MS);
+  if (route.view === "support-multiplication") startMultiplicationCooldownTimer();
+  return true;
+}
+
+function stopAppSpeech(audio) {
+  if (!audio) return;
+  audio.pause();
+  audio.currentTime = 0;
+  releaseAppSpeech(audio, true);
+}
+
+function playAppSpeech(audio, onFailure = () => {}, limitVolume = false) {
+  if (appSpeechAudio || appSpeechRemainingMs() > 0) return false;
+  appSpeechAudio = audio;
+  audio.addEventListener("ended", () => releaseAppSpeech(audio, true), { once: true });
+  const fail = () => {
+    if (appSpeechAudio !== audio) return;
+    audio.pause();
+    if (releaseAppSpeech(audio, false)) onFailure();
+  };
+  audio.addEventListener("error", fail, { once: true });
+  if (limitVolume) return playAppSpeechWithVolumeCeiling(audio, fail);
+  try {
+    Promise.resolve(audio.play()).catch(fail);
+  } catch {
+    fail();
+    return false;
+  }
+  return true;
+}
+
+function playAppSpeechWithVolumeCeiling(audio, fail) {
+  const native = window.Capacitor?.isNativePlatform?.() === true;
+  const volume = native ? window.Capacitor?.Plugins?.StoryVolume : null;
+  const token = `tablas-${Date.now()}-${++limitedSpeechSequence}`;
+  let canceled = false, lastHeartbeat = 0;
+  const clamp = () => { if (!native && audio.volume > 0.7) audio.volume = 0.7; };
+  const refresh = () => {
+    if (canceled || appSpeechAudio !== audio || Date.now() - lastHeartbeat < 1000) return;
+    lastHeartbeat = Date.now();
+    if (volume) Promise.resolve(volume.refresh({ token })).catch(fail);
+  };
+  const paused = () => { if (!audio.ended) releaseAppSpeech(audio, true); };
+  audio.releaseVolumeCeiling = () => {
+    if (canceled) return;
+    canceled = true;
+    audio.removeEventListener?.("timeupdate", refresh);
+    audio.removeEventListener?.("volumechange", clamp);
+    audio.removeEventListener?.("pause", paused);
+    audio.releaseVolumeCeiling = null;
+    if (volume) Promise.resolve(volume.end({ token })).catch(() => {});
+  };
+  audio.addEventListener("timeupdate", refresh);
+  audio.addEventListener("volumechange", clamp);
+  audio.addEventListener("pause", paused);
+  const play = () => {
+    if (canceled || appSpeechAudio !== audio) { if (volume) Promise.resolve(volume.end({ token })).catch(() => {}); return; }
+    try { Promise.resolve(audio.play()).catch(fail); return true; } catch { fail(); return false; }
+  };
+  if (native) {
+    if (!volume) { fail(); return false; }
+    try { Promise.resolve(volume.begin({ token })).then(play, fail); } catch { fail(); return false; }
+  } else {
+    audio.volume = Math.min(audio.volume, 0.7);
+    return play();
+  }
+  return true;
 }
 
 function stopSupportAudio() {
@@ -1937,6 +2420,7 @@ function stopSupportAudio() {
 }
 
 function playSupportAudio(kind, id) {
+  if (!VOICE_PLAYBACK_ENABLED) return;
   stopSupportAudio();
   supportAudio = new Audio(`./assets/supports/audio/${kind}/${id}.mp3`);
   supportAudio.preload = "auto";
@@ -1963,9 +2447,13 @@ function supportNumberPreview(value, empty = false) {
     <div class="support-number-dots ${value > 10 ? "is-many" : ""}" aria-label="${value} elementos">
       ${supportNumberDots(value)}
     </div>
-    <button class="support-replay-button" type="button" data-action="support-number-replay" data-value="${value}">
-      ${icon("speaker")}Escuchar
-    </button>
+    ${
+      VOICE_PLAYBACK_ENABLED
+        ? `<button class="support-replay-button" type="button" data-action="support-number-replay" data-value="${value}">
+            ${icon("speaker")}Escuchar
+          </button>`
+        : ""
+    }
   `;
 }
 
@@ -2069,9 +2557,13 @@ function supportColorPreview(color) {
   return `
     <div class="support-color-fill" style="--support-color:${color.value};--support-ink:${color.ink}">
       <strong>${escapeHtml(color.label)}</strong>
-      <button class="support-color-replay" type="button" data-action="support-color-replay" data-color="${color.id}">
-        ${icon("speaker")}Escuchar
-      </button>
+      ${
+        VOICE_PLAYBACK_ENABLED
+          ? `<button class="support-color-replay" type="button" data-action="support-color-replay" data-color="${color.id}">
+              ${icon("speaker")}Escuchar
+            </button>`
+          : ""
+      }
     </div>
   `;
 }
@@ -2137,6 +2629,253 @@ function pickRandomSupportColor() {
   const color = choices[Math.floor(Math.random() * choices.length)] || SUPPORT_COLORS[0];
   supportSelectedColor = color.id;
   playSupportAudio("colors", color.id);
+  render();
+}
+
+function multiplicationSupportPool(table = 0) {
+  const tables = table ? [table] : Array.from({ length: 10 }, (_, index) => index + 1);
+  return tables.flatMap((factorA) =>
+    Array.from({ length: 10 }, (_, index) => {
+      const factorB = index + 1;
+      return { id: `${factorA}x${factorB}`, factorA, factorB, product: factorA * factorB };
+    })
+  );
+}
+
+function drawMultiplicationSupportOperation() {
+  if (!multiplicationSupportDeck.length) {
+    multiplicationSupportDeck = shuffled(multiplicationSupportPool(multiplicationSupportTable));
+  }
+  let next = multiplicationSupportDeck.pop() || { id: "1x1", factorA: 1, factorB: 1, product: 1 };
+  if (next.id === multiplicationSupportCurrent?.id && multiplicationSupportDeck.length) {
+    const replacement = multiplicationSupportDeck.pop();
+    multiplicationSupportDeck.unshift(next);
+    next = replacement;
+  }
+  multiplicationSupportCurrent = next;
+  multiplicationSupportAudioPlayed = false;
+  multiplicationSupportReplayUnlocked = false;
+  multiplicationSupportAnswerError = "";
+  return next;
+}
+
+function openSupportMultiplication() {
+  multiplicationSupportTable = 0;
+  multiplicationSupportDeck = [];
+  multiplicationSupportCurrent = null;
+  drawMultiplicationSupportOperation();
+  setRoute({ view: "support-multiplication" });
+}
+
+function stopMultiplicationSupportAudio() {
+  if (!multiplicationSupportAudio) return;
+  stopAppSpeech(multiplicationSupportAudio);
+  multiplicationSupportAudio = null;
+}
+
+function stopMultiplicationCooldownTimer() {
+  if (!multiplicationSupportCooldownTimer) return;
+  window.clearInterval(multiplicationSupportCooldownTimer);
+  multiplicationSupportCooldownTimer = null;
+}
+
+function multiplicationAudioNextAt() {
+  return boundedAudioNextAt(MULTIPLICATION_AUDIO_COOLDOWN_KEY, multiplicationAudioNextAtMemory, MULTIPLICATION_AUDIO_COOLDOWN_MS, setMultiplicationAudioNextAt);
+}
+
+function setMultiplicationAudioNextAt(value) {
+  multiplicationAudioNextAtMemory = value > Date.now() ? value : 0;
+  try {
+    if (value > Date.now()) localStorage.setItem(MULTIPLICATION_AUDIO_COOLDOWN_KEY, String(value));
+    else localStorage.removeItem(MULTIPLICATION_AUDIO_COOLDOWN_KEY);
+  } catch {}
+}
+
+function multiplicationAudioRemainingMs() {
+  return Math.max(0, multiplicationAudioNextAt() - Date.now(), appSpeechRemainingMs());
+}
+
+function renderMultiplicationGroups(operation) {
+  const groups = Array.from({ length: operation.factorA }, (_, groupIndex) => {
+    const dots = Array.from({ length: operation.factorB }, () => "<i></i>").join("");
+    return `<span class="multiplication-visual-group group-${(groupIndex % 5) + 1}" style="--item-columns:${Math.min(operation.factorB, 5)}">${dots}</span>`;
+  }).join("");
+  return `
+    <div class="multiplication-groups" style="--group-columns:${Math.min(operation.factorA, 5)}" aria-label="${operation.factorA} grupos de ${operation.factorB}">
+      ${groups}
+    </div>
+  `;
+}
+
+function updateMultiplicationAudioControl() {
+  if (route.view !== "support-multiplication") return stopMultiplicationCooldownTimer();
+  const button = document.querySelector('[data-action="support-multiplication-audio"]');
+  const label = button?.querySelector('[data-role="multiplication-audio-label"]');
+  const status = document.querySelector('[data-role="multiplication-audio-status"]');
+  const progress = document.querySelector('[data-role="multiplication-audio-progress"]');
+  if (!button || !label || !status || !progress) return;
+
+  const remainingMs = multiplicationAudioRemainingMs();
+  const remainingSeconds = Math.ceil(remainingMs / 1000);
+  const speaking = Boolean(appSpeechAudio);
+  const needsAnswer = multiplicationSupportAudioPlayed && !multiplicationSupportReplayUnlocked;
+  button.disabled = speaking || remainingMs > 0 || needsAnswer;
+  label.textContent = speaking ? "Reproduciendo..." : needsAnswer ? "Escribí el resultado" : remainingMs > 0 ? `Esperá ${remainingSeconds} s` : "Escuchar operación";
+  status.textContent = speaking
+    ? "Escuchá la operación."
+    : needsAnswer
+      ? "Para volver a escuchar, escribí el resultado."
+      : remainingMs > 0
+        ? "Resultado listo. Esperá para escuchar otra vez."
+        : "El audio está disponible.";
+  progress.style.setProperty("--cooldown", `${Math.min(100, (remainingMs / MULTIPLICATION_AUDIO_COOLDOWN_MS) * 100)}%`);
+  progress.setAttribute("aria-valuenow", String(remainingSeconds));
+
+  if (remainingMs <= 0 && !speaking) {
+    setMultiplicationAudioNextAt(0);
+    stopMultiplicationCooldownTimer();
+  }
+}
+
+function startMultiplicationCooldownTimer() {
+  stopMultiplicationCooldownTimer();
+  updateMultiplicationAudioControl();
+  if (appSpeechAudio || multiplicationAudioRemainingMs() > 0) {
+    multiplicationSupportCooldownTimer = window.setInterval(updateMultiplicationAudioControl, 200);
+  }
+}
+
+function renderSupportMultiplication() {
+  const operation = multiplicationSupportCurrent || drawMultiplicationSupportOperation();
+  const remainingSeconds = Math.ceil(multiplicationAudioRemainingMs() / 1000);
+  const speaking = Boolean(appSpeechAudio);
+  const needsAnswer = multiplicationSupportAudioPlayed && !multiplicationSupportReplayUnlocked;
+  const tableButtons = [0, ...Array.from({ length: 10 }, (_, index) => index + 1)]
+    .map(
+      (table) => `
+        <button class="${multiplicationSupportTable === table ? "is-selected" : ""}" type="button" data-action="support-multiplication-table" data-table="${table}">
+          ${table === 0 ? "Todas" : table}
+        </button>
+      `
+    )
+    .join("");
+  const repeatedAddition = Array.from({ length: operation.factorA }, () => operation.factorB).join(" + ");
+
+  renderShell(`
+    <section class="screen support-resource-screen multiplication-support-screen">
+      <div class="screen-actions support-resource-nav">
+        <button class="btn btn-ghost" type="button" data-action="supports">${icon("arrow")}Mis apoyos</button>
+        <span class="multiplication-audio-rule">${icon("pause")}1 audio cada 10 segundos</span>
+      </div>
+      <div class="support-resource-heading multiplication-support-heading">
+        <p class="eyebrow">TABLAS DEL 1 AL 10</p>
+        <h2>Mirar, pensar y escuchar</h2>
+      </div>
+      <div class="multiplication-support-layout">
+        <aside class="multiplication-table-panel">
+          <div>
+            <span class="multiplication-panel-label">ELEGÍ UNA TABLA</span>
+            <p>Las operaciones aparecen siempre mezcladas.</p>
+          </div>
+          <div class="multiplication-table-grid" aria-label="Elegir tabla">${tableButtons}</div>
+          <div class="multiplication-help-note">
+            <strong>${multiplicationSupportTable === 0 ? "Práctica variada" : `Tabla del ${multiplicationSupportTable}`}</strong>
+            <span>El botón siguiente nunca se bloquea.</span>
+          </div>
+        </aside>
+        <article class="multiplication-operation-card" aria-live="polite">
+          <span class="multiplication-operation-kicker">TABLA DEL ${operation.factorA}</span>
+          <div class="multiplication-equation">
+            <strong>${operation.factorA}</strong><span>×</span><strong>${operation.factorB}</strong><span>=</span><b>${operation.product}</b>
+          </div>
+          ${renderMultiplicationGroups(operation)}
+          <p class="multiplication-repeated-addition">${repeatedAddition} = <strong>${operation.product}</strong></p>
+          <div class="multiplication-audio-area">
+            ${multiplicationSupportAudioPlayed && !multiplicationSupportReplayUnlocked ? `
+              <form class="multiplication-replay-form" data-form="support-multiplication-answer">
+                <label for="multiplication-replay-answer">Para escuchar de nuevo, escribí el resultado</label>
+                <div class="multiplication-replay-input-row">
+                  <input id="multiplication-replay-answer" name="answer" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="3" autocomplete="off" aria-describedby="multiplication-answer-error" />
+                  <button type="submit">Desbloquear audio</button>
+                </div>
+                <span id="multiplication-answer-error" class="multiplication-answer-error" role="status">${escapeHtml(multiplicationSupportAnswerError)}</span>
+              </form>
+            ` : ""}
+            <button class="multiplication-listen-button" type="button" data-action="support-multiplication-audio" ${speaking || remainingSeconds > 0 || needsAnswer ? "disabled" : ""}>
+              ${icon("speaker")}<span data-role="multiplication-audio-label">${speaking ? "Reproduciendo..." : needsAnswer ? "Escribí el resultado" : remainingSeconds > 0 ? `Esperá ${remainingSeconds} s` : "Escuchar operación"}</span>
+            </button>
+            <button class="multiplication-next-button" type="button" data-action="support-multiplication-next">
+              ${icon("turns")}<span>Otra operación</span>
+            </button>
+          </div>
+          <div class="multiplication-cooldown-copy" data-role="multiplication-audio-status">
+            ${speaking ? "Escuchá la operación." : needsAnswer ? "Para volver a escuchar, escribí el resultado." : remainingSeconds > 0 ? "Resultado listo. Esperá para escuchar otra vez." : "El audio está disponible."}
+          </div>
+          <div class="multiplication-cooldown-progress" data-role="multiplication-audio-progress" role="progressbar" aria-label="Espera para el próximo audio" aria-valuemin="0" aria-valuemax="10" aria-valuenow="${remainingSeconds}" style="--cooldown:${Math.min(100, (multiplicationAudioRemainingMs() / MULTIPLICATION_AUDIO_COOLDOWN_MS) * 100)}%"><i></i></div>
+        </article>
+      </div>
+    </section>
+  `);
+  startMultiplicationCooldownTimer();
+}
+
+function selectMultiplicationSupportTable(value) {
+  const table = Number(value);
+  if (!Number.isInteger(table) || table < 0 || table > 10) return;
+  stopMultiplicationSupportAudio();
+  multiplicationSupportTable = table;
+  multiplicationSupportDeck = [];
+  drawMultiplicationSupportOperation();
+  render();
+}
+
+function showNextMultiplicationSupportOperation() {
+  stopMultiplicationSupportAudio();
+  drawMultiplicationSupportOperation();
+  render();
+}
+
+function unlockMultiplicationSupportAudio(answer) {
+  if (!multiplicationSupportAudioPlayed || multiplicationSupportReplayUnlocked || !multiplicationSupportCurrent) return;
+  const entered = String(answer || "").trim();
+  if (!/^\d{1,3}$/.test(entered) || Number(entered) !== multiplicationSupportCurrent.product) {
+    multiplicationSupportAnswerError = "Revisá el resultado y probá otra vez.";
+    const error = document.querySelector("#multiplication-answer-error");
+    if (error) error.textContent = multiplicationSupportAnswerError;
+    return;
+  }
+  multiplicationSupportReplayUnlocked = true;
+  multiplicationSupportAnswerError = "";
+  render();
+}
+
+function playMultiplicationSupportAudio() {
+  const operation = multiplicationSupportCurrent;
+  if (!operation || appSpeechAudio || multiplicationAudioRemainingMs() > 0 ||
+      (multiplicationSupportAudioPlayed && !multiplicationSupportReplayUnlocked)) return updateMultiplicationAudioControl();
+
+  const wasReplay = multiplicationSupportAudioPlayed;
+  const audio = new Audio(`./assets/supports/audio/multiplication/${operation.id}.mp3`);
+  multiplicationSupportAudio = audio;
+  audio.preload = "auto";
+  audio.volume = 1;
+  audio.addEventListener("ended", () => {
+    if (multiplicationSupportAudio === audio) multiplicationSupportAudio = null;
+  }, { once: true });
+  audio.addEventListener("error", () => {
+    if (multiplicationSupportAudio === audio) multiplicationSupportAudio = null;
+  }, { once: true });
+  if (!playAppSpeech(audio, () => {
+    if (multiplicationSupportAudio === audio) multiplicationSupportAudio = null;
+    setMultiplicationAudioNextAt(0);
+    multiplicationSupportAudioPlayed = wasReplay;
+    multiplicationSupportReplayUnlocked = wasReplay;
+    toast("No se pudo reproducir el audio");
+    if (route.view === "support-multiplication") render();
+  }, true)) return updateMultiplicationAudioControl();
+  multiplicationSupportAudioPlayed = true;
+  multiplicationSupportReplayUnlocked = false;
+  setMultiplicationAudioNextAt(Date.now() + MULTIPLICATION_AUDIO_COOLDOWN_MS);
   render();
 }
 
@@ -2592,6 +3331,12 @@ function communicationStarterSequence(starter) {
   return starter?.sequence || [];
 }
 
+function communicationPhraseForPicto(id, index, starter = communicationStarterById(communicationStarter)) {
+  const defaultPhrase = communicationPicto(id)?.phrase || "";
+  if (!starter || index < communicationStarterSequence(starter).length) return defaultPhrase;
+  return COMMUNICATION_STARTER_PHRASES[starter.id]?.[id] || defaultPhrase;
+}
+
 function communicationCategoryById(id) {
   return COMMUNICATION_CATEGORIES[id];
 }
@@ -2608,6 +3353,64 @@ function communicationCategoryLineage(id) {
 
 function communicationRecentScopeExists(scopeId) {
   return Boolean(communicationStarterById(scopeId) || communicationCategoryById(scopeId));
+}
+
+function readGeneralCommunicationRecents() {
+  try {
+    const saved = localStorage.getItem(COMMUNICATION_UNIFIED_RECENTS_KEY);
+    const entries = saved !== null ? JSON.parse(saved) : [
+      ...Object.entries(JSON.parse(localStorage.getItem(COMMUNICATION_RECENTS_KEY) || "{}"))
+        .flatMap(([, ids]) => Array.isArray(ids) ? ids.map((id) => ({ kind: "picto", id })) : []),
+      ...Object.entries(JSON.parse(localStorage.getItem(COMMUNICATION_MESSAGE_RECENTS_KEY) || "{}"))
+        .flatMap(([scope, messages]) => Array.isArray(messages) ? messages.map((message) => ({ kind: "message", scope, message })) : [])
+    ];
+    const seen = new Set();
+    return (Array.isArray(entries) ? entries : []).filter((entry) => {
+      if (!entry || (entry.kind !== "picto" && entry.kind !== "message")) return false;
+      if (entry.kind === "picto" ? !communicationPicto(entry.id) : !normalizeCommunicationRecentMessage(entry.message)) return false;
+      const signature = generalCommunicationRecentSignature(entry);
+      if (seen.has(signature)) return false;
+      seen.add(signature);
+      return true;
+    }).slice(0, 15);
+  } catch { return []; }
+}
+
+function generalCommunicationRecentSignature(entry) {
+  return entry.kind === "picto" ? `picto:${entry.id}` : `message:${communicationRecentMessageSignature(normalizeCommunicationRecentMessage(entry.message))}`;
+}
+
+function rememberGeneralCommunicationRecent(entry) {
+  try {
+    const signature = generalCommunicationRecentSignature(entry);
+    const entries = [entry, ...readGeneralCommunicationRecents().filter((recent) => generalCommunicationRecentSignature(recent) !== signature)].slice(0, 15);
+    localStorage.setItem(COMMUNICATION_UNIFIED_RECENTS_KEY, JSON.stringify(entries));
+  } catch {}
+}
+
+function renderGeneralCommunicationRecents() {
+  return readGeneralCommunicationRecents().map((entry, index) => {
+    if (entry.kind === "picto") return renderPictoButton(entry.id);
+    return renderCommunicationRecentMessage(entry.scope, entry.message, index)
+      .replace('data-action="communication-recent-message"', 'data-action="communication-general-recent"');
+  }).join("");
+}
+
+function selectGeneralCommunicationRecent(index) {
+  const entry = readGeneralCommunicationRecents()[index];
+  if (!entry || entry.kind !== "message") return;
+  const message = normalizeCommunicationRecentMessage(entry.message);
+  rememberGeneralCommunicationRecent(entry);
+  communicationStarter = communicationStarterById(entry.scope)?.id || null;
+  communicationGroup = communicationStarter ? "recientes" : null;
+  communicationCategory = null;
+  communicationSentence = [...message.pictos];
+  communicationWrittenText = message.text;
+  communicationTextPosition = message.textPosition;
+  communicationNegated = message.negated;
+  communicationPresentation = false;
+  communicationAudioStatus = "";
+  render();
 }
 
 function readCommunicationRecents(scopeId) {
@@ -2688,10 +3491,13 @@ function rememberCommunicationMessage(scopeId, entry) {
 }
 
 function communicationCompositionTokens() {
+  const activeStarter = communicationStarterById(communicationStarter);
   const tokens = communicationSentence
     .map((id, pictoIndex) => {
       const card = communicationPicto(id);
-      return card ? { type: "picto", id, pictoIndex, phrase: card.phrase || "" } : null;
+      return card
+        ? { type: "picto", id, pictoIndex, phrase: communicationPhraseForPicto(id, pictoIndex, activeStarter) }
+        : null;
     })
     .filter(Boolean);
   const text = communicationWrittenText.trim();
@@ -2738,7 +3544,10 @@ function renderPictoButton(id, action = "add-picto", className = "picto-card") {
 }
 
 function communicationRecentMessagePhrase(entry) {
-  const parts = entry.pictos.map((id) => communicationPicto(id)?.phrase || "").filter(Boolean);
+  const starter = communicationStarterById(communicationStarter);
+  const parts = entry.pictos
+    .map((id, index) => communicationPhraseForPicto(id, index, starter))
+    .filter(Boolean);
   parts.splice(Math.max(0, Math.min(entry.textPosition, parts.length)), 0, entry.text);
   return parts.filter(Boolean).join(" ");
 }
@@ -2953,7 +3762,7 @@ function renderCommunication() {
   const recentMessageCards = activeRecentMessages
     .map((entry, index) => renderCommunicationRecentMessage(activeRecentScope, entry, index))
     .join("");
-  const activeGridCards = `${recentMessageCards}${categoryCards}${activeGroupPictos
+  const activeGridCards = activeGroup?.id === "recientes" ? renderGeneralCommunicationRecents() : `${recentMessageCards}${categoryCards}${activeGroupPictos
     .map((id) => renderPictoButton(id))
     .join("")}`;
   const builderContent = activeStarter
@@ -2999,6 +3808,7 @@ function renderCommunication() {
               <div class="presentation-content">
                 <div class="presentation-tokens ${compositionTokens.length > 4 ? "is-many" : ""}">${presentationTokens}</div>
                 <p class="presentation-phrase">${escapeHtml(phrase)}</p>
+                ${communicationAudioStatus ? `<p class="presentation-audio-status" role="status">${escapeHtml(communicationAudioStatus)}</p>` : ""}
               </div>
             </section>
           `
@@ -3011,17 +3821,25 @@ function renderCommunication() {
 function renderSubject(subjectId) {
   const subject = subjectById(subjectId);
   if (!subject) return setRoute({ view: "school" });
+  if (subject.id === "tecnologia") return renderTechnologyMenu(subject);
+
+  const themeDescription = (theme) => {
+    if (VOICE_PLAYBACK_ENABLED || !theme?.englishMode) return theme.description || "Tema sin descripcion";
+    if (theme.englishMode === "colors") return "Reconocer los colores escritos en inglés.";
+    if (theme.englishMode === "supplies") return "Leer una palabra y elegir el útil escolar correcto.";
+    return "Leer el número en inglés y elegir la cantidad correcta.";
+  };
 
   const themes = subject.themes.length
     ? subject.themes
         .map(
           (theme) => `
-        <article class="item-card">
+        <article class="item-card ${theme.discoveryMode ? "pd-theme-card" : theme.worldMode ? "pw-theme-card" : theme.farmActivity ? "farm-theme-card" : theme.questMode ? "pq-theme-card" : theme.earthLayers ? "earth-theme-card" : theme.arcadeMode ? "sa-theme-card" : theme.missionMode ? "lm-theme-card" : theme.pacmanVerbMode ? "pv-theme-card" : ""}">
           <div class="item-card-header">
-            <span class="tile-mark" style="--subject-color:${subject.color}">${icon(subject.icon)}</span>
+            <span class="tile-mark" style="--subject-color:${subject.color}">${theme.discoveryMode || theme.worldMode || theme.farmActivity || theme.questMode || theme.earthLayers || theme.pacmanVerbMode || theme.missionMode || theme.arcadeMode ? pacmanVerbSprite() : icon(subject.icon)}</span>
             <div class="item-card-body">
               <h3>${escapeHtml(theme.title)}</h3>
-              <p>${escapeHtml(theme.description || "Tema sin descripcion")}</p>
+              <p>${escapeHtml(themeDescription(theme))}</p>
               ${theme.credit ? `<span class="theme-credit-badge">★ ${escapeHtml(theme.credit)}</span>` : ""}
               <span class="pill-row">
                 <span class="pill">${escapeHtml(theme.activityLabel || `${theme.exercises.length} ${theme.exercises.length === 1 ? "ronda" : "rondas"}`)}</span>
@@ -3061,7 +3879,11 @@ function renderTheme(subjectId, themeId) {
         .map(
           (exercise, index) => {
             const preview =
-              exercise.type === "matching"
+              exercise.type === "social-farm"
+                ? `<div class="pill-row"><span class="pill">3 estaciones: ambiente, cuidados y mi campo</span></div>`
+                : exercise.type === "pacman-quest"
+                ? `<div class="pill-row"><span class="pill">${escapeHtml(theme.activityLabel)}</span></div>`
+                : exercise.type === "matching"
                 ? `<div class="pill-row">${exercise.pairs
                     .map((pair) => `<span class="pill">${escapeHtml(pair.visual)} ${escapeHtml(pair.label)}</span>`)
                     .join("")}</div>`
@@ -3079,18 +3901,24 @@ function renderTheme(subjectId, themeId) {
                   ? `<div class="pill-row"><span class="pill">${theme.randomExerciseCount || 5} multiplicaciones con fantasmas</span></div>`
                 : exercise.type === "plant-labeling"
                   ? `<div class="pill-row"><span class="pill">Conocer y ubicar ${exercise.parts.length} partes</span></div>`
+                : exercise.type === "english-family"
+                  ? `<div class="pill-row"><span class="pill">Fotos de mi familia · Audio con pausa</span></div>`
                 : exercise.type === "english-vocabulary"
-                  ? `<div class="pill-row"><span class="pill">${theme.randomExerciseCount || 6} palabras diferentes cada vez</span><span class="pill">Con audio en inglés</span></div>`
+                  ? `<div class="pill-row"><span class="pill">${theme.randomExerciseCount || 6} palabras diferentes cada vez</span><span class="pill">${VOICE_PLAYBACK_ENABLED ? "Con audio en inglés" : "Actividad visual"}</span></div>`
                 : exercise.type === "circle-geometry"
                   ? `<div class="pill-row"><span class="pill">${theme.randomExerciseCount || 10} desafíos variados</span><span class="pill">Banco de 48 situaciones</span></div>`
                 : exercise.type === "pacman-angle"
-                  ? `<div class="pill-row"><span class="pill">6 desafíos</span><span class="pill">Juego visual</span></div>`
+                  ? `<div class="pill-row"><span class="pill">${exercise.stage === "build" ? 8 : exercise.stage === "compare" ? 2 : 6} desafíos</span><span class="pill">Juego visual</span></div>`
+                : exercise.type === "geometry-quest"
+                  ? `<div class="pill-row"><span class="pill">${theme.activityLabel}</span><span class="pill">Juego visual</span></div>`
                 : exercise.type === "plastic-materials"
                   ? `<div class="pill-row"><span class="pill">6 desafíos</span><span class="pill">Objetos grandes</span></div>`
                 : exercise.type === "sentence-builder"
                   ? `<div class="pill-row"><span class="pill">${exercise.sentences.length} oraciones</span><span class="pill">Sujeto · Verbo · Predicado</span></div>`
+                : exercise.type === "pacman-verbs"
+                  ? `<div class="pill-row"><span class="pill">${escapeHtml(theme.activityLabel)}</span></div>`
                 : exercise.type === "sofia-recipe"
-                  ? `<div class="pill-row"><span class="pill">${exercise.steps.length} pasos visuales</span><span class="pill">Con audio</span></div>`
+                  ? `<div class="pill-row"><span class="pill">${exercise.steps.length} pasos visuales</span>${VOICE_PLAYBACK_ENABLED ? '<span class="pill">Con audio</span>' : ""}</div>`
                 : exercise.type === "instructional-recipe"
                   ? `<div class="pill-row"><span class="pill">${exercise.steps.length} instrucciones</span><span class="pill">Sin respuestas por descarte</span></div>`
                 : exercise.type === "recipe-photo-matching"
@@ -3139,11 +3967,36 @@ function startSession(subjectId, themeId, mode) {
   const subject = subjectById(subjectId);
   const theme = themeById(subject, themeId);
   if (!subject || !theme || !theme.exercises.length) return;
+  stopFamilyAudio();
+  familyAudioError = "";
 
-  const exercises = theme.plasticMaterialsSequence
+  if (typeof stopCapacityAnimation === "function") stopCapacityAnimation();
+  const exercises = theme.capacityMode
+    ? createCapacityExercises(theme)
+    : theme.discoveryMode
+    ? createPacmanDiscoveryExercises(theme)
+    : theme.weightMode
+    ? createWeightLabExercises(theme)
+    : theme.worldMode
+    ? createPacmanWorldExercises(theme)
+    : theme.questMode
+    ? createPacmanQuestExercises(theme)
+    : theme.familyMode
+    ? createFamilyExercises(theme)
+    : theme.arcadeMode
+    ? createSchoolArcadeExercises(theme)
+    : theme.technologyMode
+    ? createTechnologyExercises(theme)
+    : theme.missionMode
+    ? createLanguageMissionExercises(theme)
+    : theme.pacmanVerbMode
+    ? createPacmanVerbExercises(theme)
+    : theme.plasticMaterialsSequence
     ? createPlasticMaterialsExercises(theme)
     : theme.pacmanAngleSequence
     ? createPacmanAngleExercises(theme)
+    : theme.geometryQuest
+    ? createGeometryQuestExercises(theme)
     : theme.circleGeometryPool
     ? createCircleGeometryExercises(theme)
     : theme.englishVocabularyPool
@@ -3171,6 +4024,26 @@ function startSession(subjectId, themeId, mode) {
     soundGalleryItemId: null,
     answers: [],
     exercises,
+    capacity: Object.fromEntries(exercises.filter((exercise) => exercise.type === "capacity-lab")
+      .map((exercise) => [exercise.id, createCapacityState(exercise)])),
+    capacityLesson: theme.capacityMode ? { active: true, unit: 2, parts: [], busy: false } : null,
+    discoveries: Object.fromEntries(exercises.filter((exercise) => exercise.type === "pacman-discovery")
+      .map((exercise) => [exercise.id, createPacmanDiscoveryState(exercise)])),
+    weightLab: Object.fromEntries(exercises.filter((exercise) => exercise.type === "weight-lab")
+      .map((exercise) => [exercise.id, createWeightLabState(exercise)])),
+    earth: theme.earthLayers ? createEarthState() : null,
+    farm: theme.farmActivity ? createFarmState() : null,
+    pacmanWorld: Object.fromEntries(exercises.filter((exercise) => exercise.type === "pacman-world")
+      .map((exercise) => [exercise.id, { choice: null, sequence: [], checked: false, isCorrect: false }])),
+    pacmanQuest: Object.fromEntries(exercises.filter((exercise) => exercise.type === "pacman-quest")
+      .map((exercise) => [exercise.id, { choice: null, sequence: [], portions: Array(exercise.guests || 0).fill(0), checked: false, isCorrect: false, explanation: "" }])),
+    family: Object.fromEntries(exercises.filter((exercise) => exercise.type === "english-family")
+      .map((exercise) => [exercise.id, { person: "mom", word: "mother", choice: null, checked: false, correct: false }])),
+    schoolArcade: Object.fromEntries(exercises.filter((exercise) => exercise.type === "school-arcade")
+      .map((exercise) => [exercise.id, { values: {}, activeField: 0, path: [], number: "", checked: false, isCorrect: false }])),
+    technology: theme.technologyMode ? { choices: {}, checked: false } : null,
+    languageMissions: Object.fromEntries(exercises.filter((exercise) => exercise.type === "language-mission")
+      .map((exercise) => [exercise.id, { checked: false, isCorrect: false, choice: null, wordIndex: null, selected: [], placed: [], explanation: "" }])),
     matching: Object.fromEntries(
       exercises
         .filter((exercise) => exercise.type === "matching")
@@ -3269,6 +4142,10 @@ function startSession(subjectId, themeId, mode) {
           { selectedId: null, answered: false, isCorrect: false, message: "" }
         ])
     ),
+    pacmanVerbs: Object.fromEntries(
+      exercises.filter((exercise) => exercise.type === "pacman-verbs")
+        .map((exercise) => [exercise.id, { answered: false, wrongChoice: null, errors: 0 }])
+    ),
     pacmanAngles: Object.fromEntries(
       exercises
         .filter((exercise) => exercise.type === "pacman-angle")
@@ -3285,6 +4162,20 @@ function startSession(subjectId, themeId, mode) {
             errors: 0
           }
         ])
+    ),
+    geometryQuests: Object.fromEntries(
+      exercises
+        .filter((exercise) => exercise.type === "geometry-quest")
+        .map((exercise) => [exercise.id, {
+          roundIndex: 0,
+          currentDegrees: exercise.rounds?.[0]?.initial ?? 0,
+          selectedId: null,
+          answered: false,
+          folded: false,
+          showGuide: false,
+          message: "",
+          errors: 0
+        }])
     ),
     plasticMaterials: Object.fromEntries(
       exercises
@@ -3364,6 +4255,7 @@ function startSession(subjectId, themeId, mode) {
   };
   route = { view: "run" };
   render();
+  if (exercises[0]?.type === "language-mission") window.scrollTo({ top: 0, behavior: "auto" });
   if (exercises[0]?.type === "english-vocabulary") {
     window.setTimeout(() => playEnglishVocabularyAudio(), 120);
   }
@@ -3961,7 +4853,7 @@ function renderEnglishVocabularyRunner(exercise) {
   if (!state) return;
   const total = session.exercises.length;
   const feedbackClass = state.answered ? (state.isCorrect ? "good" : "bad") : "wait";
-  const feedbackMessage = state.message || "Escuchá la palabra y tocá la opción correcta.";
+  const feedbackMessage = state.message || (VOICE_PLAYBACK_ENABLED ? "Escuchá la palabra y tocá la opción correcta." : "Mirá la palabra y tocá la opción correcta.");
   const options = exercise.options
     .map((option) => {
       const selected = state.selectedId === option.id;
@@ -3981,10 +4873,14 @@ function renderEnglishVocabularyRunner(exercise) {
         <div class="matching-session-status"><span>${session.index + 1} de ${total}</span><span>Inglés</span></div>
       </div>
       <article class="question-panel english-vocabulary-panel">
-        <div class="english-word-prompt">
+        <div class="english-word-prompt ${VOICE_PLAYBACK_ENABLED ? "" : "voice-playback-disabled"}">
           <span class="english-touch-label">${escapeHtml(exercise.prompt)}</span>
           <strong>${escapeHtml(exercise.word).toUpperCase()}</strong>
-          <button class="english-audio-button" type="button" data-action="english-vocabulary-audio" aria-label="Escuchar ${escapeHtml(exercise.word)}">${icon("speaker")}<span>Escuchar</span></button>
+          ${
+            VOICE_PLAYBACK_ENABLED
+              ? `<button class="english-audio-button" type="button" data-action="english-vocabulary-audio" aria-label="Escuchar ${escapeHtml(exercise.word)}">${icon("speaker")}<span>Escuchar</span></button>`
+              : ""
+          }
         </div>
         <div class="english-vocabulary-options english-options-${escapeHtml(exercise.mode)}" aria-label="Opciones">${options}</div>
         <div class="feedback ${feedbackClass}" aria-live="polite">${state.isCorrect ? icon("check") : state.answered ? icon("x") : ""}${escapeHtml(feedbackMessage)}</div>
@@ -4316,6 +5212,36 @@ function renderPacmanClassify(exercise, state, round) {
   `;
 }
 
+function renderPacmanCompareFigure(degrees) {
+  const cx = 105;
+  const cy = 100;
+  const radius = 72;
+  const first = pacmanPolarPoint(cx, cy, radius, -degrees / 2);
+  const second = pacmanPolarPoint(cx, cy, radius, degrees / 2);
+  return `<svg class="pacman-compare-figure" viewBox="0 0 210 200" aria-hidden="true">
+    <circle cx="${cx}" cy="${cy}" r="${radius}" fill="#ffd60a" stroke="#25262b" stroke-width="6" />
+    <path d="${pacmanSectorPath(cx, cy, radius + 3, degrees)}" fill="#fffdf7" />
+    <line x1="${cx}" y1="${cy}" x2="${first.x}" y2="${first.y}" class="pacman-angle-ray" />
+    <line x1="${cx}" y1="${cy}" x2="${second.x}" y2="${second.y}" class="pacman-angle-ray" />
+    <path d="${pacmanArcPath(cx, cy, 41, degrees)}" class="pacman-angle-arc" />
+    <circle cx="${cx - 7}" cy="${cy - 39}" r="7" fill="#25262b" />
+  </svg>`;
+}
+
+function renderPacmanCompare(exercise, state, round) {
+  const cards = [["A", round.degreesA], ["B", round.degreesB]].map(([id, degrees]) => {
+    const status = state.answered && id === round.correctId ? "is-correct" : state.wrongId === id ? "is-wrong" : "";
+    return `<button class="pacman-compare-card ${status}" type="button" data-action="pacman-angle-answer" data-value="${id}" ${state.answered || state.wrongId ? "disabled" : ""} aria-label="Pac-Man ${id}">
+      <strong>${id}</strong>${renderPacmanCompareFigure(degrees)}
+    </button>`;
+  }).join("");
+  return `<div class="pacman-compare-layout">
+    <div class="pacman-compare-instruction">Los dos son ángulos agudos. Mirá cuánto se abre cada boca.</div>
+    <div class="pacman-compare-cards">${cards}</div>
+    <div class="pacman-compare-benchmark"><span>Referencia</span><strong>90°</strong><i></i></div>
+  </div>`;
+}
+
 function renderPacmanBuild(exercise, state, round) {
   return `
     <div class="pacman-stage-layout pacman-build-layout">
@@ -4398,6 +5324,7 @@ function animatePacmanAngleScreen(exercise, state, round) {
   }
   if (!state.answered) return;
   gsap.from(root.querySelector(".pacman-feedback"), { scale: 0.75, opacity: 0, duration: 0.35, ease: "back.out(1.8)" });
+  if (exercise.stage === "compare") return;
   if (exercise.stage === "maze") {
     const player = root.querySelector(".pacman-maze-player");
     if (player) gsap.fromTo(player, { rotation: 0 }, { rotation: round.degrees, duration: Math.min(1.3, 0.45 + round.degrees / 420), ease: "power1.inOut" });
@@ -4419,15 +5346,19 @@ function renderPacmanAngleRunner(exercise) {
   const state = session.pacmanAngles[exercise.id];
   const round = exercise.rounds?.[state?.roundIndex];
   if (!state || !round) return;
-  const stageLabels = { classify: "RECONOCER", build: "CONSTRUIR", maze: "USAR GIROS" };
+  const stageLabels = { classify: "RECONOCER", compare: "COMPARAR", build: "CONSTRUIR", maze: "USAR GIROS" };
   const content = exercise.stage === "classify"
     ? renderPacmanClassify(exercise, state, round)
+    : exercise.stage === "compare"
+      ? renderPacmanCompare(exercise, state, round)
     : exercise.stage === "build"
       ? renderPacmanBuild(exercise, state, round)
       : renderPacmanMaze(exercise, state, round);
   const category = PACMAN_ANGLE_CATEGORIES[round.category];
   const feedback = state.answered
-    ? `${icon("check")}${exercise.stage === "maze" ? `${round.degrees}° · ` : ""}${escapeHtml(category.label.toUpperCase())}`
+    ? exercise.stage === "compare"
+      ? `${icon("check")}${round.correctId === "B" ? "85° SE ABRE MÁS QUE 25°" : "25° SE ABRE MENOS QUE 85°"}`
+      : `${icon("check")}${exercise.stage === "maze" ? `${round.degrees}° · ` : ""}${escapeHtml(category.label.toUpperCase())}`
     : escapeHtml(state.message || " ");
   const feedbackClass = state.answered ? "good" : state.message ? "bad" : "wait";
 
@@ -4440,7 +5371,7 @@ function renderPacmanAngleRunner(exercise) {
       <article class="question-panel pacman-stage-card">
         <div class="pacman-stage-heading">
           <span>${session.index + 1} / ${session.exercises.length}</span>
-          <h2>${exercise.stage === "build" ? `HACÉ ${round.degrees}°` : escapeHtml(exercise.prompt.toUpperCase())}</h2>
+          <h2>${exercise.stage === "build" ? `HACÉ ${round.degrees}°` : escapeHtml((round.prompt || exercise.prompt).toUpperCase())}</h2>
         </div>
         ${content}
         <div class="feedback pacman-feedback ${feedbackClass}" aria-live="polite">${feedback}</div>
@@ -4465,6 +5396,7 @@ function updatePacmanAngleBuild(value) {
   const firstRay = document.querySelector('[data-role="pacman-ray-a"]');
   const secondRay = document.querySelector('[data-role="pacman-ray-b"]');
   const output = document.querySelector('[data-role="pacman-current-degrees"]');
+  const figure = document.querySelector(".pacman-angle-figure");
   const guide = document.querySelector(".pacman-target-guide");
   const feedback = document.querySelector(".pacman-feedback");
   mouth?.setAttribute("d", geometry.mouthPath);
@@ -4474,6 +5406,7 @@ function updatePacmanAngleBuild(value) {
   secondRay?.setAttribute("x2", geometry.secondRay.x);
   secondRay?.setAttribute("y2", geometry.secondRay.y);
   if (output) output.textContent = `${Math.round(degrees)}°`;
+  figure?.setAttribute("aria-label", `Pac-Man con una abertura de ${Math.round(degrees)} grados`);
   if (guide) guide.style.display = "none";
   if (feedback) {
     feedback.textContent = " ";
@@ -4499,8 +5432,8 @@ function advancePacmanAngleRound(sessionId, exerciseId, roundIndex) {
     session.answers.push({
       prompt: exercise.prompt,
       support: "Ángulos con Pac-Man",
-      selected: "Completó los seis desafíos",
-      correct: "Completó los seis desafíos",
+      selected: `Completó los ${exercise.rounds.length} desafíos`,
+      correct: `Completó los ${exercise.rounds.length} desafíos`,
       isCorrect: true,
       errors: state.errors
     });
@@ -4515,12 +5448,15 @@ function answerPacmanAngle(value) {
   const state = session.pacmanAngles[exercise.id];
   const round = exercise.rounds?.[state?.roundIndex];
   if (!state || !round || state.answered || state.wrongId !== null) return;
-  const isCorrect = exercise.stage === "classify" ? value === round.category : Number(value) === round.degrees;
+  const isCorrect = exercise.stage === "classify" ? value === round.category
+    : exercise.stage === "compare" ? value === round.correctId
+      : Number(value) === round.degrees;
   state.selectedId = value;
   if (!isCorrect) {
     state.wrongId = value;
     state.errors += 1;
-    state.message = exercise.stage === "classify" ? PACMAN_ANGLE_CATEGORIES[round.category].clue : "MIRÁ EL GIRO";
+    state.message = exercise.stage === "classify" ? PACMAN_ANGLE_CATEGORIES[round.category].clue
+      : exercise.stage === "compare" ? round.clue : "MIRÁ EL GIRO";
     const sessionId = session.id;
     const exerciseId = exercise.id;
     const roundIndex = state.roundIndex;
@@ -4566,6 +5502,212 @@ function checkPacmanAngleBuild() {
   const roundIndex = state.roundIndex;
   render();
   window.setTimeout(() => advancePacmanAngleRound(sessionId, exerciseId, roundIndex), 1500);
+}
+
+const GEOMETRY_QUEST_LABELS = {
+  parallel: "Paralelas", perpendicular: "Perpendiculares", oblique: "Oblicuas",
+  yes: "Sí", no: "No", face: "Cara", edge: "Arista", vertex: "Vértice",
+  6: "6", 8: "8", 12: "12"
+};
+
+function geometryPacmanMark() {
+  return '<g aria-hidden="true"><circle cx="39" cy="36" r="21" fill="#ffd60a" stroke="#2c2b25" stroke-width="3"/><path d="M39 36 59 25 A22 22 0 0 1 59 47 Z" fill="#fffdf7"/><circle cx="39" cy="23" r="2.6" fill="#2c2b25"/></g>';
+}
+
+function renderGeometryLinesScene(round, state) {
+  const orientation = round.orientation || 0;
+  const paths = round.type === "turn"
+    ? `<line x1="105" y1="150" x2="355" y2="150" class="geometry-line-a" />
+       <line data-role="geometry-moving-line" x1="105" y1="150" x2="355" y2="150" class="geometry-line-b" transform="rotate(${-state.currentDegrees} 230 150)" />
+       ${state.showGuide ? `<line x1="105" y1="150" x2="355" y2="150" class="geometry-line-guide" transform="rotate(${-round.target} 230 150)" />` : ""}
+       <circle cx="230" cy="150" r="9" fill="#ffd60a" stroke="#2c2b25" stroke-width="3" />`
+    : `<g transform="rotate(${orientation} 230 150)">
+        ${round.kind === "parallel"
+          ? '<line x1="110" y1="105" x2="350" y2="105" class="geometry-line-a"/><line x1="110" y1="195" x2="350" y2="195" class="geometry-line-b"/>'
+          : round.kind === "perpendicular"
+            ? '<line x1="105" y1="150" x2="355" y2="150" class="geometry-line-a"/><line x1="230" y1="35" x2="230" y2="265" class="geometry-line-b"/>'
+            : '<line x1="105" y1="150" x2="355" y2="150" class="geometry-line-a"/><line x1="125" y1="215" x2="335" y2="85" class="geometry-line-b"/>'}
+      </g>`;
+  return `<svg class="geometry-scene-svg" viewBox="0 0 460 300" role="img" aria-label="Dos rectas para observar">
+    <rect x="7" y="8" width="446" height="284" rx="20" fill="#102a43"/>
+    <path d="M30 77h55M370 77h62M30 235h55M370 235h62" fill="none" stroke="#277da1" stroke-width="13" stroke-linecap="round"/>
+    ${paths}${geometryPacmanMark()}
+    ${round.kind === "perpendicular" || (round.type === "turn" && state.answered && round.target === 90) ? '<path d="M230 150h26v-26" fill="none" stroke="#fff4a5" stroke-width="4"/>' : ""}
+  </svg>`;
+}
+
+function renderGeometryRollingScene(round, state) {
+  const shape = round.shape;
+  let drawing = "";
+  if (shape === "sphere") drawing = '<circle cx="225" cy="160" r="72" fill="#48b6f1" stroke="#175f9e" stroke-width="6"/><path d="M186 116c15-17 32-21 48-18" fill="none" stroke="#c8f4ff" stroke-width="12" stroke-linecap="round"/>';
+  if (shape === "cylinder") drawing = '<path d="M135 129h170v104H135Z" fill="#47b3ed" stroke="#175f9e" stroke-width="6"/><ellipse cx="135" cy="181" rx="25" ry="52" fill="#75d2f7" stroke="#175f9e" stroke-width="6"/><ellipse cx="305" cy="181" rx="25" ry="52" fill="#248dd1" stroke="#175f9e" stroke-width="6"/>';
+  if (shape === "cone") drawing = '<path d="M105 152 300 82v140Z" fill="#ffb85c" stroke="#a45a17" stroke-width="6"/><ellipse cx="300" cy="152" rx="25" ry="70" fill="#ffd18d" stroke="#a45a17" stroke-width="6"/>';
+  if (shape === "cube") drawing = '<path d="M150 101h135v122H150Z" fill="#44b8e9" stroke="#175f9e" stroke-width="6"/><path d="M150 101 184 67h135l-34 34Z" fill="#87d8f4" stroke="#175f9e" stroke-width="6"/><path d="M285 101 319 67v122l-34 34Z" fill="#1885c4" stroke="#175f9e" stroke-width="6"/>';
+  if (shape === "pyramid") drawing = '<path d="M217 62 123 216h195Z" fill="#ffc870" stroke="#9a611f" stroke-width="6"/><path d="M217 62 318 216l-71-16Z" fill="#f5a94f" stroke="#9a611f" stroke-width="5"/><path d="M123 216 247 200 318 216" fill="none" stroke="#9a611f" stroke-width="5"/>';
+  if (shape === "prism") drawing = '<path d="M106 126h212v96H106Z" fill="#9b8eea" stroke="#51458d" stroke-width="6"/><path d="M106 126 145 87h212l-39 39Z" fill="#c2b6fa" stroke="#51458d" stroke-width="6"/><path d="M318 126 357 87v96l-39 39Z" fill="#7466c8" stroke="#51458d" stroke-width="6"/>';
+  return `<svg class="geometry-scene-svg" viewBox="0 0 460 300" role="img" aria-label="${escapeHtml(round.label)} sobre un piso">
+    <rect x="7" y="8" width="446" height="284" rx="20" fill="#f5fbff"/>
+    <path d="M38 235h384" stroke="#72949b" stroke-width="6" stroke-linecap="round"/>
+    <g class="geometry-rolling-object shape-${shape} ${state.answered && round.correctId === "yes" ? "is-rolling" : ""}">${drawing}</g>
+    ${geometryPacmanMark()}
+  </svg>`;
+}
+
+function renderGeometryCubeScene(round) {
+  const part = round.part;
+  const showVertices = part === "vertex" || part === "vertices";
+  const vertices = [[85, 95], [255, 95], [255, 275], [85, 275], [145, 40], [315, 40], [315, 220], [145, 220]];
+  return `<svg class="geometry-scene-svg" viewBox="0 0 420 330" role="img" aria-label="Cubo con aristas ocultas punteadas">
+    <rect x="7" y="8" width="406" height="314" rx="20" fill="#f6fbff"/>
+    <path d="M85 95 145 40h170l-60 55Z" fill="#9cdbf8" stroke="#244a65" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M255 95 315 40v180l-60 55Z" fill="#52a5db" stroke="#244a65" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M85 95h170v180H85Z" fill="${part === "face" ? "#ffd166" : "#78c6ee"}" stroke="#244a65" stroke-width="5"/>
+    <path d="M85 275 145 220V40M145 220h170" fill="none" stroke="#244a65" stroke-width="5" stroke-dasharray="10 10" stroke-linecap="round"/>
+    ${part === "edge" ? '<path d="M85 95h170" stroke="#ef476f" stroke-width="12" stroke-linecap="round"/>' : ""}
+    ${showVertices ? vertices.map(([x, y], index) => `<circle cx="${x}" cy="${y}" r="${part === "vertex" && index === 2 ? 13 : 8}" fill="${part === "vertex" && index === 2 ? "#ffd60a" : "#ef476f"}" stroke="#24343a" stroke-width="3"/>`).join("") : ""}
+    ${geometryPacmanMark()}
+  </svg>`;
+}
+
+function renderGeometryNetScene(round, state) {
+  if (state.folded) return `<div class="geometry-folded-cube">${renderGeometryCubeScene({ part: "face" })}<strong>¡Se armó el cubo!</strong></div>`;
+  const cells = round.fixed.map(([x, y]) => `<span class="geometry-net-cell is-fixed" style="grid-column:${x + 1};grid-row:${y + 1}"></span>`).join("");
+  const choices = round.options.map((optionId, index) => {
+    const [x, y] = round.slots[optionId];
+    if (state.answered && optionId !== round.correctId) return "";
+    const filled = state.answered && optionId === round.correctId;
+    return `<button class="geometry-net-cell is-option ${filled ? "is-filled" : ""} ${state.selectedId === optionId && !state.answered ? "is-wrong" : ""}" type="button" data-action="geometry-quest-answer" data-value="${optionId}" style="grid-column:${x + 1};grid-row:${y + 1}" aria-label="Ubicar la cara en la opción ${index + 1}" ${state.answered ? "disabled" : ""}>${filled ? "" : "+"}</button>`;
+  }).join("");
+  return `<div class="geometry-net-wrap"><div class="geometry-net-board">${cells}${choices}</div><span class="geometry-net-help">5 caras + 1 cara = 6 caras</span></div>`;
+}
+
+function renderGeometryQuestRunner(exercise) {
+  const state = session.geometryQuests[exercise.id];
+  const round = exercise.rounds?.[state?.roundIndex];
+  if (!state || !round) return;
+  const scene = exercise.mode === "lines" ? renderGeometryLinesScene(round, state)
+    : exercise.mode === "rolling" ? renderGeometryRollingScene(round, state)
+      : exercise.mode === "cube-parts" ? renderGeometryCubeScene(round)
+        : renderGeometryNetScene(round, state);
+  const options = round.type === "choose" ? `<div class="geometry-choice-grid ${round.options.length === 2 ? "has-two" : ""}">
+    ${round.options.map((id) => `<button class="geometry-choice ${state.answered && id === round.correctId ? "is-correct" : ""} ${!state.answered && state.selectedId === id ? "is-wrong" : ""}" type="button" data-action="geometry-quest-answer" data-value="${id}" ${state.answered ? "disabled" : ""}>${escapeHtml(GEOMETRY_QUEST_LABELS[id] || id)}</button>`).join("")}
+  </div>` : round.type === "turn" ? `<div class="geometry-turn-controls">
+    <output data-role="geometry-current-degrees">${state.currentDegrees}°</output>
+    <input type="range" min="5" max="175" step="5" value="${state.currentDegrees}" data-action="geometry-quest-slider" aria-label="Girar la recta" ${state.answered ? "disabled" : ""} />
+    <button class="btn btn-primary" type="button" data-action="geometry-quest-check" ${state.answered ? "disabled" : ""}>${icon("check")}LISTO</button>
+  </div>` : "";
+  const modeLabel = { lines: "RECTAS", rolling: "CUERPOS", "cube-parts": "PARTES DEL CUBO", "cube-net": "ARMAR EL CUBO" }[exercise.mode];
+  const rightMessage = round.type === "net" && state.folded ? "¡CUBO ARMADO!" : round.type === "net" && state.answered ? "¡BIEN! AHORA PLEGÁ" : "¡BIEN!";
+  return renderShell(`<section class="runner matching-runner geometry-quest-runner geometry-${exercise.mode}-runner">
+    <div class="matching-session-bar">
+      <button class="btn btn-ghost" type="button" data-action="cancel-run">${icon("arrow")}Salir</button>
+      <div class="matching-session-status"><span>${state.roundIndex + 1} de ${exercise.rounds.length}</span><span>${modeLabel}</span></div>
+    </div>
+    <article class="question-panel geometry-quest-panel">
+      <div class="geometry-quest-heading"><span>${escapeHtml(session.themeTitle)}</span><h2>${escapeHtml(round.prompt)}</h2></div>
+      <div class="geometry-quest-layout"><div class="geometry-quest-scene">${scene}</div>${options}</div>
+      <div class="geometry-quest-feedback ${state.answered ? "is-good" : state.message ? "is-hint" : ""}" role="status">${escapeHtml(state.answered ? rightMessage : state.message || " ")}</div>
+      ${round.type === "net" && state.answered ? `<button class="btn btn-primary geometry-net-next" type="button" data-action="geometry-quest-${state.folded ? "next" : "fold"}">${state.folded ? "Siguiente" : "Plegar el cubo"}</button>` : ""}
+    </article>
+  </section>`);
+}
+
+function advanceGeometryQuestRound(sessionId, exerciseId, roundIndex) {
+  if (session?.id !== sessionId || session.exercises[session.index]?.id !== exerciseId) return;
+  const exercise = session.exercises[session.index];
+  const state = session.geometryQuests[exerciseId];
+  if (!state || state.roundIndex !== roundIndex) return;
+  if (roundIndex + 1 < exercise.rounds.length) {
+    state.roundIndex += 1;
+    state.currentDegrees = exercise.rounds[state.roundIndex]?.initial ?? 0;
+    state.selectedId = null;
+    state.answered = false;
+    state.folded = false;
+    state.showGuide = false;
+    state.message = "";
+  } else {
+    session.score += 1;
+    session.answers.push({ prompt: exercise.prompt, support: session.themeTitle, selected: "Completó los desafíos", correct: "Completó los desafíos", isCorrect: true, errors: state.errors });
+    session.index += 1;
+  }
+  render();
+}
+
+function answerGeometryQuest(value) {
+  const exercise = session?.exercises?.[session.index];
+  if (exercise?.type !== "geometry-quest") return;
+  const state = session.geometryQuests[exercise.id];
+  const round = exercise.rounds?.[state?.roundIndex];
+  if (!state || !round || round.type === "turn" || state.answered || !round.options.includes(value)) return;
+  state.selectedId = value;
+  if (value !== round.correctId) {
+    state.errors += 1;
+    state.message = round.clue;
+    return render();
+  }
+  state.answered = true;
+  state.message = "";
+  const sessionId = session.id;
+  const exerciseId = exercise.id;
+  const roundIndex = state.roundIndex;
+  render();
+  if (round.type !== "net") window.setTimeout(() => advanceGeometryQuestRound(sessionId, exerciseId, roundIndex), exercise.mode === "rolling" ? 1800 : 1400);
+}
+
+function updateGeometryQuestTurn(value) {
+  const exercise = session?.exercises?.[session.index];
+  if (exercise?.type !== "geometry-quest") return;
+  const state = session.geometryQuests[exercise.id];
+  const round = exercise.rounds?.[state?.roundIndex];
+  if (!state || round?.type !== "turn" || state.answered) return;
+  state.currentDegrees = Math.max(5, Math.min(175, Number(value) || 5));
+  state.showGuide = false;
+  state.message = "";
+  document.querySelector('[data-role="geometry-moving-line"]')?.setAttribute("transform", `rotate(${-state.currentDegrees} 230 150)`);
+  const output = document.querySelector('[data-role="geometry-current-degrees"]');
+  if (output) output.textContent = `${state.currentDegrees}°`;
+  document.querySelector(".geometry-line-guide")?.remove();
+  const feedback = document.querySelector(".geometry-quest-feedback");
+  if (feedback) { feedback.textContent = " "; feedback.className = "geometry-quest-feedback"; }
+}
+
+function checkGeometryQuestTurn() {
+  const exercise = session?.exercises?.[session.index];
+  if (exercise?.type !== "geometry-quest") return;
+  const state = session.geometryQuests[exercise.id];
+  const round = exercise.rounds?.[state?.roundIndex];
+  if (!state || round?.type !== "turn" || state.answered) return;
+  if (Math.abs(state.currentDegrees - round.target) > 5) {
+    state.errors += 1;
+    state.showGuide = true;
+    state.message = state.currentDegrees < round.target ? "GIRÁ UN POCO MÁS" : "GIRÁ UN POCO MENOS";
+    return render();
+  }
+  state.currentDegrees = round.target;
+  state.answered = true;
+  state.message = "";
+  const sessionId = session.id;
+  const exerciseId = exercise.id;
+  const roundIndex = state.roundIndex;
+  render();
+  window.setTimeout(() => advanceGeometryQuestRound(sessionId, exerciseId, roundIndex), 1400);
+}
+
+function foldGeometryQuestNet() {
+  const exercise = session?.exercises?.[session.index];
+  if (exercise?.mode !== "cube-net") return;
+  const state = session.geometryQuests[exercise.id];
+  if (!state?.answered || state.folded) return;
+  state.folded = true;
+  render();
+}
+
+function nextGeometryQuestNet() {
+  const exercise = session?.exercises?.[session.index];
+  if (exercise?.mode !== "cube-net") return;
+  const state = session.geometryQuests[exercise.id];
+  if (!state?.folded) return;
+  advanceGeometryQuestRound(session.id, exercise.id, state.roundIndex);
 }
 
 function renderPlasticObjectSvg(objectId) {
@@ -5247,7 +6389,7 @@ function stopLanguageAudio() {
 }
 
 function playLanguageAudio(relativePath, onEnded) {
-  if (!relativePath) return;
+  if (!VOICE_PLAYBACK_ENABLED || !relativePath) return;
   stopLanguageAudio();
   const audio = new Audio(`./assets/language/sofia/audio/${relativePath}`);
   languageAudio = audio;
@@ -5325,10 +6467,14 @@ function renderSentenceBuild(exercise, state, sentence) {
     )
     .join("");
   return `
-    <div class="sentence-task-heading">
+    <div class="sentence-task-heading ${VOICE_PLAYBACK_ENABLED ? "" : "voice-playback-disabled"}">
       <span class="sentence-task-kicker">ORACIÓN</span>
       <h2>Armá la oración</h2>
-      <button class="sentence-audio-button" type="button" data-action="sentence-prompt-audio" aria-label="Escuchar consigna">${icon("speaker")}</button>
+      ${
+        VOICE_PLAYBACK_ENABLED
+          ? `<button class="sentence-audio-button" type="button" data-action="sentence-prompt-audio" aria-label="Escuchar consigna">${icon("speaker")}</button>`
+          : ""
+      }
     </div>
     <div class="sentence-slot-area">
       <div class="sentence-build-slots" aria-label="Oración en construcción">${placed}${slots}</div>
@@ -5363,13 +6509,21 @@ function renderSentenceIdentify(exercise, state, sentence) {
       <button class="sentence-identify-part part-complement ${state.wrongPart === "complement" ? "is-wrong" : ""}" type="button" data-action="sentence-identify" data-part="complement">${escapeHtml(sentence.complement)}</button>
     `;
   return `
-    <div class="sentence-task-heading">
+    <div class="sentence-task-heading ${VOICE_PLAYBACK_ENABLED ? "" : "voice-playback-disabled"}">
       <span class="sentence-task-kicker">${prompt.label}</span>
       <h2>${escapeHtml(prompt.text)}</h2>
-      <button class="sentence-audio-button" type="button" data-action="sentence-prompt-audio" aria-label="Escuchar consigna">${icon("speaker")}</button>
+      ${
+        VOICE_PLAYBACK_ENABLED
+          ? `<button class="sentence-audio-button" type="button" data-action="sentence-prompt-audio" aria-label="Escuchar consigna">${icon("speaker")}</button>`
+          : ""
+      }
     </div>
     <div class="sentence-identify-row ${predicatePhase ? "is-predicate-phase" : ""}">${subjectButton}${remaining}</div>
-    <button class="sentence-listen-full" type="button" data-action="sentence-full-audio">${icon("speaker")}Escuchar oración</button>
+    ${
+      VOICE_PLAYBACK_ENABLED
+        ? `<button class="sentence-listen-full" type="button" data-action="sentence-full-audio">${icon("speaker")}Escuchar oración</button>`
+        : ""
+    }
   `;
 }
 
@@ -5387,7 +6541,11 @@ function renderSentenceResult(exercise, state, sentence) {
           <strong>PREDICADO</strong>
         </span>
       </div>
-      <button class="sentence-listen-full" type="button" data-action="sentence-full-audio">${icon("speaker")}Escuchar oración</button>
+      ${
+        VOICE_PLAYBACK_ENABLED
+          ? `<button class="sentence-listen-full" type="button" data-action="sentence-full-audio">${icon("speaker")}Escuchar oración</button>`
+          : ""
+      }
       <button class="btn btn-primary sentence-next-button" type="button" data-action="sentence-next">${isLast ? `${icon("check")}Terminar` : "Siguiente oración"}</button>
     </div>
   `;
@@ -5556,7 +6714,11 @@ function renderSofiaRecipeIntro(exercise) {
         <span class="theme-credit-badge">★ Propuesta por PSP Sofía</span>
         <h3>Seguimos los pasos en orden</h3>
         <div class="sofia-recipe-path"><span>1 Puré</span><b>→</b><span>2 Milanesa</span><b>→</b><span>3 Plato</span></div>
-        <button class="sentence-audio-button" type="button" data-action="sofia-recipe-intro-audio" aria-label="Escuchar presentación">${icon("speaker")}</button>
+        ${
+          VOICE_PLAYBACK_ENABLED
+            ? `<button class="sentence-audio-button" type="button" data-action="sofia-recipe-intro-audio" aria-label="Escuchar presentación">${icon("speaker")}</button>`
+            : ""
+        }
         <button class="btn btn-primary sofia-recipe-main" type="button" data-action="sofia-recipe-start">${icon("play")}Empezar</button>
       </aside>
     </div>
@@ -5581,9 +6743,13 @@ function renderSofiaRecipeChoice(exercise, state) {
   return `
     <div class="sofia-recipe-choice" style="--section-color:${section.color}">
       <div class="sofia-recipe-section-title"><span>${escapeHtml(section.title)}</span><b>Paso ${state.stepIndex + 1} de ${exercise.steps.length}</b></div>
-      <div class="sofia-instruction-card">
+      <div class="sofia-instruction-card ${VOICE_PLAYBACK_ENABLED ? "" : "voice-playback-disabled"}">
         <p>${escapeHtml(step.text)}</p>
-        <button class="sentence-audio-button" type="button" data-action="sofia-recipe-step-audio" aria-label="Escuchar paso">${icon("speaker")}</button>
+        ${
+          VOICE_PLAYBACK_ENABLED
+            ? `<button class="sentence-audio-button" type="button" data-action="sofia-recipe-step-audio" aria-label="Escuchar paso">${icon("speaker")}</button>`
+            : ""
+        }
       </div>
       <h3>Tocá la imagen</h3>
       <div class="sofia-recipe-options">${options}</div>
@@ -5611,7 +6777,11 @@ function renderSofiaRecipeResult(exercise, state) {
       <div class="sofia-result-copy">
         <span class="sofia-result-check">${icon("check")}</span>
         <p>${escapeHtml(step.text)}</p>
-        <button class="sentence-audio-button" type="button" data-action="sofia-recipe-step-audio" aria-label="Escuchar paso">${icon("speaker")}</button>
+        ${
+          VOICE_PLAYBACK_ENABLED
+            ? `<button class="sentence-audio-button" type="button" data-action="sofia-recipe-step-audio" aria-label="Escuchar paso">${icon("speaker")}</button>`
+            : ""
+        }
       </div>
       <button class="btn btn-primary sofia-recipe-main" type="button" data-action="sofia-recipe-next">${sofiaRecipeNextLabel(exercise, state)}</button>
     </div>
@@ -5753,9 +6923,30 @@ function renderRunner() {
   if (!session) return setRoute({ view: "home" });
   const total = session.exercises.length;
   const done = session.index >= total;
-  if (done) return renderFinish();
+  if (done) {
+    if (session.exercises[0]?.type === "capacity-lab") return renderCapacityFinish();
+    if (session.exercises[0]?.type === "pacman-discovery") return renderPacmanDiscoveryFinish();
+    if (session.exercises[0]?.type === "weight-lab") return renderWeightLabFinish();
+    if (session.exercises[0]?.type === "pacman-world") return renderPacmanWorldFinish();
+    if (session.exercises[0]?.type === "english-family") return renderFamilyFinish();
+    if (session.exercises[0]?.type === "pacman-quest") return renderPacmanQuestFinish();
+    if (session.exercises[0]?.type === "school-arcade") return renderSchoolArcadeFinish();
+    if (session.exercises[0]?.type === "language-mission") return renderLanguageMissionFinish();
+    return session.exercises[0]?.type === "pacman-verbs" ? renderPacmanVerbFinish() : renderFinish();
+  }
 
   const exercise = session.exercises[session.index];
+  if (exercise.type === "capacity-lab") return renderCapacityRunner(exercise);
+  if (exercise.type === "pacman-discovery") return renderPacmanDiscoveryRunner(exercise);
+  if (exercise.type === "weight-lab") return renderWeightLabRunner(exercise);
+  if (exercise.type === "pacman-world") return renderPacmanWorldRunner(exercise);
+  if (exercise.type === "social-farm") return renderFarmRunner();
+  if (exercise.type === "earth-layers") return renderEarthRunner();
+  if (exercise.type === "english-family") return renderFamilyRunner(exercise);
+  if (exercise.type === "pacman-quest") return renderPacmanQuestRunner(exercise);
+  if (exercise.type === "school-arcade") return renderSchoolArcadeRunner(exercise);
+  if (exercise.type === "language-mission") return renderLanguageMissionRunner(exercise);
+  if (exercise.type === "technology-lab") return renderTechnologyRunner(exercise);
   if (exercise.type === "sound-gallery") return renderSoundGalleryRunner(exercise);
   if (exercise.type === "drag-matching") return renderDragMatchingRunner(exercise);
   if (exercise.type === "sum-choice-grid") return renderSumChoiceRunner(exercise);
@@ -5769,6 +6960,8 @@ function renderRunner() {
   if (exercise.type === "sentence-builder") return renderSentenceBuilderRunner(exercise);
   if (exercise.type === "sofia-recipe") return renderSofiaRecipeRunner(exercise);
   if (exercise.type === "pacman-angle") return renderPacmanAngleRunner(exercise);
+  if (exercise.type === "pacman-verbs") return renderPacmanVerbRunner(exercise);
+  if (exercise.type === "geometry-quest") return renderGeometryQuestRunner(exercise);
   if (exercise.type === "plastic-materials") return renderPlasticMaterialsRunner(exercise);
   if (exercise.type === "circle-geometry") {
     return session.circleGeometryLearning ? renderCircleGeometryLearning() : renderCircleGeometryRunner(exercise);
@@ -6359,6 +7552,7 @@ function stopEnglishAudio() {
 }
 
 function playEnglishVocabularyAudio() {
+  if (!VOICE_PLAYBACK_ENABLED) return;
   const exercise = session?.exercises?.[session.index];
   if (exercise?.type !== "english-vocabulary" || !exercise.audio) return;
   stopEnglishAudio();
@@ -6575,13 +7769,16 @@ function renderFinish() {
   const total = session.exercises.length;
   const percent = Math.round((session.score / total) * 100);
   const modeLabel = session.mode === "evaluation" ? "Evaluacion terminada" : "Actividad terminada";
+  const geometryRounds = session.exercises.length === 1 && session.exercises[0]?.type === "geometry-quest"
+    ? session.exercises[0].rounds?.length || 0
+    : 0;
 
   renderShell(`
     <section class="screen">
       <div class="finish-panel">
         <div class="finish-score">${percent}%</div>
         <h2>${modeLabel}</h2>
-        <p>${session.score} respuestas correctas de ${total}</p>
+        <p>${geometryRounds ? `Completaste ${geometryRounds} desafíos` : `${session.score} respuestas correctas de ${total}`}</p>
         <div class="inline-actions" style="justify-content:center">
           <button class="btn btn-primary" type="button" data-action="open-subject" data-subject="${session.subjectId}">${icon("list")}Actividades</button>
         </div>
@@ -6811,7 +8008,9 @@ function showCommunicationPresentation() {
       negated: communicationNegated
     };
     currentCommunicationMessageScopes().forEach((scopeId) => rememberCommunicationMessage(scopeId, entry));
+    rememberGeneralCommunicationRecent({ kind: "message", scope: communicationStarter || COMMUNICATION_GENERAL_RECENTS_SCOPE, message: entry });
   }
+  communicationAudioStatus = "";
   communicationPresentation = true;
   render();
 }
@@ -6824,6 +8023,7 @@ function selectCommunicationRecentMessage(scopeId, index) {
   communicationTextPosition = entry.textPosition;
   communicationNegated = entry.negated;
   communicationPresentation = false;
+  communicationAudioStatus = "";
   if (scopeId === COMMUNICATION_GENERAL_RECENTS_SCOPE) {
     communicationStarter = null;
     communicationGroup = null;
@@ -6834,6 +8034,7 @@ function selectCommunicationRecentMessage(scopeId, index) {
 
 function addCommunicationPicto(id) {
   if (!communicationPicto(id)) return;
+  rememberGeneralCommunicationRecent({ kind: "picto", id });
   const activeStarter = communicationStarterById(communicationStarter);
   if (activeStarter) {
     rememberCommunicationPicto(activeStarter.id, id);
@@ -6852,9 +8053,49 @@ function addCommunicationPicto(id) {
   render();
 }
 
-function setCommunicationSequence(ids) {
-  communicationSentence = ids.filter((id) => communicationPicto(id)).slice(0, 12);
-  render();
+function stopCommunicationQuickAudio() {
+  if (!communicationQuickAudio) return;
+  communicationQuickAudioFinish?.();
+  stopAppSpeech(communicationQuickAudio);
+  communicationQuickAudio = null;
+  communicationQuickAudioFinish = null;
+}
+
+function playCommunicationQuickAudio(id) {
+  const audio = new Audio(`./assets/communication/audio/${id}.mp3`);
+  let finished = false;
+  const finish = () => {
+    if (finished) return;
+    finished = true;
+    advanceCommunicationQuickAudio(id);
+  };
+  communicationQuickAudio = audio;
+  communicationQuickAudioFinish = finish;
+  audio.preload = "auto";
+  audio.volume = 1;
+  audio.addEventListener("ended", () => {
+    finish();
+    if (communicationQuickAudio === audio) {
+      communicationQuickAudio = null;
+      communicationQuickAudioFinish = null;
+    }
+  }, { once: true });
+  audio.addEventListener("error", () => {
+    if (communicationQuickAudio === audio) {
+      communicationQuickAudio = null;
+      communicationQuickAudioFinish = null;
+    }
+  }, { once: true });
+  if (!playAppSpeech(audio, () => {
+    if (communicationQuickAudio === audio) {
+      communicationQuickAudio = null;
+      communicationQuickAudioFinish = null;
+    }
+    toast("No se pudo reproducir el mensaje");
+  })) {
+    communicationQuickAudio = null;
+    communicationQuickAudioFinish = null;
+  }
 }
 
 function selectCommunicationQuick(id) {
@@ -6868,14 +8109,26 @@ function selectCommunicationQuick(id) {
     const choice = communicationSentence[starterSequence.length];
     communicationNegated = !communicationNegated;
     communicationSentence = [...communicationStarterSequence(activeStarter), choice];
-    communicationPresentation = false;
+    communicationAudioStatus = "";
+    communicationPresentation = true;
     return render();
   }
+  stopCommunicationQuickAudio();
   communicationStarter = null;
   communicationGroup = null;
   communicationCategory = null;
   communicationNegated = false;
-  setCommunicationSequence(quick.sequence);
+  communicationWrittenText = "";
+  communicationTextPosition = 0;
+  communicationSentence = quick.sequence.filter((pictoId) => communicationPicto(pictoId)).slice(0, 12);
+  const quickRemainingMs = communicationQuickAudioRemainingMs(quick.id);
+  const canSpeak = !appSpeechAudio && appSpeechRemainingMs() <= 0 && quickRemainingMs <= 0;
+  communicationAudioStatus = quickRemainingMs > 0
+    ? `El mensaje se muestra sin audio. Podés volver a escucharlo en ${Math.ceil(quickRemainingMs / 1000)} s.`
+    : canSpeak ? "" : "El mensaje se muestra sin audio durante la pausa de 2 segundos.";
+  communicationPresentation = true;
+  render();
+  if (canSpeak) playCommunicationQuickAudio(quick.id);
 }
 
 function selectCommunicationStarter(id) {
@@ -6955,6 +8208,7 @@ function removeCommunicationToken(index) {
 }
 
 function clearCommunicationSentence() {
+  stopCommunicationQuickAudio();
   communicationSentence = [];
   communicationWrittenText = "";
   communicationTextPosition = 0;
@@ -6962,6 +8216,7 @@ function clearCommunicationSentence() {
   communicationGroup = null;
   communicationCategory = null;
   communicationPresentation = false;
+  communicationAudioStatus = "";
   communicationNegated = false;
   render();
 }
@@ -7362,9 +8617,17 @@ document.addEventListener("input", (event) => {
   if (event.target.matches('[data-action="pacman-angle-slider"]')) {
     updatePacmanAngleBuild(event.target.value);
   }
+  if (event.target.matches('[data-action="geometry-quest-slider"]')) {
+    updateGeometryQuestTurn(event.target.value);
+  }
 });
 
 document.addEventListener("submit", (event) => {
+  const answerForm = event.target.closest('[data-form="support-multiplication-answer"]');
+  if (answerForm) {
+    event.preventDefault();
+    return unlockMultiplicationSupportAudio(new FormData(answerForm).get("answer"));
+  }
   const form = event.target.closest('[data-form="turner-participant"]');
   if (!form) return;
   event.preventDefault();
@@ -7375,10 +8638,27 @@ document.addEventListener("submit", (event) => {
 document.addEventListener("click", (event) => {
   const target = event.target.closest("[data-action]");
   if (!target) return;
+  if (typeof storyInteractionLocked === "function" && storyInteractionLocked()) return;
   const action = target.dataset.action;
+  if (action.startsWith("pd-")) return pacmanDiscoveryAction(action, target);
+  if (action.startsWith("story-")) return storySupportAction(action, target);
+  if (action.startsWith("pm-")) return pacmanMemoryAction(action, target);
+  if (action.startsWith("px-")) return pacmanExplorerAction(action, target);
+  if (action.startsWith("wl-")) return weightLabAction(action, target);
+  if (action.startsWith("pv-")) return parishVisitAction(action, target);
+  if (action.startsWith("pw-")) return pacmanWorldAction(action, target);
+  if (action.startsWith("farm-")) return farmAction(action, target, event);
+  if (action.startsWith("earth-")) return earthAction(action, target);
+  if (action.startsWith("family-")) return familyAction(action, target);
+  if (action.startsWith("pq-")) return pacmanQuestAction(action, target);
+  if (action.startsWith("sa-")) return schoolArcadeAction(action, target);
+  if (action.startsWith("cl-")) return capacityAction(action, target);
+  if (action === "technology-select") return selectTechnologyAnswer(Number(target.dataset.card), target.dataset.value);
+  if (action === "technology-check") return checkTechnologyAnswers();
 
   if (action === "pwa-install") return requestPwaInstall();
   if (action === "home") return setRoute({ view: "home" });
+  if (action === "companion" && isCompanionEnabled()) return window.location.assign("/companion/index.html");
   if (action === "school") return setRoute({ view: "school" });
   if (action === "communication") return setRoute({ view: "communication" });
   if (action === "supports") return setRoute({ view: "supports" });
@@ -7406,6 +8686,10 @@ document.addEventListener("click", (event) => {
   if (action === "support-color-select") return selectSupportColor(target.dataset.color);
   if (action === "support-color-random") return pickRandomSupportColor();
   if (action === "support-color-replay") return playSupportAudio("colors", target.dataset.color);
+  if (action === "support-multiplication-open") return openSupportMultiplication();
+  if (action === "support-multiplication-table") return selectMultiplicationSupportTable(target.dataset.table);
+  if (action === "support-multiplication-next") return showNextMultiplicationSupportOperation();
+  if (action === "support-multiplication-audio") return playMultiplicationSupportAudio();
   if (action === "turner-open") return openTurnerSetup(true);
   if (action === "turner-person-up") return moveTurnerParticipant(target.dataset.id, -1);
   if (action === "turner-person-down") return moveTurnerParticipant(target.dataset.id, 1);
@@ -7432,9 +8716,12 @@ document.addEventListener("click", (event) => {
   if (action === "communication-recent-message") {
     return selectCommunicationRecentMessage(target.dataset.scope, Number(target.dataset.index));
   }
+  if (action === "communication-general-recent") return selectGeneralCommunicationRecent(Number(target.dataset.index));
   if (action === "communication-present") return showCommunicationPresentation();
   if (action === "communication-close-presentation") {
+    stopCommunicationQuickAudio();
     communicationPresentation = false;
+    communicationAudioStatus = "";
     return render();
   }
   if (action === "communication-clear") return clearCommunicationSentence();
@@ -7442,6 +8729,7 @@ document.addEventListener("click", (event) => {
   if (action === "open-subject") return setRoute({ view: "subject", subjectId: target.dataset.subject });
   if (action === "open-theme") return setRoute({ view: "theme", subjectId: target.dataset.subject, themeId: target.dataset.theme });
   if (action === "start") return startSession(target.dataset.subject, target.dataset.theme, target.dataset.mode);
+  if (action.startsWith("lm-")) return languageMissionAction(action, target);
   if (action === "matching-select") return selectMatchingPair(target.dataset.kind, target.dataset.pair);
   if (action === "drag-match-slot") {
     if (suppressDragMatchClick) {
@@ -7524,8 +8812,15 @@ document.addEventListener("click", (event) => {
   if (action === "circle-geometry-start") return startCircleGeometryActivity();
   if (action === "circle-geometry-answer") return answerCircleGeometry(target.dataset.option);
   if (action === "pacman-angle-answer") return answerPacmanAngle(target.dataset.value);
+  if (action === "pacman-verb-answer") return answerPacmanVerb(Number(target.dataset.option));
+  if (action === "pacman-verb-next") return nextPacmanVerb();
   if (action === "pacman-angle-check") return checkPacmanAngleBuild();
   if (action === "pacman-angle-slider") return;
+  if (action === "geometry-quest-answer") return answerGeometryQuest(target.dataset.value);
+  if (action === "geometry-quest-check") return checkGeometryQuestTurn();
+  if (action === "geometry-quest-slider") return;
+  if (action === "geometry-quest-fold") return foldGeometryQuestNet();
+  if (action === "geometry-quest-next") return nextGeometryQuestNet();
   if (action === "plastic-material-answer") return answerPlasticMaterials(target.dataset.value);
   if (action === "recipe-start") return startInstructionalRecipe();
   if (action === "recipe-answer") return answerRecipeStep(target.dataset.item);
@@ -7585,9 +8880,10 @@ function resetDemo() {
   toast("Plantilla restaurada");
 }
 
-setupPwaInstall();
+if (window.IAN_COMPANION_ENABLED !== true) setupPwaInstall();
+void loadNativeCompanion();
 
-if (!isNativeAppRuntime() && "serviceWorker" in navigator && location.protocol !== "file:") {
+if (window.IAN_COMPANION_ENABLED !== true && !isNativeAppRuntime() && "serviceWorker" in navigator && location.protocol !== "file:") {
   window.addEventListener("load", () => {
     navigator.serviceWorker.register("./service-worker.js", { scope: "./", updateViaCache: "none" }).catch(() => {});
   });

@@ -6,19 +6,26 @@
   "scripts": {
     "serve": "npx http-server app -p 4173",
     "start": "node scripts/serve-production.mjs",
+    "companion:dev": "node --env-file-if-exists=.env scripts/serve-companion.mjs",
+    "verify:companion": "node --test companion/*.test.mjs",
     "verify:pwa": "node scripts/verify-pwa.mjs",
     "android:add": "npx cap add android",
     "android:sync": "npx cap sync android",
     "android:open": "npx cap open android",
     "apk:debug": "cd android && gradlew assembleDebug",
-    "tablet:update": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/update-tablet.ps1"
+    "tablet:update": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/update-tablet.ps1",
+    "tablet:update:a8": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/update-tablet.ps1 -Tablet a8",
+    "tablet:update:ulefone": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/update-tablet.ps1 -Tablet ulefone",
+    "tablet:maintenance": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/tablet-maintenance.ps1",
+    "companion:cloud:prepare": "node scripts/prepare-companion-cloud.mjs"
   },
   "dependencies": {
     "@capacitor/android": "^7.0.0",
     "@capacitor/cli": "^7.0.0",
     "@capacitor/core": "^7.0.0",
     "gsap": "^3.15.0",
-    "http-server": "^14.1.1"
+    "http-server": "^14.1.1",
+    "ws": "^8.22.0"
   },
   "engines": {
     "node": ">=20.0.0"

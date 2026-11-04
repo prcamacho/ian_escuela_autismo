@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
+import android.view.KeyEvent;
 import android.view.WindowInsets;
 import android.view.WindowInsetsController;
 
@@ -26,14 +27,28 @@ public class MainActivity extends BridgeActivity {
 
     private DevicePolicyManager devicePolicyManager;
     private ComponentName adminReceiver;
+    private StoryVolumeController storyVolumeController;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        registerPlugin(CompanionPlugin.class);
+        registerPlugin(StoryVolumePlugin.class);
+        storyVolumeController = new StoryVolumeController(this);
         super.onCreate(savedInstanceState);
+
+        getBridge().getWebView().getSettings().setSupportZoom(false);
 
         devicePolicyManager = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
         adminReceiver = new ComponentName(this, KioskDeviceAdminReceiver.class);
         configureDedicatedDevice();
+    }
+
+    StoryVolumeController storyVolume() { return storyVolumeController; }
+
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        if (storyVolumeController != null && storyVolumeController.handleKey(event)) return true;
+        return super.dispatchKeyEvent(event);
     }
 
     @Override
@@ -70,7 +85,7 @@ public class MainActivity extends BridgeActivity {
                 adminReceiver,
                 new String[]{getPackageName(), KioskRecoveryActivity.class.getName()}
         );
-        // Five minutes gives Ian time to use the app without leaving the
+        // Three minutes gives Ian time to use the app without leaving the
         // display on indefinitely when the tablet is unattended.
         devicePolicyManager.setSystemSetting(
                 adminReceiver,

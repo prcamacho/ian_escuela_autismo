@@ -102,12 +102,12 @@ http://192.168.1.50:4173
 ## Que ya hace
 
 - Inicio limpio con "Hola, Ian" y dos tarjetas lado a lado: Escuela y Me comunico.
-- Materias fijas: Lengua, Cs Naturales, Cs Sociales, Matematicas e Inglés.
+- Materias fijas: Lengua, Cs Naturales, Cs Sociales, Matematicas, Inglés y Tecnología.
 - Temas dentro de cada materia.
 - Ejercicios de eleccion tactil.
 - Me Comunico inmersivo, sin encabezado ni scroll, con pictogramas ARASAAC offline.
-- Mensajes rapidos anclados arriba: SI, NO, hambre, enojo, saludo, despedida, agua, bano y ayuda.
-- Armado de frase con iniciadores y pictos relacionados, sin voz por parlante.
+- Mensajes rapidos anclados arriba: SI, NO, hambre, enojo, saludo, despedida, no quiero, bano y ayuda; se muestran en grande y usan audios locales. Cada atajo tiene una espera progresiva propia de 2, 5, 10, 30 y 60 segundos entre reproducciones, sin ocultar el mensaje visual.
+- Armado de frase con iniciadores y pictos relacionados; las frases armadas siguen siendo visuales.
 - Modo practicar.
 - Modo evaluar en vivo, sin guardar resultados por ahora.
 - Contenido y configuracion mantenidos desde codigo para evitar distracciones.

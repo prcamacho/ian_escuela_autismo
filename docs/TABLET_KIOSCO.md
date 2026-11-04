@@ -2,6 +2,8 @@
 
 Este documento conserva el contexto operativo de la Samsung Tab A8 dedicada a Ian Escuela. Leerlo antes de modificar la capa Android o dar instrucciones para actualizar la tablet.
 
+Para distinguir A8 y Ulefone, activar el compañero y ubicar el respaldo cifrado de llaves, leer también [TABLETS_MANTENIMIENTO.md](TABLETS_MANTENIMIENTO.md). Los comandos de este documento sin serie explícita solo deben usarse con una tablet conectada; preferir los nuevos comandos por nombre.
+
 ## Estado actual
 
 - Dispositivo: Samsung Galaxy Tab A8.
@@ -96,6 +98,8 @@ La Tab A8 debe aparecer como `device`, no como `unauthorized`. Si la clave es la
 
 Deja Device Owner activo pero detiene temporalmente Lock Task:
 
+La versión actual también retira temporalmente el paquete de la lista de aplicaciones bloqueadas. Esto permite pausar en la Ulefone, donde `stopLockTask()` desde la actividad de mantenimiento por sí solo dejaba la tarea principal bloqueada. Reanudar repone la lista y activa nuevamente el kiosco.
+
 ```powershell
 .\adb.exe shell am start -n com.ian.escuela/.KioskRecoveryActivity -a com.ian.escuela.action.PAUSE_KIOSK
 ```
@@ -125,6 +129,8 @@ Para verificar el resultado:
 ```
 
 El estado esperado es `mLockTaskModeState=LOCKED` y `com.ian.escuela/.MainActivity` como actividad reanudada.
+
+En la A8 también puede aparecer como `ResumedActivity:` en lugar de `topResumedActivity=`. Desde el 7 de octubre de 2026, el actualizador reconoce ambos formatos; antes podía informar un fallo de verificación aunque la instalación estuviera correcta y el kiosco siguiera bloqueado.
 
 ### Reiniciar desde la PC
 

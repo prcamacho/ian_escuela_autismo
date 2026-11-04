@@ -1,0 +1,142 @@
+/* Quiet editorial layout; all instructional movement is driven by GSAP. */
+.earth-theme-card { border-color: #a5c4b2; background: linear-gradient(130deg, #f2f6ea, #fffdf7); }
+.earth-runner { --earth-ink: #244b43; --earth-muted: #587368; --earth-paper: #fbfaf4; width: min(1200px, 100%); margin: 0 auto; padding: 18px 28px 22px; color: var(--earth-ink); background: #f4f5ec; border-radius: 24px; }
+.earth-runner button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.earth-runner button:focus-visible { outline: 3px solid #285f88; outline-offset: 4px; }
+.earth-runner button:disabled { cursor: default; }
+.earth-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 44px; }
+.earth-header > span { font-size: .68rem; font-weight: 800; letter-spacing: .13em; color: #59786a; }
+.earth-header .earth-header-mark { font-size: 24px; color: #c9a652; }
+.earth-exit { display: flex; align-items: center; gap: 8px; min-height: 44px; padding: 8px 0; color: var(--earth-ink); background: transparent; font-size: .86rem; font-weight: 750; }
+.earth-exit svg { width: 19px; height: 19px; }
+.earth-trail { display: grid; grid-template-columns: repeat(4, 1fr); margin: 12px 0 23px; padding: 0; list-style: none; border-top: 1px solid #cdd8ca; }
+.earth-trail li { display: flex; align-items: center; gap: 8px; padding-top: 13px; color: #647568; font-size: .76rem; }
+.earth-trail li > span { display: grid; place-items: center; width: 25px; height: 25px; border: 1px solid #bdcbbd; border-radius: 50%; font-size: .68rem; }
+.earth-trail li b { font-weight: 550; }
+.earth-trail .is-current { color: #244b43; position: relative; }
+.earth-trail .is-current::before { content: ''; height: 3px; position: absolute; top: -2px; left: 0; right: 20%; background: #3c7463; border-radius: 3px; }
+.earth-trail .is-current > span { background: #2f6655; color: #fff; border-color: #2f6655; }
+.earth-trail .is-current b { font-weight: 800; }
+.earth-trail .is-done > span { background: #e0ead9; color: #305d45; }
+.earth-title { margin-bottom: 18px; }
+.earth-eyebrow, .earth-card-kicker { display: block; font-size: .67rem; font-weight: 800; letter-spacing: .12em; color: #547566; line-height: 1.5; }
+.earth-title h2, .earth-finish h2 { margin: 6px 0 7px; font-size: clamp(1.65rem, 3.5vw, 2.65rem); letter-spacing: -.04em; line-height: 1.12; font-weight: 780; }
+.earth-title h2:focus, .earth-feedback:focus { outline: none; }
+.earth-title > p { margin: 0; font-size: .96rem; line-height: 1.45; color: var(--earth-muted); }
+.earth-workspace { display: grid; grid-template-columns: 1.2fr 1fr; gap: 22px; align-items: stretch; }
+.earth-visual-card { position: relative; min-width: 0; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #e9eee3; border: 1px solid #d8e1d1; border-radius: 23px; }
+.earth-visual { position: relative; width: 100%; max-width: 510px; aspect-ratio: 500 / 440; }
+.earth-model { display: block; width: 100%; height: 100%; overflow: hidden; }
+.earth-visual.is-near { background: linear-gradient(#d9f2ff, #edf8e8); border-radius: 20px; }
+.earth-model-note { position: absolute; bottom: 12px; left: 12px; right: 12px; text-align: center; color: #516b5e; font-size: .59rem; font-weight: 750; letter-spacing: .15em; pointer-events: none; }
+.earth-info { min-width: 0; display: flex; flex-direction: column; justify-content: center; padding: 26px 29px; border: 1px solid #e2e3d6; border-radius: 23px; background: var(--earth-paper); box-shadow: 0 7px 22px #4a684207; }
+.earth-info h3 { font-size: clamp(1.3rem, 2.2vw, 1.8rem); font-weight: 750; line-height: 1.16; letter-spacing: -.025em; margin: 12px 0 8px; }
+.earth-info p { line-height: 1.55; font-size: 1.03rem; margin: 7px 0 18px; text-wrap: pretty; }
+.earth-info .earth-small, .earth-small { font-size: .8rem; color: var(--earth-muted); line-height: 1.55; margin: 12px 0 0; }
+.earth-button { min-height: 51px; display: inline-flex; align-items: center; justify-content: center; padding: 12px 22px; border-radius: 13px; border: 1px solid #285c4c; background: #2c604f; color: #fffdf4; font-size: .89rem; font-weight: 750; line-height: 1.3; transition: background .15s, border-color .15s; }
+.earth-button:hover:enabled { background: #214b3d; }
+.earth-button-secondary { background: transparent; border-color: #b3c6b2; color: #315f4d; }
+.earth-button-secondary:hover:enabled { background: #e9eee1; }
+.earth-button:disabled { background: #e5e9df; border-color: #d6dfd2; color: #64735f; }
+.earth-info .earth-button { align-self: flex-start; margin-top: 9px; }
+.earth-layer-buttons { display: grid; grid-template-columns: 1fr; gap: 6px; }
+.earth-layer-button, .earth-choice { min-height: 48px; border: 1.5px solid #cdd7c7; border-radius: 11px; background: #fffef9; padding: 10px 14px; display: flex; align-items: center; gap: 11px; color: #294f43; font-size: .95rem; font-weight: 700; text-align: left; }
+.earth-layer-button i, .earth-finish-parts i { flex-shrink: 0; display: inline-block; width: 13px; height: 13px; background: var(--layer-color); border-radius: 50%; border: 1px solid #344d342b; }
+.earth-layer-button small { margin-left: auto; font-size: .85rem; color: #526d55; }
+.earth-layer-button:hover, .earth-choice:hover:enabled { border-color: #4e8067; background: #eff3e7; }
+.earth-layer-button.is-selected, .earth-choice.is-selected { border-color: #35694f; box-shadow: inset 0 0 0 1px #35694f; background: #e7eedf; }
+.earth-part-copy { margin-top: 19px; border-top: 1px solid #dfe5d8; padding-top: 16px; }
+.earth-part-copy h3 { margin: 7px 0; font-size: 1.45rem; }
+.earth-part-copy p { margin-bottom: 0; font-size: .98rem; }
+.earth-part-copy .earth-small { margin-top: 6px; font-size: .79rem; }
+.earth-footer { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-top: 18px; }
+.earth-footer-start { display: flex; align-items: center; gap: 18px; min-width: 0; }
+.earth-guide { display: flex; align-items: center; gap: 10px; max-width: 330px; }
+.earth-guide p { margin: 0; font-size: .76rem; line-height: 1.45; color: #4e6c5b; }
+.earth-guide-player { flex-shrink: 0; position: relative; width: 96px; height: 38px; }
+.earth-guide-player .pv-pacman { position: absolute; z-index: 1; left: 0; top: 0; width: 38px; height: 38px; filter: drop-shadow(0 3px 1px #b49d3b22); }
+.earth-guide-dots { position: absolute; left: 47px; top: 16px; display: flex; gap: 10px; }
+.earth-guide-dots i { width: 5px; height: 5px; border-radius: 50%; background: #a5975e; }
+.earth-footer-start > .earth-button { min-height: 44px; padding: 9px 13px; font-size: .76rem; }
+.earth-choices { display: grid; gap: 10px; margin: 12px 0; }
+.earth-choice { justify-content: center; min-height: 54px; text-align: center; font-size: 1.02rem; }
+.earth-choice:disabled { opacity: 1; }
+.earth-choice.is-right { background: #e1eddb; border-color: #407455; }
+.earth-feedback { font-size: .8rem; color: #56705c; line-height: 1.45; margin-top: 10px; padding: 11px 0; }
+.earth-feedback.is-right, .earth-feedback.is-review { padding: 13px 15px; border-radius: 13px; background: #e7efdf; color: #31543c; }
+.earth-feedback.is-review { background: #f4ead5; color: #6a5839; }
+.earth-feedback strong { font-size: .95rem; }
+.earth-feedback p { font-size: .9rem; line-height: 1.5; margin: 5px 0 0; }
+.earth-practice-info { justify-content: flex-start; }
+.earth-practice-content { min-height: 0; flex: 1; }
+.earth-practice-info .earth-feedback { flex-shrink: 0; min-height: 90px; display: flex; flex-direction: column; justify-content: center; margin-top: 8px; }
+.earth-practice-info .earth-choices { gap: 8px; }
+.earth-practice-info .earth-choice { min-height: 50px; }
+.earth-hotspots { position: absolute; inset: 0; pointer-events: none; }
+.earth-hotspot { pointer-events: auto; position: absolute; transform: translate(-50%, -50%); display: grid; place-items: center; width: 46px; height: 46px; border: 2px solid #355c50; border-radius: 50%; background: #fffdf3; color: #294d43; font-weight: 800; font-size: 1rem; box-shadow: 0 3px 7px #2b513c26; }
+.earth-hotspot.is-selected { background: #295f4b; color: #fff; border: 3px solid #fffdf4; outline: 2px solid #295f4b; }
+.earth-hotspot.is-right { background: #d5eac7; color: #244f37; border: 3px solid #366d45; }
+.earth-house-token { display: flex; align-items: center; gap: 20px; padding: 14px; background: #f0efdf; border-radius: 15px; margin: 18px 0 8px; font-size: 1.2rem; font-weight: 750; }
+.earth-house-token svg { width: 88px; height: 80px; }
+.earth-finish-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; align-items: center; padding: 22px 0; }
+.earth-finish-art { position: relative; background: #e6eddf; border-radius: 28px; }
+.earth-finish-player { position: absolute; right: 10%; bottom: 8%; width: 60px; height: 60px; }
+.earth-finish-player svg { width: 100%; height: 100%; }
+.earth-finish-layout article > p { font-size: 1.05rem; line-height: 1.6; }
+.earth-finish-parts { display: flex; flex-wrap: wrap; gap: 9px; margin: 23px 0; }
+.earth-finish-parts span { display: flex; align-items: center; gap: 8px; padding: 9px 12px; border-radius: 20px; background: #e5ecdc; font-size: .8rem; font-weight: 700; }
+.earth-finish-buttons { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+@media (min-width: 800px) {
+  /* Content can shrink inside this row; feedback never moves the navigation. */
+  .earth-runner:not(.earth-finish) { height: calc(100dvh - 36px); display: grid; grid-template-rows: auto auto auto minmax(0, 1fr) auto; }
+  .earth-workspace, .earth-visual-card, .earth-info { min-height: 0; }
+  .earth-visual-card { container-type: size; }
+  .earth-visual { width: min(100cqw, calc(100cqh * 1.136363636)); }
+  .earth-info { overflow-y: auto; justify-content: flex-start; }
+  .earth-practice-info { overflow: hidden; }
+  .earth-practice-content { overflow-y: auto; }
+}
+@media (min-width: 800px) and (max-height: 800px) {
+  .earth-runner { padding: 9px 24px 14px; }
+  .earth-trail { margin: 6px 0 12px; }
+  .earth-trail li { padding-top: 8px; }
+  .earth-title { margin-bottom: 12px; }
+  .earth-title h2 { font-size: 1.95rem; }
+  .earth-title > p { font-size: .86rem; }
+  .earth-visual { max-width: 405px; }
+  .earth-info { padding: 18px 24px; }
+  .earth-info > p { font-size: .95rem; }
+  .earth-part-copy { margin-top: 12px; padding-top: 12px; }
+  .earth-layer-buttons { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .earth-layer-button { padding: 9px 10px; font-size: .8rem; min-height: 50px; }
+  .earth-layer-button small { display: none; }
+  .earth-footer { padding-top: 12px; }
+  .earth-finish-layout { padding: 8px 0; }
+}
+@media (max-width: 799px) {
+  html.matching-mode:has(.earth-runner), body.matching-mode:has(.earth-runner) { height: auto; overflow: auto; }
+  body.matching-mode:has(.earth-runner) .main { padding: 8px; }
+  .earth-runner { padding: 12px 16px 20px; border-radius: 16px; }
+  .earth-header { gap: 8px; }
+  .earth-header > span { font-size: .52rem; letter-spacing: .05em; }
+  .earth-header .earth-header-mark { display: none; }
+  .earth-trail { margin-bottom: 17px; }
+  .earth-trail li { flex-direction: column; align-items: flex-start; gap: 5px; font-size: .65rem; }
+  .earth-title h2 { font-size: 1.65rem; }
+  .earth-title > p { font-size: .86rem; }
+  .earth-workspace { grid-template-columns: 1fr; gap: 13px; }
+  .earth-visual { max-width: 430px; }
+  .earth-info { padding: 21px; }
+  .earth-layer-buttons { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .earth-layer-button { font-size: .78rem; padding: 10px 9px; gap: 7px; }
+  .earth-layer-button small { display: none; }
+  .earth-footer { flex-wrap: wrap; gap: 15px; }
+  .earth-footer-start { flex-wrap: wrap; width: 100%; gap: 12px; }
+  .earth-guide { max-width: 100%; flex: 1; min-width: 190px; }
+  .earth-footer > .earth-button { width: 100%; }
+  .earth-finish-layout { grid-template-columns: 1fr; padding-top: 0; gap: 22px; }
+  .earth-finish-art { width: min(100%, 430px); justify-self: center; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .earth-runner *, .earth-runner *::before, .earth-runner *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}

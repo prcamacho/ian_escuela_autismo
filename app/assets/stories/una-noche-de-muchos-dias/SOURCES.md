@@ -1,0 +1,13 @@
+# Una noche de muchos días
+
+Fuentes familiares: `C:/Users/pablo/Desktop/Libro7.pdf` (19 páginas PDF) y `C:/Users/pablo/Desktop/libro7.mp4` (5:54.22; 640 × 360). Texto: Pilar Muñoz Lascano. Ilustraciones: Sol Cófreces. Historias x leer, Ministerio de Educación de la Nación, 2023. ISBN 978-950-00-1725-1.
+
+Se leyó el cuento completo y se contrastaron la narración e imágenes del video. Las ocho escenas conservan la aldea inicial, la llegada del dragón y la huida, el refugio en la cueva con pocos alimentos y agua durante varios días, los relatos de sus habitantes, el dragón en la entrada, el ruido y la salida mientras la mujer sigue contando, el descubrimiento del dragón dormido y el regreso a la aldea con turnos para narrar.
+
+La primera escena y el apoyo **El dragón** identifican la fantasía. Dormir al dragón mediante historias se presenta como una regla de este cuento, sin convertirlo en una responsabilidad para Ian. El ruido se atribuye a los ronquidos al revelarse su causa; no se afirma que la montaña se derrumbe. El apoyo **El ruido** aclara además que las cintas azules dibujadas representan la voz, no objetos que salgan de la boca. Los varios días en una cueva evitan interpretar el título como una noche que altera el ciclo del día. Se simplifican las metáforas, el vocabulario y las referencias a muertes posibles, conservando el peligro y la huida sin detalles gráficos.
+
+Las imágenes se extrajeron del PDF sin el texto de las páginas. La aldea final se utiliza también para presentar el lugar al comienzo. La escena de la mujer que sigue contando recorta la ilustración para hacerla más visible; registros en `tmp/book7-analysis/asset-crops.json`. El video muestra las mismas ilustraciones con transiciones de página; no aporta una acción animada que justifique otro clip.
+
+Diez MP3 locales leen exactamente los textos visibles con `es-AR-ElenaNeural`, velocidad -12 %. Cada escena y apoyo mantiene una espera persistente de cinco minutos desde el inicio de la reproducción, independiente de los demás libros y secciones. Durante la voz se bloquean los cambios hasta el fin natural o un fallo. Avance manual, sin reproducción automática ni controles inferiores o repaso.
+
+Material físico: resumen ilustrado de una A4 y **Mi rompecabezas de la aldea**, dos A4 con base de imagen tenue y cuatro piezas rectangulares de las mismas dimensiones. Impresión de ambas hojas al 100 %. El adulto recorta; Ian puede comenzar colocando solo la pieza que falta, con las otras tres ya puestas. Se pueden montar las piezas sobre cartón fino y volver a usarlas. Es una tarea de recomponer una imagen, distinta de las propuestas de los seis cuentos anteriores.

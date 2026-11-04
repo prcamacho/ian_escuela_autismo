@@ -34,7 +34,12 @@ public class KioskRecoveryActivity extends Activity {
                     .edit()
                     .putBoolean(KIOSK_PAUSED_KEY, true)
                     .apply();
-            stopLockTask();
+            // Removing the package ends all of its locked tasks, including the
+            // HOME task on manufacturers that ignore stopLockTask from here.
+            policyManager.setLockTaskPackages(
+                    new ComponentName(this, KioskDeviceAdminReceiver.class), new String[]{}
+            );
+            try { stopLockTask(); } catch (IllegalStateException | SecurityException ignored) { }
             finishAndRemoveTask();
             return;
         }

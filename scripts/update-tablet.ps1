@@ -1,9 +1,14 @@
 param(
-  [string]$Serial = "R8MT100KBQD",
+  [ValidateSet('a8', 'ulefone')][string]$Tablet = 'a8',
+  [string]$Serial,
   [switch]$SkipBuild
 )
 
 $ErrorActionPreference = "Stop"
+$tablets = @{ a8 = 'R8MT100KBQD'; ulefone = '3109RH1010027680' }
+if (!$Serial) { $Serial = $tablets[$Tablet] }
+elseif ($Serial -notin $tablets.Values) { throw 'Numero de serie no registrado. No se instala en otra tablet.' }
+else { $Tablet = ($tablets.Keys | Where-Object { $tablets[$_] -eq $Serial }) }
 
 $projectRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
 $sdkRoot = $env:ANDROID_HOME
@@ -60,6 +65,12 @@ if ($LASTEXITCODE -ne 0 -or !$installOutput.Contains("Success")) {
   throw "La instalacion no termino correctamente:`n$installOutput"
 }
 
+# A8 always remains disabled; Ulefone's activation survives an in-place update.
+if ($Tablet -eq 'a8') {
+  node (Join-Path $PSScriptRoot 'configure-companion-tablet.mjs') --tablet=a8
+  if ($LASTEXITCODE -ne 0) { throw 'No pude verificar que el compañero quede apagado en la A8.' }
+}
+
 Write-Host "Reactivando el modo kiosco..."
 $resumeOutput = (& $adbPath -s $Serial shell am start -W -f 0x18000000 -n "$packageName/.KioskRecoveryActivity" -a "$packageName.action.RESUME_KIOSK" 2>&1) -join [Environment]::NewLine
 if ($LASTEXITCODE -ne 0) {
@@ -69,14 +80,14 @@ if ($LASTEXITCODE -ne 0) {
 Start-Sleep -Seconds 2
 $activityState = (& $adbPath -s $Serial shell dumpsys activity activities 2>&1) -join [Environment]::NewLine
 $kioskLocked = $activityState.Contains("mLockTaskModeState=LOCKED")
-$appVisible = $activityState.Contains("$packageName/.MainActivity")
+$appVisible = $activityState -match '(topResumedActivity=|ResumedActivity:).*com\.ian\.escuela/\.MainActivity'
 
 if (!$kioskLocked -or !$appVisible) {
   & $adbPath -s $Serial shell am start -n "$packageName/.MainActivity" | Out-Null
   Start-Sleep -Seconds 2
   $activityState = (& $adbPath -s $Serial shell dumpsys activity activities 2>&1) -join [Environment]::NewLine
   $kioskLocked = $activityState.Contains("mLockTaskModeState=LOCKED")
-  $appVisible = $activityState.Contains("$packageName/.MainActivity")
+  $appVisible = $activityState -match '(topResumedActivity=|ResumedActivity:).*com\.ian\.escuela/\.MainActivity'
 }
 
 if (!$kioskLocked -or !$appVisible) {

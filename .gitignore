@@ -7,6 +7,10 @@ node_modules/
 *.jks
 *.keystore
 .env
+.companion-device.json
+.companion-deploy/
 .env.*
 !.env.example
 .DS_Store
+tmp/
+output/

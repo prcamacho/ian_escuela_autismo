@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="640" viewBox="0 0 720 640" role="img" aria-labelledby="title desc">
+<title id="title">Una vuelta alrededor de una manzana</title><desc id="desc">Un recorrido rodea un grupo de casas y vuelve a la casa de partida.</desc>
+<rect width="720" height="640" rx="20" fill="#fff"/>
+<rect x="66" y="75" width="588" height="475" rx="55" fill="#e8eceb"/>
+<rect x="145" y="153" width="430" height="316" rx="25" fill="#edf6e7"/>
+<path d="M246 512 H132 Q105 512 105 485 V140 Q105 113 132 113 H590 Q616 113 616 140 V485 Q616 512 590 512 H246 Z" fill="none" stroke="#c74e3e" stroke-width="13" stroke-linecap="round"/>
+<path d="M590 86 L620 113 L590 140 M590 486 L563 512 L590 538 M132 166 L105 140 L78 166" fill="none" stroke="#c74e3e" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+<g stroke="#335b4c" stroke-width="4" stroke-linejoin="round">
+<path d="M185 252 L252 196 L319 252" fill="#d99e64"/><rect x="195" y="252" width="115" height="100" fill="#f9dec1"/><rect x="236" y="301" width="33" height="51" fill="#8eb3c1"/>
+<path d="M383 252 L450 196 L517 252" fill="#94afca"/><rect x="393" y="252" width="115" height="100" fill="#dce9f2"/><rect x="435" y="301" width="33" height="51" fill="#b69273"/>
+<path d="M282 379 L349 323 L416 379" fill="#ca8b85"/><rect x="292" y="379" width="115" height="77" fill="#f1d8d0"/><rect x="334" y="407" width="31" height="49" fill="#89ae92"/>
+</g>
+<g font-family="Arial,sans-serif" fill="#173c32" text-anchor="middle"><text x="360" y="44" font-size="27" font-weight="700">Alrededor de un grupo de casas</text><text x="360" y="599" font-size="25" font-weight="700">SALE Y VUELVE A SU CASA</text></g>
+<path d="M246 368 L246 495" stroke="#173c32" stroke-width="4" stroke-dasharray="6 7"/><circle cx="246" cy="512" r="17" fill="#173c32" stroke="#fff" stroke-width="4"/>
+</svg>

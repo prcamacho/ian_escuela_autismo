@@ -1,0 +1,11 @@
+# Ratita Gris y Ratita Azul
+
+Fuentes familiares: `C:/Users/pablo/Desktop/Libro3.pdf` (36 páginas PDF) y `C:/Users/pablo/Desktop/libro3.mp4` (4:02.76; 640 × 360). Se leyó el cuento completo y se contrastó la narración del video. Texto: Edith Vera. Ilustraciones: Eleonora Arroyo. Historias x leer, Secretaría de Educación, 2024. ISBN 978-631-90726-0-0.
+
+La adaptación mantiene la visita, el huevo tomado a la gorriona como regalo, la charla, la canasta, la diferencia entre lo que cree Ratita Gris y lo que ve Ratita Azul, la partida de Gris, el nacimiento, la devolución del pichón y la flor del final. Se omiten las enumeraciones de miedos y anécdotas, los modismos y la suposición de Gris sobre el estado de su amiga. La explicación del nacimiento hace explícito el giro narrativo; el apoyo antes/después aclara el cambio. No se presenta al huevo y al pichón como dos regalos distintos.
+
+El video usa las mismas ilustraciones y transiciones de página, sin una secuencia nueva que explique mejor el nacimiento. Se emplean ilustraciones extraídas del PDF, sin texto original superpuesto. Las dobles páginas 6-7, 18-19, 20-21, 26-27 y 30-31 se unen para conservar los personajes completos. Las páginas y recortes se registran en `tmp/book3-analysis/asset-crops.json`.
+
+Los dos apoyos son **Las ratitas**, con los personajes identificados por nombre y color, y **El huevo**, con el huevo y el pichón recién nacido. Las diez locuciones locales leen exactamente el contenido de `app/story-books.js`, con la voz `es-AR-ElenaNeural` y velocidad -12 %. Cada escena y apoyo tienen una espera persistente de cinco minutos desde el inicio. Todos los controles permanecen bloqueados mientras suena la voz, con las reglas compartidas de los otros libros.
+
+Material físico: resumen de una A4 y recorrido **Llevo al pichón con su mamá**, con tablero y ficha móvil. Se usan la canasta, el pichón, la gorriona adulta y el nido de las ilustraciones originales. Los pájaros azules en vuelo del final son teros y no se identifican como la mamá. El adulto prepara la ficha; Ian puede realizar un solo desplazamiento con una consigna oral breve. Es una propuesta para probar acompañados, sin puntajes ni exigencia de lectura o habla independiente.

@@ -1,4 +1,4 @@
-const CACHE_NAME = "ian-escuela-v125";
+const CACHE_NAME = "ian-escuela-v174";
 const PICTO_FILES = [
   "./assets/pictos/adios.png",
   "./assets/pictos/abrazo.png",
@@ -235,6 +235,23 @@ const SUPPORT_AUDIO_FILES = [
     "negro"
   ].map((color) => `./assets/supports/audio/colors/${color}.mp3`)
 ];
+const MULTIPLICATION_AUDIO_FILES = Array.from({ length: 10 }, (_, tableIndex) =>
+  Array.from(
+    { length: 10 },
+    (_, multiplierIndex) => `./assets/supports/audio/multiplication/${tableIndex + 1}x${multiplierIndex + 1}.mp3`
+  )
+).flat();
+const COMMUNICATION_AUDIO_FILES = [
+  "quick-si",
+  "quick-no",
+  "quick-hambre",
+  "quick-enojado",
+  "quick-hola",
+  "quick-adios",
+  "quick-no-quiero",
+  "quick-bano",
+  "quick-ayuda"
+].map((id) => `./assets/communication/audio/${id}.mp3`);
 const RECIPE_FILES = [
   "./assets/recipe/paso-1-arroz-agua.jpg",
   "./assets/recipe/paso-2-arroz-cocido.jpg",
@@ -280,6 +297,67 @@ const APP_FILES = [
   "./index.html",
   "./styles.css",
   "./app.js",
+  "./pacman-language.js",
+  "./pacman-language.css",
+  "./language-missions.js",
+  "./language-scenes.js",
+  "./language-missions.css",
+  "./technology.js",
+  "./technology.css",
+  "./capacity-lab.js",
+  "./capacity-lab.css",
+  "./weight-lab.js",
+  "./weight-lab.css",
+  "./school-arcade.js",
+  "./school-arcade.css",
+  "./pacman-quests.js",
+  "./pacman-quests.css",
+  "./english-family.js",
+  "./english-family.css",
+  "./earth-layers.js",
+  "./earth-layers.css",
+  "./social-farm.js",
+  "./social-farm.css",
+  "./pacman-worlds.js",
+  "./pacman-worlds.css",
+  "./pacman-discoveries.js",
+  "./pacman-discoveries.css",
+  "./parish-visit.js",
+  "./parish-visit.css",
+  "./pacman-memory.js",
+  "./pacman-memory.css",
+  "./pacman-explorer.js",
+  "./pacman-explorer.css",
+  "./story-books.js",
+  "./story-support.js",
+  "./story-support.css",
+  ...["cover.jpg", "abuelo.jpg", "equipo.jpg", "entrenador-5s.mp4", "audio/ages.mp3", "audio/photo.mp3"].map(file => `./assets/stories/el-ultimo-entrenador/${file}`),
+  ...Array.from({ length:8 }, (_, index) => `./assets/stories/el-ultimo-entrenador/scene-${String(index + 1).padStart(2, "0")}.jpg`),
+  ...Array.from({ length:8 }, (_, index) => `./assets/stories/el-ultimo-entrenador/audio/scene-${String(index + 1).padStart(2, "0")}.mp3`),
+  ...["cover.jpg", "leon.jpg", "leon-disfrazado.jpg", "audio/costume.mp3", "audio/fantasy.mp3"].map(file => `./assets/stories/carnaval-en-el-zoo/${file}`),
+  ...Array.from({ length:8 }, (_, index) => `./assets/stories/carnaval-en-el-zoo/scene-${String(index + 1).padStart(2, "0")}.jpg`),
+  ...Array.from({ length:8 }, (_, index) => `./assets/stories/carnaval-en-el-zoo/audio/scene-${String(index + 1).padStart(2, "0")}.mp3`),
+  ...["cover.jpg", "ratita-gris.jpg", "ratita-azul.jpg", "huevo.jpg", "pichon.jpg", "gorriona.jpg", "canasta.jpg", "nido.jpg", "audio/friends.mp3", "audio/egg.mp3"].map(file => `./assets/stories/ratita-gris-y-ratita-azul/${file}`),
+  ...Array.from({ length:8 }, (_, index) => `./assets/stories/ratita-gris-y-ratita-azul/scene-${String(index + 1).padStart(2, "0")}.jpg`),
+  ...Array.from({ length:8 }, (_, index) => `./assets/stories/ratita-gris-y-ratita-azul/audio/scene-${String(index + 1).padStart(2, "0")}.mp3`),
+  ...["cover.jpg", "espantapajaros.jpg", "mama.jpg", "audio/figure.mp3", "audio/dream.mp3"].map(file => `./assets/stories/mocho-y-el-espantapajaros/${file}`),
+  ...Array.from({ length:8 }, (_, index) => `./assets/stories/mocho-y-el-espantapajaros/scene-${String(index + 1).padStart(2, "0")}.jpg`),
+  ...Array.from({ length:8 }, (_, index) => `./assets/stories/mocho-y-el-espantapajaros/audio/scene-${String(index + 1).padStart(2, "0")}.mp3`),
+  ...["cover.jpg", "jirafa-hormiga.jpg", "manzana.svg", "audio/block.mp3", "audio/giraffe.mp3"].map(file => `./assets/stories/la-vuelta-al-mundo/${file}`),
+  ...Array.from({ length:8 }, (_, index) => `./assets/stories/la-vuelta-al-mundo/scene-${String(index + 1).padStart(2, "0")}.jpg`),
+  ...Array.from({ length:8 }, (_, index) => `./assets/stories/la-vuelta-al-mundo/audio/scene-${String(index + 1).padStart(2, "0")}.mp3`),
+  ...["cover.jpg", "pino.jpg", "casa-imaginada.jpg", "tanque.jpg", "audio/pine.mp3", "audio/tank.mp3"].map(file => `./assets/stories/la-casa-del-arbol/${file}`),
+  ...Array.from({ length:8 }, (_, index) => `./assets/stories/la-casa-del-arbol/scene-${String(index + 1).padStart(2, "0")}.jpg`),
+  ...Array.from({ length:8 }, (_, index) => `./assets/stories/la-casa-del-arbol/audio/scene-${String(index + 1).padStart(2, "0")}.mp3`),
+  ...["cover.jpg", "dragon.jpg", "dragon-dormido.jpg", "audio/dragon.mp3", "audio/noise.mp3"].map(file => `./assets/stories/una-noche-de-muchos-dias/${file}`),
+  ...Array.from({ length:8 }, (_, index) => `./assets/stories/una-noche-de-muchos-dias/scene-${String(index + 1).padStart(2, "0")}.jpg`),
+  ...Array.from({ length:8 }, (_, index) => `./assets/stories/una-noche-de-muchos-dias/audio/scene-${String(index + 1).padStart(2, "0")}.mp3`),
+  "./assets/supports/parish/medalla1-1.jpg",
+  "./assets/sociales/campo/figuras.png",
+  "./assets/sociales/campo/campo.jpeg",
+  "./assets/sociales/campo/ambientes.jpeg",
+  ...["grandmother", "grandfather", "mother", "father", "sister", "sisters", "brother", "brothers"].map((word) => `./assets/english/family/audio/${word}.mp3`),
+  ...["grandpa-maternal", "grandma-paternal", "grandma-maternal", "dad", "mom", "iara", "maria", "camilo", "aimar", "ian"].map((person) => `./assets/english/family/photos/${person}.png`),
   "./vendor/gsap.min.js",
   "./manifest.json",
   "./icon.svg",
@@ -290,6 +368,8 @@ const APP_FILES = [
   ...PICTO_FILES,
   ...ENGLISH_FILES,
   ...SUPPORT_AUDIO_FILES,
+  ...MULTIPLICATION_AUDIO_FILES,
+  ...COMMUNICATION_AUDIO_FILES,
   ...RECIPE_FILES,
   ...SOFIA_LANGUAGE_FILES
 ];
@@ -314,6 +394,22 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
 
+  // El reproductor pide fragmentos del MP4, también cuando no hay conexión.
+  if (event.request.headers.has("range") && new URL(event.request.url).pathname.endsWith(".mp4")) {
+    event.respondWith(caches.match(event.request.url).then(async cached => {
+      if (!cached) return fetch(event.request);
+      const match = /^bytes=(\d*)-(\d*)$/.exec(event.request.headers.get("range"));
+      if (!match || (!match[1] && !match[2])) return cached;
+      const buffer = await cached.arrayBuffer();
+      const size = buffer.byteLength;
+      const start = match[1] ? Number(match[1]) : Math.max(0, size - Number(match[2]));
+      const end = match[1] && match[2] ? Math.min(size - 1, Number(match[2])) : size - 1;
+      if (start >= size || start > end) return new Response(null, { status:416, headers:{ "Content-Range":`bytes */${size}` } });
+      return new Response(buffer.slice(start, end + 1), { status:206, headers:{ "Content-Type":cached.headers.get("content-type") || "video/mp4", "Accept-Ranges":"bytes", "Content-Range":`bytes ${start}-${end}/${size}`, "Content-Length":String(end - start + 1) } });
+    }));
+    return;
+  }
+
   event.respondWith(
     fetch(event.request)
       .then((response) => {
@@ -323,6 +419,16 @@ self.addEventListener("fetch", (event) => {
         }
         return response;
       })
-      .catch(() => caches.match(event.request))
+      .catch(async () => {
+        const cached = await caches.match(event.request);
+        if (cached) return cached;
+        // The first install precaches bare filenames; HTML requests versioned assets.
+        const assetUrl = new URL(event.request.url);
+        if (assetUrl.origin === self.location.origin && /\.(js|css)$/.test(assetUrl.pathname) && assetUrl.searchParams.has("v")) {
+          assetUrl.searchParams.delete("v");
+          return caches.match(assetUrl.href);
+        }
+        return undefined;
+      })
   );
 });
