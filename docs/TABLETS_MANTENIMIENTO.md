@@ -7,6 +7,14 @@ Leer también [TABLET_KIOSCO.md](TABLET_KIOSCO.md). Las dos usan `com.ian.escuel
 | Ulefone Armor Pad Pro | `3109RH1010027680` | Activación individual desde esta PC |
 | Samsung Galaxy Tab A8 | `R8MT100KBQD` | Desactivado; la actualización vuelve a comprobarlo |
 
+## Apagado automático reparado — 4 de noviembre de 2026
+
+Se corrigió una bandera residual `FLAG_KEEP_SCREEN_ON` en la vista raíz de Android. La app conserva el plazo de tres minutos y retira únicamente las solicitudes heredadas cuando ninguna vista visible ni la ventana pide mantener la pantalla encendida. Las solicitudes vigentes durante la reproducción siguen funcionando. El historial guardado no contenía una orden permanente de pantalla encendida; se confirmó que conectar el depurador de WebView genera una solicitud temporal que debe liberarse al desconectar.
+
+La regresión nativa `ScreenTimeoutGuardTest` falló en la versión anterior y pasó después de la corrección: reproduce la bandera retenida, la finalización de una solicitud de reproducción y una solicitud explícita de ventana. En la A8 se reprodujo el clip local de cinco segundos y, con toda conexión CDP cerrada, el apagado real ocurrió por `timeout` a los **180006 ms** desde la última actividad. Device Owner y kiosco `LOCKED` conservados; compañero deshabilitado. Los 141 valores de almacenamiento de la comprobación final permanecieron iguales. Un cambio anterior en el banco rotativo de una actividad se correspondió con uso concurrente y se conservó.
+
+La APK de la corrección aislada conservó todos los recursos de la versión anterior y solo cambió el código nativo: SHA-256 `CDB7542B523CA6ECB8BD78FA09E37043B8CE160FC2FBB7FE6D2D5F3352404922`. El arreglo también se conserva al incorporar los videos de cuentos. Detalles de mantenimiento en `TABLET_KIOSCO.md`; evidencias locales en `tmp/screen-timeout/`, excluidas de Git.
+
 ## Litros con Pac-Man instalados — 3 de noviembre de 2026
 
 Samsung A8 actualizada con tres actividades en **Escuela → Tecnología**: **Llená un litro**, **Botellas que se juntan** y **¿Cabe más o menos?**, de cinco desafíos cada una. Incluyen una explicación repetible de medios y cuartos, trasvases vectoriales paso a paso, chorro, reflejos, gotas, burbujas y niveles enlazados. Pac-Man acompaña el recorrido. Los recipientes pequeños conservan en origen el agua que no cabe; las capacidades de los objetos cotidianos se indican expresamente. No hay audio, límite de tiempo ni avance automático. Se puede deshacer al completar y cambiar las respuestas antes de su única confirmación.

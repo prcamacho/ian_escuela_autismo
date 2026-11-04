@@ -10,9 +10,12 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.KeyEvent;
 import android.view.WindowInsets;
 import android.view.WindowInsetsController;
+import android.view.WindowManager;
 
 import com.getcapacitor.BridgeActivity;
 
@@ -28,6 +31,10 @@ public class MainActivity extends BridgeActivity {
     private DevicePolicyManager devicePolicyManager;
     private ComponentName adminReceiver;
     private StoryVolumeController storyVolumeController;
+    private final ViewTreeObserver.OnPreDrawListener screenTimeoutGuard = () -> {
+        releaseStaleScreenOnFlag();
+        return true;
+    };
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -41,6 +48,7 @@ public class MainActivity extends BridgeActivity {
         devicePolicyManager = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
         adminReceiver = new ComponentName(this, KioskDeviceAdminReceiver.class);
         configureDedicatedDevice();
+        getWindow().getDecorView().getViewTreeObserver().addOnPreDrawListener(screenTimeoutGuard);
     }
 
     StoryVolumeController storyVolume() { return storyVolumeController; }
@@ -56,6 +64,7 @@ public class MainActivity extends BridgeActivity {
         super.onResume();
         enterKioskMode();
         hideSystemBars();
+        releaseStaleScreenOnFlag();
     }
 
     @Override
@@ -63,7 +72,43 @@ public class MainActivity extends BridgeActivity {
         super.onWindowFocusChanged(hasFocus);
         if (hasFocus) {
             hideSystemBars();
+            releaseStaleScreenOnFlag();
         }
+    }
+
+    @Override
+    public void onDestroy() {
+        ViewTreeObserver observer = getWindow().getDecorView().getViewTreeObserver();
+        if (observer.isAlive()) observer.removeOnPreDrawListener(screenTimeoutGuard);
+        super.onDestroy();
+    }
+
+    private void releaseStaleScreenOnFlag() {
+        View decor = getWindow().getDecorView();
+        ViewGroup.LayoutParams layout = decor.getLayoutParams();
+        if (!(layout instanceof WindowManager.LayoutParams)) return;
+        int keepScreenOn = WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON;
+        if ((((WindowManager.LayoutParams) layout).flags & keepScreenOn) == 0
+                || (getWindow().getAttributes().flags & keepScreenOn) != 0
+                || hasVisibleScreenOnRequest(decor)
+                || !isDeviceOwner() || isKioskPaused()) return;
+
+        // Android can copy a temporary WebView request into the decor's window
+        // flags and retain it after playback ends. Re-send the app's clean
+        // attributes only when no visible view or explicit window request needs it.
+        getWindow().clearFlags(keepScreenOn);
+    }
+
+    private static boolean hasVisibleScreenOnRequest(View view) {
+        if (view.getVisibility() != View.VISIBLE) return false;
+        if (view.getKeepScreenOn()) return true;
+        if (view instanceof ViewGroup) {
+            ViewGroup group = (ViewGroup) view;
+            for (int index = 0; index < group.getChildCount(); index++) {
+                if (hasVisibleScreenOnRequest(group.getChildAt(index))) return true;
+            }
+        }
+        return false;
     }
 
     private boolean isDeviceOwner() {

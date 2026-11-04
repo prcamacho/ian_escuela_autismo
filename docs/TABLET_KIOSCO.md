@@ -13,7 +13,20 @@ Para distinguir A8 y Ulefone, activar el compañero y ubicar el respaldo cifrado
 - Ian Escuela es la pantalla principal (HOME) persistente y se intenta iniciar después de cada arranque.
 - Pantalla: orientación horizontal, navegación/barra de estado ocultas en modo kiosco.
 - Ajustes aplicados al abrir la app: brillo manual al 70% (`178/255`) y apagado de pantalla tras 3 minutos (`180000 ms`).
+- La app retira solicitudes residuales de pantalla encendida cuando ninguna vista visible ni la ventana de la app las necesita; conserva las solicitudes vigentes durante la reproducción.
 - La app funciona sin internet. No intentar forzar modo avión desde el código: Samsung rechaza que un Device Owner modifique `airplane_mode_on` y esa llamada hace que la app se cierre.
+
+## Corrección del apagado automático — 4 de noviembre de 2026
+
+La A8 conservaba los `180000 ms` y tenía desactivado `stay_on_while_plugged_in`, pero su ventana mantenía `FLAG_KEEP_SCREEN_ON`. Se leyó el proceso: los atributos propios de `Window` no tenían esa bandera (`0x81810100`), mientras que los parámetros de la vista raíz y `ViewRootImpl.mClientWindowLayoutFlags` sí (`0x81810180`). Ninguna vista visible pedía mantener la pantalla encendida y el contador de `PowerSaveBlocker` de WebView estaba en cero. La bandera había quedado retenida después de una solicitud temporal.
+
+Se confirmó un disparador durante el diagnóstico: conectar el depurador CDP de WebView activa una solicitud de pantalla encendida incluso antes de reproducir un video; al cerrar la conexión debe liberarse. El historial Git guardado no contiene una orden permanente de mantener la pantalla encendida; el commit de kiosco `fa95d9e` ya configuraba tres minutos.
+
+`MainActivity.releaseStaleScreenOnFlag()` comprueba los parámetros públicos de la vista raíz antes de dibujar, al reanudar y al recuperar el foco. Si encuentra la bandera residual, sin solicitud explícita de `Window` ni de ninguna vista visible, vuelve a enviar los atributos limpios con `Window.clearFlags()`. Solo se aplica con Device Owner y kiosco activo. No usa reflexión, temporizadores de apagado ni bloqueos forzados; permite que Android aplique el plazo de inactividad. El observador se retira al destruir la actividad.
+
+La prueba `ScreenTimeoutGuardTest` reproduce el estado retenido mediante `WindowManager.updateViewLayout`: falló en la APK anterior y pasó con la corrección. También comprueba que una solicitud visible durante la reproducción y una solicitud explícita de ventana se conserven, y que al liberarlas vuelva a permitirse el apagado. Debe ejecutarse seleccionando esa clase en una tablet de prueba enrolada, con la pantalla encendida.
+
+En la A8 se probó el clip local de cinco segundos, se cerraron todas las conexiones de depuración y se observó un apagado real con motivo `timeout` a los **180006 ms** desde la última actividad. Se conservaron Device Owner, kiosco `LOCKED`, compañero deshabilitado y los datos escolares de la comprobación. Evidencias locales en `tmp/screen-timeout/`, excluidas de Git. Para medir el apagado, cerrar CDP antes de empezar y consultar solo `dumpsys power`; conectar nuevamente el depurador puede mantener la pantalla encendida o reiniciar la inactividad.
 
 ## Archivos Android relevantes
 
