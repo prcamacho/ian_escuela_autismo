@@ -165,6 +165,7 @@ function syncStoryAudioControls() {
 }
 
 function stopStoryMedia() {
+  stopStoryFilm();
   if (storyInteractionLocked()) return;
   stopStoryAudioTimer();
   if (storyAudio) {
@@ -211,7 +212,7 @@ function renderStorySupport() {
   const book = storyBook();
   if (!book) return setRoute({ view: "support-stories" });
   const state = storySupportState;
-  if (!["read", ...Object.keys(book.helps)].includes(state.panel)) state.panel = "read";
+  if (!["read", ...(book.video ? ["video"] : []), ...Object.keys(book.helps)].includes(state.panel)) state.panel = "read";
   const scene = book.scenes[state.scene];
   let content;
   if (state.panel === "read") {
@@ -220,6 +221,8 @@ function renderStorySupport() {
       <div class="story-copy"><p class="story-kicker">ESCENA ${state.scene + 1} DE ${book.scenes.length}</p><h2 id="story-title" tabindex="-1">${scene.title}</h2><p class="story-sentence">${scene.text}</p>${storyListenButtons()}
       ${scene.clip && !window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ? '<button class="btn btn-ghost story-movement" type="button" data-action="story-clip">Ver movimiento</button>' : ""}
       <div class="story-page-action">${state.scene < book.scenes.length - 1 ? '<button class="btn btn-primary" type="button" data-action="story-next">Siguiente →</button>' : '<button class="btn btn-ghost" type="button" data-action="story-restart">Leer desde el principio</button>'}</div></div></div>`;
+  } else if (state.panel === "video") {
+    content = storyFilmMarkup(book);
   } else if (state.panel === "ages") {
     content = `<div class="story-helper-layout">${storyAges(book)}<div class="story-copy"><p class="story-kicker">ES LA MISMA PERSONA</p><h2 id="story-title" tabindex="-1">Antes y ahora</h2><p class="story-sentence">${book.helps.ages.text}</p><p class="story-detail">La E de la ropa significa <strong>entrenador</strong>.</p>${storyListenButtons()}${storyReturnButton()}</div></div>`;
   } else if (state.panel === "photo") {
@@ -231,13 +234,14 @@ function renderStorySupport() {
       : `<img class="story-photo" src="${storyAsset(book,help.images[0].file)}" alt="${escapeHtml(help.images[0].alt)}">`;
     content = `<div class="story-helper-layout">${pictures}<div class="story-copy"><p class="story-kicker">${escapeHtml(help.kicker)}</p><h2 id="story-title" tabindex="-1">${escapeHtml(help.title)}</h2><p class="story-sentence">${escapeHtml(help.text)}</p>${storyListenButtons()}${storyReturnButton()}</div></div>`;
   }
-  const tabs = [["read", "El cuento"], ...Object.entries(book.helps).map(([id,help]) => [id,help.tab || help.title])];
+  const tabs = [["read", "El cuento"], ...Object.entries(book.helps).map(([id,help]) => [id,help.tab || help.title]), ...(book.video ? [["video", "Video"]] : [])];
   renderShell(`<section class="story-screen">
     <header class="story-top"><button class="btn btn-ghost" type="button" data-action="story-library">${icon("arrow")}Cuentos</button><span>${book.title}</span></header>
     <nav class="story-tabs" aria-label="Partes del cuento">${tabs.map(([id,label]) => `<button type="button" data-action="story-panel" data-value="${id}" ${state.panel === id ? 'aria-current="page"' : ""}>${label}</button>`).join("")}</nav>
     <div class="story-content">${content}</div>
   </section>`);
   syncStoryAudioControls();
+  if (state.panel === "video") setupStoryFilm();
 }
 
 function storyReturnButton() {
@@ -250,7 +254,7 @@ function storyListenButtons() {
 
 function storyPlayAudio() {
   const book = storyBook(), state = storySupportState;
-  if (!book || storyAudio) return;
+  if (!book || storyAudio || state.panel === "video") return;
   if (storyAudioRemainingMs() > 0) return syncStoryAudioControls();
   stopStoryMedia();
   const file = state.panel === "read" ? `scene-${String(state.scene + 1).padStart(2, "0")}` : state.panel;
@@ -337,6 +341,8 @@ function storySupportAction(action, target) {
   }
   const book = storyBook(), state = storySupportState;
   if (route.view !== "support-story" || !book) return;
+  if (action === "story-video-play") return playStoryFilm();
+  if (action === "story-video-pause") return pauseStoryFilm();
   if (action === "story-listen") return storyPlayAudio();
   if (action === "story-clip") {
     if (state.panel !== "read" || !book.scenes[state.scene].clip || window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
@@ -357,7 +363,7 @@ function storySupportAction(action, target) {
     return;
   }
   if (action === "story-panel") {
-    if (!["read",...Object.keys(book.helps)].includes(target.dataset.value)) return;
+    if (!["read", ...(book.video ? ["video"] : []), ...Object.keys(book.helps)].includes(target.dataset.value)) return;
     state.panel = target.dataset.value;
   } else if (action === "story-next" && state.panel === "read") state.scene = Math.min(book.scenes.length - 1, state.scene + 1);
   else if (action === "story-restart" && state.panel === "read") {
@@ -373,7 +379,7 @@ function storySupportAction(action, target) {
 
 document.addEventListener("visibilitychange", () => {
   if (document.hidden) stopStoryMedia();
-  else if (route.view === "support-story") syncStoryAudioControls();
+  else if (route.view === "support-story") { setupStoryFilm(); syncStoryAudioControls(); }
 });
 
-window.addEventListener("pagehide", () => storyAudio?.storyFinish?.());
+window.addEventListener("pagehide", () => { stopStoryFilm(); storyAudio?.storyFinish?.(); });

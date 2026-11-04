@@ -1,4 +1,4 @@
-const CACHE_NAME = "ian-escuela-v174";
+const CACHE_NAME = "ian-escuela-v176";
 const PICTO_FILES = [
   "./assets/pictos/adios.png",
   "./assets/pictos/abrazo.png",
@@ -329,6 +329,8 @@ const APP_FILES = [
   "./pacman-explorer.js",
   "./pacman-explorer.css",
   "./story-books.js",
+  "./story-video.js",
+  ...["el-ultimo-entrenador", "carnaval-en-el-zoo", "ratita-gris-y-ratita-azul", "mocho-y-el-espantapajaros", "la-vuelta-al-mundo", "la-casa-del-arbol", "una-noche-de-muchos-dias"].map(id => `./assets/stories/${id}/cuento-completo.mp4`),
   "./story-support.js",
   "./story-support.css",
   ...["cover.jpg", "abuelo.jpg", "equipo.jpg", "entrenador-5s.mp4", "audio/ages.mp3", "audio/photo.mp3"].map(file => `./assets/stories/el-ultimo-entrenador/${file}`),

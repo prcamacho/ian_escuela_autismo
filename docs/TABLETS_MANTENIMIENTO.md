@@ -15,6 +15,18 @@ La regresión nativa `ScreenTimeoutGuardTest` falló en la versión anterior y p
 
 La APK de la corrección aislada conservó todos los recursos de la versión anterior y solo cambió el código nativo: SHA-256 `CDB7542B523CA6ECB8BD78FA09E37043B8CE160FC2FBB7FE6D2D5F3352404922`. El arreglo también se conserva al incorporar los videos de cuentos. Detalles de mantenimiento en `TABLET_KIOSCO.md`; evidencias locales en `tmp/screen-timeout/`, excluidas de Git.
 
+## Videos completos en los siete cuentos — 4 de noviembre de 2026
+
+Samsung A8 actualizada con una pestaña **Video** en cada cuento, un cuadro centrado y solo **Reproducir / Pausar**. Los siete MP4 se incluyen localmente y funcionan sin conexión. No hay barra de avance ni volumen, controles de pantalla completa, Picture in Picture o envío a otra pantalla. El primer video se recuperó del enlace de [Argentina.gob.ar](https://www.argentina.gob.ar/educacion/historiasxleer/entrenador); los otros seis son los originales entregados por la familia.
+
+Al salir de la pestaña, cambiar de cuento o sección, ocultar la app o apagar la pantalla, el video se detiene y guarda su punto. Antes de cinco minutos sin reproducir continúa desde allí; al cumplirse cinco minutos, el siguiente inicio manual vuelve al principio. La espera no se muestra y no hay reproducción automática. El punto se conserva por cuento al recargar o cerrar la app. Salir de una pestaña ya pausada no prolonga esos cinco minutos.
+
+El puente Android aplica un máximo real del **60 %** antes de iniciar o reanudar, también para los botones físicos; en la A8 corresponde a **9 de 15** niveles. Se conserva un volumen previo inferior y se libera la sesión al pausar o salir. Las locuciones mantienen sus reglas anteriores y no se mezclan con el video. Se conservan la corrección de apagado de `MainActivity` y `ScreenTimeoutGuardTest`.
+
+Pasaron `verify-stories.mjs` (70 audios), `verify-story-videos.mjs` (siete videos reales, también offline, reanudación tras salir y recargar, frontera 4:59.999 / 5:00.000, cancelaciones y tres tamaños), `verify-pwa.mjs` (618 recursos) y las pruebas JUnit de volumen. En la A8 se probaron los siete videos, pausa/reanudación, cambio de pestaña, botones físicos, apagado y regreso sin autoplay, conservación del punto y reinicio tras cinco minutos. El almacenamiento anterior y posterior coincide exactamente; la revisión no borra lecturas ni esperas.
+
+Instalación sobre la existente con `update-tablet.ps1 -Tablet a8 -SkipBuild`: Device Owner conservado, compañero deshabilitado, app al frente y kiosco `LOCKED`. Los **633 archivos** de `app/` coinciden con la APK; los siete videos suman 116 726 482 bytes. SHA-256 de la APK final: `83821D96A48892AA923A704E6DD3C70DC379142691DE87BA58C9D62757F09AC1`. Evidencias: `tmp/story-videos/`; detalles y fuentes en [CUENTOS_VIDEOS.md](CUENTOS_VIDEOS.md). Las conexiones CDP de la revisión quedan cerradas al terminar.
+
 ## Litros con Pac-Man instalados — 3 de noviembre de 2026
 
 Samsung A8 actualizada con tres actividades en **Escuela → Tecnología**: **Llená un litro**, **Botellas que se juntan** y **¿Cabe más o menos?**, de cinco desafíos cada una. Incluyen una explicación repetible de medios y cuartos, trasvases vectoriales paso a paso, chorro, reflejos, gotas, burbujas y niveles enlazados. Pac-Man acompaña el recorrido. Los recipientes pequeños conservan en origen el agua que no cabe; las capacidades de los objetos cotidianos se indican expresamente. No hay audio, límite de tiempo ni avance automático. Se puede deshacer al completar y cambiar las respuestas antes de su única confirmación.

@@ -1,6 +1,7 @@
 // Cada cuento conserva su propio contenido; los controles son comunes.
 const STORY_BOOKS = [{
   id: "el-ultimo-entrenador",
+  video: "cuento-completo.mp4",
   title: "El último entrenador",
   author: "Juan Sasturain",
   illustrator: "Cucho Cuño",
@@ -21,6 +22,7 @@ const STORY_BOOKS = [{
   }
 }, {
   id: "carnaval-en-el-zoo",
+  video: "cuento-completo.mp4",
   title: "Carnaval en el zoo",
   author: "Fabián Sevilla",
   illustrator: "Mariano Epelbaum",
@@ -56,6 +58,7 @@ const STORY_BOOKS = [{
   }
 }, {
   id: "ratita-gris-y-ratita-azul",
+  video: "cuento-completo.mp4",
   title: "Ratita Gris y Ratita Azul",
   author: "Edith Vera",
   illustrator: "Eleonora Arroyo",
@@ -94,6 +97,7 @@ const STORY_BOOKS = [{
   }
 }, {
   id: "mocho-y-el-espantapajaros",
+  video: "cuento-completo.mp4",
   title: "Mocho y el espantapájaros",
   author: "Álvaro Yunque",
   illustrator: "María Jesús Álvarez",
@@ -126,6 +130,7 @@ const STORY_BOOKS = [{
   }
 }, {
   id: "la-vuelta-al-mundo",
+  video: "cuento-completo.mp4",
   title: "La vuelta al mundo",
   author: "Javier Villafañe",
   illustrator: "Estrellita Caracol",
@@ -158,6 +163,7 @@ const STORY_BOOKS = [{
   }
 }, {
   id: "la-casa-del-arbol",
+  video: "cuento-completo.mp4",
   title: "La casa del árbol",
   author: "Iris Rivera",
   illustrator: "Mónica Weiss",
@@ -193,6 +199,7 @@ const STORY_BOOKS = [{
   }
 }, {
   id: "una-noche-de-muchos-dias",
+  video: "cuento-completo.mp4",
   title: "Una noche de muchos días",
   author: "Pilar Muñoz Lascano",
   illustrator: "Sol Cófreces",

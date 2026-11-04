@@ -46,7 +46,7 @@ const snapshotExpression = `(() => {
   const storyKey = key => key.startsWith('ian-story-') || key === 'ian-escuela-story-progress-v1';
   const entries = Object.entries(localStorage).sort(([a],[b]) => a.localeCompare(b));
   return { story: entries.filter(([key]) => storyKey(key)), other: entries.filter(([key]) => !storyKey(key)),
-    route: JSON.parse(JSON.stringify(route)), support: JSON.parse(JSON.stringify(storySupportState)), playing: Boolean(storyAudio || appSpeechAudio),
+    route: JSON.parse(JSON.stringify(route)), support: JSON.parse(JSON.stringify(storySupportState)), playing: Boolean(storyAudio || appSpeechAudio || (typeof storyFilm !== 'undefined' && storyFilm?.session)),
     multiplication: {table:multiplicationSupportTable, current:multiplicationSupportCurrent, deck:multiplicationSupportDeck,
       played:multiplicationSupportAudioPlayed, unlocked:multiplicationSupportReplayUnlocked, error:multiplicationSupportAnswerError,
       nextAt:multiplicationAudioNextAtMemory, speechNextAt:appSpeechNextAtMemory} };

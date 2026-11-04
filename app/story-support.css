@@ -20,7 +20,7 @@ body.story-mode .main { width:100%; max-width:none; flex:1; height:100%; min-hei
 .story-screen .btn-primary { background:var(--story-green); color:#fff; }
 .story-screen button:disabled { opacity:.45; cursor:default; }
 .story-screen button:focus-visible { outline:4px solid #eebf40; outline-offset:3px; }
-.story-tabs { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; }
+.story-tabs { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; }
 .story-tabs button { min-height:48px; padding:8px; border-radius:12px; background:#e6eee9; color:#3d5b50; font-weight:800; cursor:pointer; }
 .story-tabs button[aria-current] { background:var(--story-green); color:#fff; }
 .story-content { background:#fff; border:1px solid #d6e3db; border-radius:20px; min-height:0; overflow:auto; overscroll-behavior:contain; padding:clamp(14px,2.2vw,26px); }
@@ -45,6 +45,13 @@ body.story-mode .main { width:100%; max-width:none; flex:1; height:100%; min-hei
 .story-ages strong { font-size:1.05rem; }
 .story-detail { color:#546c5e; line-height:1.5; margin:0 0 18px; }
 .story-photo { display:block; width:100%; max-height:100%; height:100%; object-fit:contain; min-height:0; }
+.story-film-panel { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; height:100%; min-height:0; }
+.story-film-frame { width:min(640px,100%); aspect-ratio:16/9; max-height:calc(100vh - 260px); min-height:120px; overflow:hidden; border-radius:14px; background:#15221d; }
+.story-film { display:block; width:100%; height:100%; object-fit:contain; pointer-events:none; user-select:none; -webkit-user-select:none; }
+.story-film::-webkit-media-controls { display:none !important; }
+.story-film-controls { display:flex; justify-content:center; gap:14px; flex-wrap:wrap; }
+.story-film-controls .btn { min-width:160px; font-size:1.2rem; }
+.story-film-status { min-height:1.4em; margin:0; text-align:center; font-size:.95rem; color:#52675b; }
 @media(max-width:700px) {
   body.story-mode .main { padding:10px; }
   .story-screen { gap:8px; }
