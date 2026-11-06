@@ -116,7 +116,47 @@ try{
     assert.equal(await evaluate("__verifiedOldFilm.paused && !__verifiedOldFilm.hasAttribute('src') && storyFilm===null"),true);
     await waitFor('window.Capacitor.Plugins.StoryVolume.status().then(v=>!v.active)');
     checks.push({id:ids[i],ceiling,status,pauseResume:true,stopOnLeave:true,pauseVolumeSamples:pauseSamples,pauseVolumeNeverRaised:true});
+    // Completar este cuento permite pasar al siguiente sin el minuto de espera.
+    await open(ids[i]);await click('story-video-play');
+    await waitFor('storyFilm?.playing && !storyFilm.video.paused');
+    await evaluate('storyFilm.video.currentTime=storyFilm.video.duration-.15;true');
+    await waitFor('storyFilm.video.ended && storyFilm.session===null');
   }
+  // Una espera real, sin adelantar el reloj de Android ni sustituir la regla.
+  await open(ids[0]);await click('story-video-play');
+  await waitFor('storyFilm?.playing && storyFilm.video.currentTime>.15');
+  await click('story-video-pause');
+  const lastPlayback=await evaluate('localStorage.getItem(STORY_VIDEO_LAST_KEY)');
+  await open(ids[1]);
+  await waitFor('document.querySelector(".story-film-status").textContent==="Espera: 59s"');
+  assert.equal(await evaluate('document.querySelector("[data-action=story-video-play]").disabled'),true);
+  await click('story-video-play');
+  await evaluate('playStoryFilm();true');
+  assert.equal(await evaluate('storyFilm.video.paused && !storyFilm.video.hasAttribute("src")'),true);
+  const waitShot=await command('Page.captureScreenshot',{format:'png'});
+  await writeFile(new URL('a8-video-wait.png',directory),Buffer.from(waitShot.data,'base64'));
+  await open(ids[0]);
+  assert.equal(await evaluate('document.querySelector("[data-action=story-video-play]").disabled'),false);
+  await open(ids[2]);
+  assert.equal(await evaluate('document.querySelector("[data-action=story-video-play]").disabled'),true);
+  assert.equal(await evaluate('localStorage.getItem(STORY_VIDEO_LAST_KEY)'),lastPlayback);
+  await command('Page.reload',{});await delay(500);
+  await waitFor('document.readyState === "complete" && typeof storyFilmChangeRemainingMs === "function"');
+  await open(ids[1]);
+  assert.equal(await evaluate('localStorage.getItem(STORY_VIDEO_LAST_KEY)'),lastPlayback);
+  assert.equal(await evaluate('document.querySelector("[data-action=story-video-play]").disabled'),true);
+  await evaluate('setRoute({view:"home"});true');
+  console.log('Espera de videos: cartel 59s verificado; comprobando el minuto real en la A8.');
+  await waitFor(`storyFilmChangeRemainingMs(${JSON.stringify(ids[1])})===0`,65000);
+  await open(ids[1]);
+  assert.equal(await evaluate('document.querySelector("[data-action=story-video-play]").disabled'),false);
+  assert.equal(await evaluate('storyFilm.video.paused && !storyFilm.video.hasAttribute("src")'),true);
+  assert.equal(await evaluate('document.querySelector(".story-film-status").textContent'),'');
+  await click('story-video-play');await waitFor('storyFilm?.playing');
+  await evaluate('storyFilm.video.currentTime=storyFilm.video.duration-.15;true');
+  await waitFor('storyFilm.video.ended && storyFilm.session===null');
+  await open(ids[0]);
+  assert.equal(await evaluate('document.querySelector("[data-action=story-video-play]").disabled'),false);
   // Salir de la pestaña dentro del mismo cuento también detiene y reinicia.
   await open(ids[0]);await click('story-video-play');
   await waitFor("storyFilm && !storyFilm.video.paused && storyFilm.video.currentTime>.15");
@@ -151,6 +191,8 @@ try{
   for(const [key,value] of before.entries.filter(([key])=>key.startsWith('ian-story-video-progress-v1:'))){
     await evaluate(`localStorage.setItem(${JSON.stringify(key)},${JSON.stringify(value)});true`);
   }
+  const previousLast=before.entries.find(([key])=>key==='ian-story-video-last-v1')?.[1]??null;
+  await evaluate(`storyFilmLastMemory=null;if(${JSON.stringify(previousLast)}===null)localStorage.removeItem(STORY_VIDEO_LAST_KEY);else localStorage.setItem(STORY_VIDEO_LAST_KEY,${JSON.stringify(previousLast)});true`);
   // Restaurar solo el marcador de lectura si el recorrido visual normalizó claves vencidas.
   const after=await evaluate(entriesExpression);
   const mapBefore=new Map(before.entries),mapAfter=new Map(after);
@@ -158,13 +200,16 @@ try{
   assert.ok(changed.every(k=>k.startsWith('ian-story-audio-next-at-') && Number(mapBefore.get(k))<=Date.now() && !mapAfter.has(k)),JSON.stringify(changed));
   for(const key of changed)await evaluate(`localStorage.setItem(${JSON.stringify(key)},${JSON.stringify(mapBefore.get(key))});true`);
   assert.equal(hash(await evaluate(entriesExpression)),hash(before.entries));
-  await open(ids[0]);
-  await waitFor("document.querySelector('.story-film').paused");
+  // La vista previa de un video depura su marcador vencido. Volver a la
+  // biblioteca evita que esa depuración normal modifique los datos restaurados.
+  await evaluate('setRoute({view:"support-stories"});true');
   const shot=await command('Page.captureScreenshot',{format:'png'});
   await writeFile(new URL('a8-video.png',directory),Buffer.from(shot.data,'base64'));
   await writeFile(new URL('a8-verified.json',directory),JSON.stringify({videos:checks,tabExit:true,stopsOnScreenOff:true,noAutoplayOnWake:true,resumesBeforeFiveMinutes:true,restartsAfterFiveMinutes:true,realVolumeCeiling:ceiling,maximum:initial.maximum,
     rapidTabChangesWithoutDecoders:35,realScreenTaps:true,wifiDisabledDuringPlayback:true,detachedPlayersUnloaded:true,
-    physicalVolumeButtonsCapped:true,pauseVolumeNeverRaised:true,lowerVolumePreservedOnResume:true,narrationDefaultsPreserved:true,mutesBeforePause:true,allStoragePreserved:true,beforeChecksum:hash(before.entries),afterChecksum:hash(await evaluate(entriesExpression))},null,2));
+    physicalVolumeButtonsCapped:true,pauseVolumeNeverRaised:true,lowerVolumePreservedOnResume:true,narrationDefaultsPreserved:true,mutesBeforePause:true,
+    unfinishedVideoChangeWaitRealMinute:true,countdown59sVisible:true,changeWaitSurvivesReload:true,sameVideoImmediatelyAvailable:true,
+    completionImmediatelyAllowsAnotherVideo:true,noAutoplayAtChangeWaitExpiry:true,allStoragePreserved:true,beforeChecksum:hash(before.entries),afterChecksum:hash(await evaluate(entriesExpression))},null,2));
   console.log('A8 verificada: siete videos reales, botones físicos limitados al 60 %, pausa/reanudación, salida sin audio y datos conservados.');
 }catch(error){
   const diagnostic=await evaluate(`(()=>{const v=document.querySelector('.story-film');return{hidden:document.hidden,film:storyFilm&&{pending:storyFilm.pending,playing:storyFilm.playing,hasSession:!!storyFilm.session},video:v&&{paused:v.paused,muted:v.muted,time:v.currentTime,ready:v.readyState,error:v.error&&v.error.message},playDisabled:document.querySelector('[data-action="story-video-play"]')?.disabled,status:document.querySelector('.story-film-status')?.textContent}})()`).catch(()=>null);
@@ -176,6 +221,8 @@ try{
   if(before){
     const points=before.entries.filter(([key])=>key.startsWith('ian-story-video-progress-v1:'));
     try{await evaluate(`for(const key of Object.keys(localStorage))if(key.startsWith(STORY_VIDEO_PROGRESS_PREFIX))localStorage.removeItem(key);for(const [key,value]of ${JSON.stringify(points)})localStorage.setItem(key,value);storyFilmProgressMemory={};setupStoryFilm();true`);}catch{}
+    const previousLast=before.entries.find(([key])=>key==='ian-story-video-last-v1')?.[1]??null;
+    try{await evaluate(`storyFilmLastMemory=null;if(${JSON.stringify(previousLast)}===null)localStorage.removeItem(STORY_VIDEO_LAST_KEY);else localStorage.setItem(STORY_VIDEO_LAST_KEY,${JSON.stringify(previousLast)});storyFilmControls();true`);}catch{}
   }
   if(volumeBefore!==undefined)await adb('shell','cmd','media_session','volume','--stream','3','--set',String(volumeBefore));
   if(wifiBefore==='1')await adb('shell','svc','wifi','enable');

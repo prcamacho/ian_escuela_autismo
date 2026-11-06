@@ -2,11 +2,21 @@
 
 Implementación del 4 de noviembre de 2026. Cada uno de los siete cuentos incluye una pestaña **Video**, con un marco centrado de hasta 640 px y dos botones: **Reproducir** y **Pausar**. El video no comienza solo, no tiene avance manual, control de volumen, pantalla completa, Picture in Picture ni reproducción remota en la interfaz. Tocar el cuadro no modifica la reproducción.
 
-Pausar, cambiar de pestaña, cuento o sección, ocultar la página o apagar la pantalla detiene el video y conserva su punto. Al volver no se reproduce solo. Si se toca Reproducir antes de cinco minutos sin reproducción, continúa desde ese punto. Al cumplirse cinco minutos, el siguiente comienzo manual es desde el principio. La espera no se muestra en la interfaz. Salir de una pestaña que ya estaba pausada no reinicia el reloj. El punto se guarda por cuento y sobrevive a una recarga o al cierre de la app; un video completado deja de estar a medias.
+Pausar, cambiar de pestaña, cuento o sección, ocultar la página o apagar la pantalla detiene el video y conserva su punto. Al volver no se reproduce solo. Si se toca Reproducir antes de cinco minutos sin reproducción, continúa desde ese punto. Al cumplirse cinco minutos, el siguiente comienzo manual es desde el principio. Ese plazo de reinicio no se muestra en la interfaz. Salir de una pestaña que ya estaba pausada no reinicia el reloj. El punto se guarda por cuento y sobrevive a una recarga o al cierre de la app; un video completado deja de estar a medias.
 
 Los puntos usan exclusivamente `ian-story-video-progress-v1:<id>` y no modifican las lecturas ni las esperas de las locuciones. No se mezclan video y locución: la voz mantiene su bloqueo de cambios y la pestaña Video no inicia audios de escenas o apoyos.
 
 El bloqueo de navegación durante una locución no impide detenerla al apagar la pantalla. La suspensión de la app cierra la voz como interrumpida, sin completar la escena ni reanudarla automáticamente al volver, y conserva los cinco minutos desde la interrupción. Los eventos web y el puente de pausa de Android usan la misma finalización. Esta corrección se verificó en la A8 el 6 de noviembre con la caché v179.
+
+## Un minuto para cambiar después de un video incompleto
+
+Desde la caché v180, un video que empezó y se deja sin terminar exige un minuto desde su última reproducción para iniciar el video de otro cuento. Retomar el mismo video sigue disponible inmediatamente. Llegar al final natural deja libre el inicio de otro video, sin espera. Una preparación que falla antes de empezar no crea una restricción nueva.
+
+La pestaña del otro video muestra debajo de los botones un cartel `Espera: 59s`, con cuenta atrás y Reproducir deshabilitado. Al vencer el minuto desaparece el cartel y se habilita el inicio manual, sin autoplay. La cuenta no se reinicia por recorrer cuentos, pestañas o volver a salir de un video ya pausado; continúa al recargar o cerrar la app. Los seis videos diferentes del último incompleto comparten el mismo plazo. Empezar a reproducir de nuevo ese último video sí actualiza su última reproducción.
+
+Se guarda exclusivamente `ian-story-video-last-v1`, con cuento, instante y finalización. Se actualiza al comenzar realmente, durante la reproducción, al pausar o salir y al terminar. La comprobación se aplica también dentro de la función de reproducción: no depende solo del botón. Un temporizador actualiza el cartel y se cancela al salir. No modifica el plazo de cinco minutos para volver al principio ni las restricciones de las locuciones.
+
+Validado en navegador con los seis destinos diferentes, recarga, frontera exacta 59 999/60 000 ms y habilitación sin autoplay. En la A8 se comprobó el minuto real con Wi-Fi apagado, cartel 59s, persistencia tras recargar, espera mientras se visita Inicio, reanudación inmediata del mismo video y cambio libre tras completar otro. Los siete videos siguen funcionando offline y los valores de almacenamiento antes y después coinciden. Evidencias: `tmp/story-video-change-wait/`.
 
 ## Corrección del bloqueo en «Preparando el video»
 

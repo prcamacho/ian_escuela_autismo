@@ -7,6 +7,16 @@ Leer también [TABLET_KIOSCO.md](TABLET_KIOSCO.md). Las dos usan `com.ian.escuel
 | Ulefone Armor Pad Pro | `3109RH1010027680` | Activación individual desde esta PC |
 | Samsung Galaxy Tab A8 | `R8MT100KBQD` | Desactivado; la actualización vuelve a comprobarlo |
 
+## Un minuto entre videos incompletos — 6 de noviembre de 2026
+
+Los videos tienen una espera independiente de las locuciones: si el último video empezó y se deja incompleto, los otros seis requieren un minuto desde que se detuvo. El mismo video puede retomarse de inmediato. Terminarlo permite iniciar otro sin espera. Debajo de los botones se muestra `Espera: 59s`, contando hacia atrás, con Reproducir deshabilitado. Al vencer se habilita únicamente el comienzo manual. Recorrer cuentos o salir de un video ya pausado no reinicia el plazo, que sobrevive a la recarga y al cierre de la app.
+
+La nueva clave es `ian-story-video-last-v1`, con cuento, instante y finalización. Se registra al empezar realmente, durante la reproducción, al pausar/salir y al llegar al final. La comprobación también se realiza en la función de inicio; no depende solo de la interfaz. Se conservan los cinco minutos de reanudación del mismo video y las restricciones de las locuciones. La caché es v180, con el contador revisado en 1098 × 686, 1024 × 600 y 390 × 844.
+
+Se instaló en la A8 sin borrar datos; compañero deshabilitado y kiosco `LOCKED` confirmados. Pasaron los siete videos reales y offline, pausa/reanudación sin aumento de volumen, bloqueo/pantalla, puntos de reanudación y reinicio después de cinco minutos. Se comprobó un minuto real sin cambiar el reloj de Android: cartel 59s, otros videos deshabilitados, mismo video disponible, persistencia tras recargar, salida a Inicio durante la cuenta y habilitación manual al vencer. Terminar otro video permitió cambiar inmediatamente. La vista previa final depuró un marcador de video ya vencido; se repuso desde el registro previo y se dejó la biblioteca abierta. La comprobación separada del cierre confirmó que todos los valores reales de almacenamiento coinciden exactamente con los anteriores.
+
+En navegador se verificaron los seis destinos bloqueados, 59 999 ms frente a 60 000 ms, ausencia de autoplay al habilitar, recarga, navegación sin reiniciar el plazo y cambio inmediato tras un final real. También pasaron las 70 locuciones y los 618 recursos PWA. Los 633 archivos web coinciden con la APK. SHA-256 compilado e instalado: `1001F95D1FDD9FD42F99FA639FBD43CFC91473202F5F92C38913EF62B25BDED6`. Copias de la raíz actualizadas. Evidencias: `tmp/story-video-change-wait/`. Conexiones de prueba cerradas al finalizar.
+
 ## Locuciones detenidas al bloquear — 6 de noviembre de 2026
 
 El evento de ocultación llamaba a `stopStoryMedia()`, pero su protección contra cambios de sección retornaba cuando había una locución activa. El puente Android solo detenía los videos. Ahora `suspendStoryMedia()` finaliza primero la locución como interrumpida y después detiene los demás medios; se invoca desde `visibilitychange`, `pagehide` y `StoryVolumePlugin.handleOnPause()`. El audio se silencia antes de pausarlo y de liberar el volumen. Se impide iniciar una voz con la página oculta y se cancela un comienzo nativo que responda después del bloqueo. La navegación manual sigue bloqueada mientras suena la voz con la pantalla encendida.

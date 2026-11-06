@@ -3,7 +3,10 @@ const STORY_VIDEO_MAX_PERCENT = 60;
 const STORY_VIDEO_RESTART_AFTER_MS = 300_000;
 const STORY_VIDEO_START_TIMEOUT_MS = 12_000;
 const STORY_VIDEO_PROGRESS_PREFIX = "ian-story-video-progress-v1:";
+const STORY_VIDEO_CHANGE_WAIT_MS = 60_000;
+const STORY_VIDEO_LAST_KEY = "ian-story-video-last-v1";
 let storyFilmProgressMemory = {};
+let storyFilmLastMemory = null;
 let storyFilm = null;
 let storyFilmSequence = 0;
 
@@ -23,6 +26,22 @@ function clearStoryFilmPoint(bookId) {
   try { localStorage.removeItem(STORY_VIDEO_PROGRESS_PREFIX + bookId); } catch {}
 }
 
+function saveStoryFilmLast(bookId, completed = false) {
+  storyFilmLastMemory = { bookId, at: Date.now(), completed };
+  try { localStorage.setItem(STORY_VIDEO_LAST_KEY, JSON.stringify(storyFilmLastMemory)); } catch {}
+}
+
+function storyFilmChangeRemainingMs(bookId) {
+  let last = storyFilmLastMemory;
+  try {
+    const raw = localStorage.getItem(STORY_VIDEO_LAST_KEY);
+    if (raw !== null) last = JSON.parse(raw);
+  } catch {}
+  if (!last || !STORY_BOOKS.some(book => book.id === last.bookId) || last.bookId === bookId
+    || last.completed === true || !Number.isFinite(last.at) || last.at <= 0 || last.at > Date.now()) return 0;
+  return Math.max(0, last.at + STORY_VIDEO_CHANGE_WAIT_MS - Date.now());
+}
+
 function storyFilmSavedPoint(bookId) {
   let saved = storyFilmProgressMemory[bookId];
   try {
@@ -38,6 +57,7 @@ function storyFilmSavedPoint(bookId) {
 }
 
 function rememberStoryFilmPoint(film) {
+  if (film.playing) saveStoryFilmLast(film.bookId, film.video.ended);
   if (film.video.ended) return clearStoryFilmPoint(film.bookId);
   // Salir de una pestaña que ya estaba pausada no vuelve a empezar los cinco minutos.
   if (!film.playing || !Number.isFinite(film.video.currentTime) || film.video.currentTime <= 0) return;
@@ -69,13 +89,25 @@ function storyFilmIsCurrent(film) {
 
 function storyFilmControls(message = "") {
   const film = storyFilm;
+  if (film?.waitTimer) window.clearTimeout(film.waitTimer);
   const playing = Boolean(film && (film.pending || !film.video.paused));
+  const remaining = film ? storyFilmChangeRemainingMs(film.bookId) : 0;
   const play = document.querySelector('[data-action="story-video-play"]');
   const pause = document.querySelector('[data-action="story-video-pause"]');
-  if (play) play.disabled = !film || playing;
+  if (play) play.disabled = !film || playing || remaining > 0;
   if (pause) pause.disabled = !film || !playing;
   const status = document.querySelector(".story-film-status");
-  if (status) status.textContent = message;
+  if (status) {
+    const label = remaining > 0 ? `Espera: ${Math.ceil(remaining / 1000)}s` : message;
+    if (status.textContent !== label) status.textContent = label;
+    status.classList.toggle("is-waiting", remaining > 0);
+    status.setAttribute("aria-live", remaining > 0 ? "off" : "polite");
+  }
+  if (remaining > 0 && storyFilmIsCurrent(film)) {
+    film.waitTimer = window.setTimeout(() => {
+      if (storyFilmIsCurrent(film)) storyFilmControls(message);
+    }, Math.min(remaining, 250));
+  }
 }
 
 function releaseStoryFilmVolume(session) {
@@ -106,6 +138,7 @@ function pauseStoryFilm() {
 function stopStoryFilm() {
   const film = storyFilm;
   if (!film) return;
+  if (film.waitTimer) window.clearTimeout(film.waitTimer);
   rememberStoryFilmPoint(film);
   const session = film.session;
   film.session = null;
@@ -149,11 +182,16 @@ function setupStoryFilm() {
     }
     film.pending = false;
     film.playing = true;
+    saveStoryFilmLast(film.bookId);
     if (film.session.startTimer) window.clearTimeout(film.session.startTimer);
     storyFilmControls();
   };
   video.onpause = () => { if (storyFilm === film && video.paused && film.session?.playCalled) pauseStoryFilm(); };
-  video.onended = () => { if (storyFilm === film) pauseStoryFilm(); };
+  video.onended = () => {
+    if (storyFilm !== film) return;
+    saveStoryFilmLast(film.bookId, true);
+    pauseStoryFilm();
+  };
   video.onerror = () => {
     if (storyFilm !== film) return;
     pauseStoryFilm();
@@ -181,6 +219,7 @@ function playStoryFilm() {
   setupStoryFilm();
   const film = storyFilm;
   if (!film || !storyFilmIsCurrent(film) || film.session || !film.video.paused) return;
+  if (storyFilmChangeRemainingMs(film.bookId) > 0) return storyFilmControls();
   const volume = film.native ? window.Capacitor?.Plugins?.StoryVolume : null;
   const session = film.session = { token: `video-${Date.now()}-${++storyFilmSequence}`, volume };
   film.pendingSeek = storyFilmSavedPoint(film.bookId)?.time ?? 0;

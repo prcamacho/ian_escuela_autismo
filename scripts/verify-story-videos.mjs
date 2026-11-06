@@ -27,6 +27,10 @@ async function play(page) {
     return v && !v.paused && v.currentTime > .15 && storyFilm?.playing && !v.error;
   });
 }
+async function finishVideo(page) {
+  await page.locator('.story-film').evaluate(v=>v.currentTime=v.duration-.15);
+  await page.waitForFunction(()=>document.querySelector('.story-film').ended && storyFilm.session===null);
+}
 try {
   const context = await browser.newContext({ viewport: { width: 1098, height: 686 }, hasTouch: true, serviceWorkers: "block" });
   const page = await context.newPage();
@@ -69,6 +73,7 @@ try {
     assert.ok(await page.locator('.story-film').evaluate(v=>v.currentTime)>=savedTime,'Leaving the tab preserves this book position');
     await page.locator('[data-action="story-video-pause"]').click();
     verified.push({ ...book, ...metadata, pauseResume: true, stopOnLeave: true, volume: .6 });
+    await play(page);await finishVideo(page);
   }
   const after = await page.evaluate(() => ({ data: JSON.stringify(data), progress: localStorage.getItem(STORY_PROGRESS_KEY), listening: localStorage.getItem(STORY_LISTENING_KEY) }));
   assert.deepEqual(after, before, "Videos never change the school data, reading progress or narration cooldowns");
@@ -104,6 +109,51 @@ try {
     window.__videoNow=Date.now();
     Date.now=()=>window.__videoNow;
   });
+  const unfinishedId=books.at(-1).id;
+  await openVideo(page,unfinishedId);await play(page);
+  await page.locator('[data-action="story-video-pause"]').click();
+  const lastPlayback=await page.evaluate(()=>localStorage.getItem(STORY_VIDEO_LAST_KEY));
+  for(const book of books.slice(0,-1)){
+    await openVideo(page,book.id);
+    assert.equal(await page.locator('[data-action="story-video-play"]').isDisabled(),true);
+    assert.equal(await page.locator('.story-film-status').textContent(),'Espera: 60s');
+    await page.evaluate(()=>playStoryFilm());
+    assert.equal(await page.locator('.story-film').evaluate(v=>v.paused && !v.hasAttribute('src')),true,'Even direct play cannot bypass the wait');
+  }
+  await page.evaluate(()=>{window.__videoNow+=1000;storyFilmControls();});
+  assert.equal(await page.locator('.story-film-status').textContent(),'Espera: 59s');
+  await page.locator('[data-action="story-panel"][data-value="read"]').click();
+  await page.locator('[data-action="story-panel"][data-value="video"]').click();
+  assert.equal(await page.evaluate(()=>localStorage.getItem(STORY_VIDEO_LAST_KEY)),lastPlayback,'Browsing a paused video never restarts the minute');
+  for(const size of [{width:1098,height:686},{width:1024,height:600},{width:390,height:844}]){
+    await page.setViewportSize(size);
+    const badge=await page.locator('.story-film-status').boundingBox();
+    assert.ok(badge.x>=0 && badge.y>=0 && badge.y+badge.height<=size.height);
+    await page.screenshot({path:path.join(output,`wait-${size.width}.png`)});
+  }
+  await page.setViewportSize({width:1098,height:686});
+  await openVideo(page,unfinishedId);
+  assert.equal(await page.locator('[data-action="story-video-play"]').isDisabled(),false,'The same video can resume immediately');
+  // Reload the blocked target; the last-played record is persistent.
+  await openVideo(page,books[0].id);await page.reload();await openVideo(page,books[0].id);
+  assert.equal(await page.evaluate(()=>localStorage.getItem(STORY_VIDEO_LAST_KEY)),lastPlayback);
+  assert.equal(await page.locator('[data-action="story-video-play"]').isDisabled(),true);
+  await page.evaluate(()=>{
+    window.__realDateNow=Date.now;
+    window.__videoNow=JSON.parse(localStorage.getItem(STORY_VIDEO_LAST_KEY)).at+59999;
+    Date.now=()=>window.__videoNow;storyFilmControls();
+  });
+  assert.equal(await page.locator('.story-film-status').textContent(),'Espera: 1s');
+  assert.equal(await page.locator('[data-action="story-video-play"]').isDisabled(),true);
+  await page.evaluate(()=>window.__videoNow++);
+  await page.waitForFunction(()=>!document.querySelector('[data-action="story-video-play"]').disabled);
+  assert.equal(await page.locator('.story-film').evaluate(v=>v.paused),true,'Expiry enables manual play without autoplay');
+  assert.equal(await page.locator('.story-film-status').textContent(),'');
+  await play(page);await finishVideo(page);
+  await openVideo(page,books[1].id);
+  assert.equal(await page.locator('[data-action="story-video-play"]').isDisabled(),false,'Finishing a video immediately permits another');
+  await play(page);await page.locator('[data-action="story-video-pause"]').click();
+  await page.evaluate(()=>window.__videoNow+=60000);
   const seedPoint = async age => page.evaluate(({id,age})=>{
     stopStoryFilm();
     storyFilmProgressMemory={};
@@ -222,6 +272,7 @@ try {
     await openVideo(op,book.id);
     await play(op);
     assert.equal(await op.locator('.story-film').evaluate(v=>Number.isFinite(v.duration) && v.currentTime>0),true);
+    await finishVideo(op);
   }
   await offline.close();
   assert.equal(errors.length,0,JSON.stringify(errors));
@@ -229,7 +280,10 @@ try {
     mutesBeforePause:true,unmutesAfterVolumeCap:true,pauseResumeVolumeRegression:true,
     stopsOnHidden:true,stopsOnPageHide:true,schoolAndReadingDataPreserved:true,offlineVideos:7,resumeAcrossTabsAndReload:true,
     resumesAt299999ms:true,restartsAt300000ms:true,pausedBrowsingDoesNotExtendWait:true,completedVideoClearsPoint:true,
-    rapidTabsWithoutLoading:35,detachedPlayersUnloaded:true,stalledStartTimesOutAndRetries:true,errors},null,2));
+    rapidTabsWithoutLoading:35,detachedPlayersUnloaded:true,stalledStartTimesOutAndRetries:true,
+    otherSixVideosBlockedForOneMinute:true,countdown59sVisible:true,sameVideoImmediatelyAvailable:true,
+    changeWaitSurvivesReload:true,pausedBrowsingDoesNotExtendChangeWait:true,blockedAt59999ms:true,enabledAt60000msWithoutAutoplay:true,
+    completionImmediatelyAllowsAnotherVideo:true,errors},null,2));
   console.log('Videos verificados: 7 MP4 reales y offline, 60 %, salida y segundo plano, reanudación persistente, reinicio exacto a cinco minutos, carreras Android y datos conservados.');
 } finally {
   await browser.close();
