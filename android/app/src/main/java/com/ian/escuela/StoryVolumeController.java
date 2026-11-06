@@ -27,7 +27,8 @@ final class StoryVolumeController {
         this.context = context;
         audio = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         recovery = context.getSharedPreferences("story-volume-recovery", Context.MODE_PRIVATE);
-        if (recovery.contains("previous") && !recovery.getBoolean("changed", true)
+        if (recovery.contains("previous") && recovery.getBoolean("restoreOnEnd", true)
+                && !recovery.getBoolean("changed", true)
                 && audio.getStreamVolume(AudioManager.STREAM_MUSIC) == recovery.getInt("applied", -1)) {
             audio.setStreamVolume(AudioManager.STREAM_MUSIC, recovery.getInt("previous", 0), 0);
         }
@@ -44,13 +45,18 @@ final class StoryVolumeController {
     }
 
     void begin(String value, int maxPercent) {
+        begin(value, maxPercent, true);
+    }
+
+    void begin(String value, int maxPercent, boolean restoreOnEnd) {
         if (maxPercent < 1 || maxPercent > 70) throw new IllegalArgumentException("Límite inválido.");
         if (audio.isVolumeFixed()) throw new IllegalStateException("El dispositivo no permite limitar el volumen.");
-        if (token != null && (!token.equals(value) || policy.maxPercent() != maxPercent)) end(null);
+        if (token != null && (!token.equals(value) || policy.maxPercent() != maxPercent
+                || policy.restoreOnEnd() != restoreOnEnd)) end(null);
         token = value;
         expiresAt = SystemClock.elapsedRealtime() + LEASE_MS;
         try {
-            policy.begin(maxPercent);
+            policy.begin(maxPercent, restoreOnEnd);
             if (!observing) {
                 context.getContentResolver().registerContentObserver(Settings.System.CONTENT_URI, true, observer);
                 observing = true;
@@ -96,6 +102,7 @@ final class StoryVolumeController {
     }
 
     boolean active() { return token != null; }
+    boolean restoreOnEnd() { return policy.restoreOnEnd(); }
     int ceiling() { return policy.ceiling(); }
     int current() { return audio.getStreamVolume(AudioManager.STREAM_MUSIC); }
     int maximum() { return audio.getStreamMaxVolume(AudioManager.STREAM_MUSIC); }
@@ -103,9 +110,10 @@ final class StoryVolumeController {
     private void remember() {
         if (recovery.getInt("previous", -1) == policy.previous()
                 && recovery.getInt("applied", -1) == policy.applied()
-                && recovery.getBoolean("changed", false) == policy.changed()) return;
+                && recovery.getBoolean("changed", false) == policy.changed()
+                && recovery.getBoolean("restoreOnEnd", true) == policy.restoreOnEnd()) return;
         recovery.edit().putInt("previous", policy.previous()).putInt("applied", policy.applied())
-                .putBoolean("changed", policy.changed()).apply();
+                .putBoolean("changed", policy.changed()).putBoolean("restoreOnEnd", policy.restoreOnEnd()).apply();
     }
 
     private void enforce() {

@@ -96,6 +96,8 @@ function pauseStoryFilm() {
   const session = film.session;
   film.session = null;
   film.pending = false;
+  // Silenciar antes de pausar corta también la cola de audio de WebView.
+  film.video.muted = true;
   film.video.pause();
   releaseStoryFilmVolume(session);
   storyFilmControls();
@@ -111,6 +113,7 @@ function stopStoryFilm() {
   film.video.onplaying = film.video.onpause = film.video.onended = film.video.onerror = null;
   film.video.ontimeupdate = film.video.onvolumechange = film.video.oncontextmenu = film.video.onloadedmetadata = null;
   film.video.ondblclick = null;
+  film.video.muted = true;
   film.video.pause();
   // Pausar o quitar el nodo no libera inmediatamente MediaCodec en la A8.
   // Vaciar la fuente y cargar el estado vacío sí cierra el reproductor anterior.
@@ -133,13 +136,17 @@ function setupStoryFilm() {
   video.controls = false;
   video.disablePictureInPicture = true;
   video.disableRemotePlayback = true;
+  video.muted = true;
   video.volume = native ? 1 : STORY_VIDEO_MAX_PERCENT / 100;
   video.onvolumechange = () => {
     if (!native && video.volume > STORY_VIDEO_MAX_PERCENT / 100) video.volume = STORY_VIDEO_MAX_PERCENT / 100;
   };
   video.oncontextmenu = video.ondblclick = event => event.preventDefault();
   video.onplaying = () => {
-    if (!storyFilmIsCurrent(film) || !film.session) return video.pause();
+    if (!storyFilmIsCurrent(film) || !film.session) {
+      video.muted = true;
+      return video.pause();
+    }
     film.pending = false;
     film.playing = true;
     if (film.session.startTimer) window.clearTimeout(film.session.startTimer);
@@ -190,8 +197,8 @@ function playStoryFilm() {
       releaseStoryFilmVolume(session);
       return;
     }
-    // Un APK anterior aplica 70 %. No iniciamos el video con ese puente viejo.
-    if (film.native && (!result?.active || !Number.isFinite(result.maximum) || result.maximum < 1
+    // Un puente anterior puede restaurar un volumen alto al pausar.
+    if (film.native && (!result?.active || result.restoreOnEnd !== false || !Number.isFinite(result.maximum) || result.maximum < 1
       || !Number.isFinite(result.ceiling) || result.ceiling > Math.floor(result.maximum * STORY_VIDEO_MAX_PERCENT / 100)
       || result.current > result.ceiling)) return fail();
     if (volume) session.heartbeat = window.setInterval(() => {
@@ -206,10 +213,11 @@ function playStoryFilm() {
     }
     seekStoryFilmPoint(film);
     session.playCalled = true;
+    film.video.muted = false;
     try { Promise.resolve(film.video.play()).catch(fail); } catch { fail(); }
   };
   if (film.native) {
     if (!volume) return fail();
-    try { Promise.resolve(volume.begin({ token: session.token, maxPercent: STORY_VIDEO_MAX_PERCENT })).then(play, fail); } catch { fail(); }
+    try { Promise.resolve(volume.begin({ token: session.token, maxPercent: STORY_VIDEO_MAX_PERCENT, restoreOnEnd: false })).then(play, fail); } catch { fail(); }
   } else play();
 }

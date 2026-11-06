@@ -19,21 +19,40 @@ public class StoryVolumePolicyTest {
         }
     }
 
-    @Test public void videoPauseRestoresAndNarrationKeepsItsOwnLimit() {
+    @Test public void videoPauseNeverRaisesVolumeAndNarrationKeepsItsOwnLimit() {
         Output output = new Output(15, 15);
         StoryVolumePolicy policy = new StoryVolumePolicy(output);
-        policy.begin(60); assertEquals(9, output.level);
-        policy.end(); assertEquals(15, output.level);
+        for (int i = 0; i < 10; i++) {
+            policy.begin(60, false); assertEquals(9, output.level);
+            int writes = output.writes;
+            policy.end(); assertEquals(9, output.level);
+            assertEquals("Pausing must not send a volume change to Android", writes, output.writes);
+        }
+        output.level = 15;
         policy.begin(); assertEquals(10, output.level);
         policy.end(); assertEquals(15, output.level);
     }
 
+    @Test public void videoCleanupPreservesLowerVolumeAndNeverRestoresAfterAnExternalIncrease() {
+        Output output = new Output(3, 15);
+        StoryVolumePolicy policy = new StoryVolumePolicy(output);
+        policy.begin(60, false);
+        policy.end(); assertEquals(3, output.level);
+        output.level = 15;
+        policy.begin(60, false);
+        output.level = 15;
+        policy.end(); assertEquals(9, output.level);
+        policy.begin(60, false);
+        policy.adjust(-1);
+        policy.end(); assertEquals(8, output.level);
+    }
+
     private static class Output implements StoryVolumePolicy.Output {
-        int level, max;
+        int level, max, writes;
         Output(int level, int max) { this.level = level; this.max = max; }
         public int current() { return level; }
         public int maximum() { return max; }
-        public void set(int value) { level = value; }
+        public void set(int value) { level = value; writes++; }
     }
 
     @Test public void capsWithoutRoundingAboveSeventyAndRestores() {

@@ -11,6 +11,7 @@ final class StoryVolumePolicy {
     private final Output output;
     private boolean active;
     private boolean changed;
+    private boolean restoreOnEnd = true;
     private int previous;
     private int applied;
     private int maxPercent = 70;
@@ -21,6 +22,7 @@ final class StoryVolumePolicy {
     int maxPercent() { return maxPercent; }
     boolean active() { return active; }
     boolean changed() { return changed; }
+    boolean restoreOnEnd() { return restoreOnEnd; }
     int previous() { return previous; }
     int applied() { return applied; }
 
@@ -29,9 +31,14 @@ final class StoryVolumePolicy {
     }
 
     void begin(int percentage) {
+        begin(percentage, true);
+    }
+
+    void begin(int percentage, boolean restore) {
         if (percentage < 1 || percentage > 70) throw new IllegalArgumentException("Límite inválido.");
         if (active) return;
         maxPercent = percentage;
+        restoreOnEnd = restore;
         previous = output.current();
         applied = previous;
         changed = false;
@@ -64,7 +71,9 @@ final class StoryVolumePolicy {
     void end() {
         if (!active) return;
         try { observe(); } finally { active = false; }
-        if (!changed) apply(previous);
+        // WebView can still have a short audio tail after pause(). Videos keep
+        // their capped level so ending the lease cannot amplify that tail.
+        if (restoreOnEnd && !changed) apply(previous);
     }
 
     private void apply(int value) {

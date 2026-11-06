@@ -7,6 +7,14 @@ Leer también [TABLET_KIOSCO.md](TABLET_KIOSCO.md). Las dos usan `com.ian.escuel
 | Ulefone Armor Pad Pro | `3109RH1010027680` | Activación individual desde esta PC |
 | Samsung Galaxy Tab A8 | `R8MT100KBQD` | Desactivado; la actualización vuelve a comprobarlo |
 
+## Salto de volumen al pausar videos — 6 de noviembre de 2026
+
+El final de la sesión restauraba inmediatamente el volumen general anterior, que podía superar el 60 %, mientras WebView todavía vaciaba una cola de audio. Los videos ahora solicitan `restoreOnEnd: false`: al pausar, salir, terminar o fallar conservan el volumen aplicado. El elemento se silencia antes de `pause()` y solo habilita el sonido después de confirmar el techo al reproducir. La preferencia se conserva también en la recuperación tras un cierre. Las locuciones mantienen su límite y restauración por defecto.
+
+Se instaló la caché v178 sobre la A8 sin borrar datos; compañero deshabilitado, app al frente y kiosco `LOCKED` confirmados. Los siete videos se probaron con Wi-Fi apagado y toques físicos, partiendo de 15/15 antes de cada cuento. Entre 34 y 38 muestras alrededor de cada pausa conservaron exactamente 9/15, o 8/15 al elegir un volumen menor con el botón físico. Reanudar mantuvo el nivel; los botones físicos siguieron limitados al 60 %. Pasaron también 35 cambios de pestaña sin precarga, salida con descarga de fuente, apagado/regreso sin reproducción automática y reinicio después de cinco minutos. Todos los valores de almacenamiento antes y después coincidieron. Queda completada la revisión física de la descarga de decodificadores que había quedado pendiente el 4 de noviembre.
+
+Pasaron `verify-story-videos.mjs` (siete MP4 offline, silenciamiento antes de pausar, rechazo del puente anterior y reanudación), `verify-stories.mjs` (70 audios y esperas), `verify-pwa.mjs` (618 recursos) y las pruebas JUnit de Android, incluidas nueve de volumen. Los 633 archivos web coinciden byte a byte con la APK. SHA-256 compilado e instalado: `D1F5916E7BBF0EBAFAD0E5FF610AFABD5BF2EC38C79F4DF8EA255B168305B71E`. Copias locales de la raíz actualizadas. Evidencias en `tmp/story-video-volume/`; se cierran las conexiones CDP al terminar.
+
 ## Apagado automático reparado — 4 de noviembre de 2026
 
 Se corrigió una bandera residual `FLAG_KEEP_SCREEN_ON` en la vista raíz de Android. La app conserva el plazo de tres minutos y retira únicamente las solicitudes heredadas cuando ninguna vista visible ni la ventana pide mantener la pantalla encendida. Las solicitudes vigentes durante la reproducción siguen funcionando. El historial guardado no contenía una orden permanente de pantalla encendida; se confirmó que conectar el depurador de WebView genera una solicitud temporal que debe liberarse al desconectar.

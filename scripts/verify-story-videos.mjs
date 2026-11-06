@@ -45,6 +45,7 @@ try {
     assert.deepEqual(attrs, { controls: false, nativeControls: false, pip: true, remote: true, inline: true, paused: true, time: 0, volume: .6 });
     assert.equal(await page.locator('.story-film-panel input,.story-film-panel [type=range]').count(), 0);
     await play(page);
+    assert.equal(await page.locator('.story-film').evaluate(v=>v.muted),false);
     const metadata = await page.locator('.story-film').evaluate(v => ({ duration: v.duration, width: v.videoWidth, height: v.videoHeight }));
     assert.ok(metadata.duration > 200 && metadata.width === 640 && metadata.height === 360);
     await page.locator('.story-film').evaluate(v => { v.volume = 1; });
@@ -52,6 +53,7 @@ try {
     await page.locator('[data-action="story-video-pause"]').click();
     const paused = await page.locator('.story-film').evaluate(v => ({ paused: v.paused, time: v.currentTime }));
     assert.equal(paused.paused, true);
+    assert.equal(await page.locator('.story-film').evaluate(v=>v.muted),true,'Pause silences the audio tail');
     await page.waitForTimeout(200);
     assert.equal(await page.locator('.story-film').evaluate(v => v.currentTime), paused.time);
     await page.locator('[data-action="story-video-play"]').click();
@@ -144,12 +146,12 @@ try {
   // El puente nativo se prueba con comienzo diferido, salida temprana y error.
   const native = await browser.newContext({ viewport: {width:1098,height:686}, serviceWorkers:'block' });
   await native.addInitScript(() => {
-    window.__volumeCalls=[]; window.__begins=[]; window.__beginMode='pending';
+    window.__volumeCalls=[]; window.__begins=[]; window.__beginMode='pending'; window.__pauseStates=[];
     window.Capacitor={isNativePlatform:()=>true,Plugins:{StoryVolume:{
       begin(args) {
         __volumeCalls.push(['begin',args]);
         if (__beginMode==='pending') return new Promise(resolve=>__begins.push(resolve));
-        return Promise.resolve({active:true,maximum:15,current:9,ceiling:__beginMode==='unsafe'?10:9});
+        return Promise.resolve({active:true,maximum:15,current:9,ceiling:__beginMode==='unsafe'?10:9,restoreOnEnd:__beginMode==='old-restore'?true:false});
       },
       end(args) {__volumeCalls.push(['end',args]);return Promise.resolve();},
       refresh(args) {__volumeCalls.push(['refresh',args]);return __beginMode==='fail-refresh'?Promise.reject(Error('Lease lost')):Promise.resolve({active:true,maximum:15,current:9,ceiling:9});}
@@ -162,22 +164,37 @@ try {
   await np.locator('[data-action="story-video-play"]').click();
   assert.equal(await np.locator('.story-film').evaluate(v=>v.paused),true);
   await np.locator('[data-action="story-video-pause"]').click();
-  await np.evaluate(()=>__begins.shift()({active:true,maximum:15,current:9,ceiling:9}));
+  await np.evaluate(()=>__begins.shift()({active:true,maximum:15,current:9,ceiling:9,restoreOnEnd:false}));
   await np.waitForTimeout(100);
   assert.equal(await np.locator('.story-film').evaluate(v=>v.paused && v.currentTime===0),true);
   await np.locator('[data-action="story-video-play"]').click();
   await np.evaluate(()=>window.__oldFilm=document.querySelector('.story-film'));
   await np.locator('[data-action="story-panel"][data-value="read"]').click();
-  await np.evaluate(()=>__begins.shift()({active:true,maximum:15,current:9,ceiling:9}));
+  await np.evaluate(()=>__begins.shift()({active:true,maximum:15,current:9,ceiling:9,restoreOnEnd:false}));
   assert.equal(await np.evaluate(()=>__oldFilm.paused && __oldFilm.currentTime===0 && storyFilm===null),true);
   await np.locator('[data-action="story-panel"][data-value="video"]').click();
   await np.evaluate(()=>__beginMode='unsafe');
   await np.locator('[data-action="story-video-play"]').click();
   await np.waitForFunction(()=>storyFilm.session===null);
   assert.equal(await np.locator('.story-film').evaluate(v=>v.paused),true,'An old 70% bridge cannot start a 60% video');
+  await np.evaluate(()=>__beginMode='old-restore');
+  await np.locator('[data-action="story-video-play"]').click();
+  await np.waitForFunction(()=>storyFilm.session===null);
+  assert.equal(await np.locator('.story-film').evaluate(v=>v.paused && v.muted),true,'A bridge that restores volume on pause cannot start a video');
   await np.evaluate(()=>__beginMode='ok');
   await play(np);
   assert.equal(await np.locator('.story-film').evaluate(v=>v.volume),1,'Native Android caps the real media stream');
+  await np.evaluate(()=>{
+    const v=storyFilm.video;
+    const pause=v.pause.bind(v);
+    v.pause=()=>{__pauseStates.push({muted:v.muted});return pause();};
+  });
+  for(let i=0;i<3;i++){
+    await np.locator('[data-action="story-video-pause"]').click();
+    assert.equal(await np.locator('.story-film').evaluate(v=>v.paused && v.muted),true);
+    await play(np);
+    assert.equal(await np.locator('.story-film').evaluate(v=>v.muted),false);
+  }
   await np.evaluate(()=>{__beginMode='fail-refresh';storyFilm.lastHeartbeat=0;storyFilm.video.ontimeupdate();});
   await np.waitForFunction(()=>storyFilm.session===null && document.querySelector('.story-film').paused);
   await np.evaluate(()=>{
@@ -191,7 +208,8 @@ try {
   await np.evaluate(()=>storyFilm.video.play=window.__realVideoPlay);
   await play(np);
   const nativeCalls=await np.evaluate(()=>__volumeCalls);
-  assert.ok(nativeCalls.filter(([type])=>type==='begin').every(([,args])=>args.maxPercent===60));
+  assert.ok(nativeCalls.filter(([type])=>type==='begin').every(([,args])=>args.maxPercent===60 && args.restoreOnEnd===false));
+  assert.ok((await np.evaluate(()=>__pauseStates)).every(state=>state.muted),'Every native pause is muted before calling pause()');
   assert.equal(errors.length,0,JSON.stringify(errors));
   await native.close();
   const offline = await browser.newContext({viewport:{width:1098,height:686}});
@@ -207,7 +225,8 @@ try {
   }
   await offline.close();
   assert.equal(errors.length,0,JSON.stringify(errors));
-  await writeFile(path.join(output,'browser-verified.json'),JSON.stringify({verified,nativeRaces:true,unsafeBridgeRejected:true,
+  await writeFile(path.join(output,'browser-verified.json'),JSON.stringify({verified,nativeRaces:true,unsafeBridgeRejected:true,restoringBridgeRejected:true,
+    mutesBeforePause:true,unmutesAfterVolumeCap:true,pauseResumeVolumeRegression:true,
     stopsOnHidden:true,stopsOnPageHide:true,schoolAndReadingDataPreserved:true,offlineVideos:7,resumeAcrossTabsAndReload:true,
     resumesAt299999ms:true,restartsAt300000ms:true,pausedBrowsingDoesNotExtendWait:true,completedVideoClearsPoint:true,
     rapidTabsWithoutLoading:35,detachedPlayersUnloaded:true,stalledStartTimesOutAndRetries:true,errors},null,2));

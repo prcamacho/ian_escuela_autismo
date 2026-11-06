@@ -37,11 +37,12 @@ public class StoryVolumePlugin extends Plugin {
         getActivity().runOnUiThread(() -> {
             try {
                 StoryVolumeController volume = controller();
-                if (method.equals("begin")) volume.begin(token, call.getInt("maxPercent", 70));
+                if (method.equals("begin")) volume.begin(token, call.getInt("maxPercent", 70), call.getBoolean("restoreOnEnd", true));
                 if (method.equals("refresh")) volume.refresh(token);
                 if (method.equals("end")) volume.end(token);
                 JSObject result = new JSObject();
                 result.put("active", volume.active());
+                result.put("restoreOnEnd", volume.restoreOnEnd());
                 result.put("ceiling", volume.ceiling());
                 result.put("current", volume.current());
                 result.put("maximum", volume.maximum());

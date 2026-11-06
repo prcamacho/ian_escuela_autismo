@@ -59,6 +59,11 @@ try{
   if(wifiBefore==='1')await adb('shell','svc','wifi','disable');
   assert.equal(await adb('shell','settings','get','global','wifi_on'),'0','Playback is tested with Wi-Fi off');
   const ceiling=Math.floor(initial.maximum*.6);
+  await adb('shell','cmd','media_session','volume','--stream','3','--set',String(initial.maximum));
+  const narrationVolume=await evaluate("window.Capacitor.Plugins.StoryVolume.begin({token:'verify-narration-default'})");
+  assert.equal(narrationVolume.restoreOnEnd,true);
+  assert.equal(narrationVolume.ceiling,Math.floor(initial.maximum*.7));
+  assert.equal((await evaluate("window.Capacitor.Plugins.StoryVolume.end({token:'verify-narration-default'})")).current,initial.maximum);
   const ids=await evaluate('STORY_BOOKS.map(b=>b.id)');
   const open=async id=>evaluate(`storySupportState={id:${JSON.stringify(id)},scene:storySavedProgress()[${JSON.stringify(id)}]||0,panel:'video'};setRoute({view:'support-story'});true`);
   const click=async action=>{
@@ -74,11 +79,15 @@ try{
   for(let i=0;i<ids.length;i++){
     await open(ids[i]);
     assert.equal(await evaluate("document.querySelector('.story-film').paused && storyFilm.session===null"),true);
-    if(i===0)await adb('shell','cmd','media_session','volume','--stream','3','--set',String(initial.maximum));
+    // Cada cuento comienza por encima del techo, sin alterar el volumen
+    // durante la sesión (salvo el primero): reproduce la restauración antigua.
+    await adb('shell','cmd','media_session','volume','--stream','3','--set',String(initial.maximum));
     await click('story-video-play');
     await waitFor("storyFilm?.playing && !storyFilm.video.paused && !storyFilm.video.error && storyFilm.video.currentTime>.15");
     const status=await evaluate('window.Capacitor.Plugins.StoryVolume.status()');
     assert.equal(status.active,true);assert.equal(status.ceiling,ceiling);assert.ok(status.current<=ceiling);
+    assert.equal(status.restoreOnEnd,false);
+    assert.equal(await evaluate('storyFilm.video.muted'),false);
     assert.equal(await evaluate("document.querySelector('.story-film').controls"),false);
     if(i===0){
       await adb('shell','input','keyevent',...Array(15).fill('24'));
@@ -87,18 +96,26 @@ try{
       const lower=await evaluate('window.Capacitor.Plugins.StoryVolume.status()');assert.ok(lower.current<capped.current);
       await adb('shell','input','keyevent',...Array(15).fill('24'));
       assert.ok((await evaluate('window.Capacitor.Plugins.StoryVolume.status()')).current<=ceiling);
+      await adb('shell','input','keyevent','25');
     }
+    const beforePause=await evaluate('window.Capacitor.Plugins.StoryVolume.status()');
+    await evaluate(`window.__pauseVolumeSamples=[];window.__pauseVolumeTimer=setInterval(()=>window.Capacitor.Plugins.StoryVolume.status().then(v=>__pauseVolumeSamples.push(v.current)),10);true`);
     await click('story-video-pause');
     await waitFor('window.Capacitor.Plugins.StoryVolume.status().then(v=>!v.active)');
     const pausedTime=await evaluate("document.querySelector('.story-film').currentTime");await delay(200);
+    const pauseSamples=await evaluate('clearInterval(__pauseVolumeTimer);__pauseVolumeSamples');
+    assert.ok(pauseSamples.length>0 && pauseSamples.every(v=>v<=beforePause.current),JSON.stringify(pauseSamples));
+    assert.equal(await evaluate('storyFilm.video.muted'),true);
+    assert.equal((await evaluate('window.Capacitor.Plugins.StoryVolume.status()')).current,beforePause.current);
     assert.equal(await evaluate("document.querySelector('.story-film').currentTime"),pausedTime);
     await click('story-video-play');
     await waitFor(`document.querySelector('.story-film').currentTime>${pausedTime+.1}`);
+    assert.equal((await evaluate('window.Capacitor.Plugins.StoryVolume.status()')).current,beforePause.current);
     await evaluate("window.__verifiedOldFilm=document.querySelector('.story-film')");
     await click('story-library');
     assert.equal(await evaluate("__verifiedOldFilm.paused && !__verifiedOldFilm.hasAttribute('src') && storyFilm===null"),true);
     await waitFor('window.Capacitor.Plugins.StoryVolume.status().then(v=>!v.active)');
-    checks.push({id:ids[i],ceiling,status,pauseResume:true,stopOnLeave:true});
+    checks.push({id:ids[i],ceiling,status,pauseResume:true,stopOnLeave:true,pauseVolumeSamples:pauseSamples,pauseVolumeNeverRaised:true});
   }
   // Salir de la pestaña dentro del mismo cuento también detiene y reinicia.
   await open(ids[0]);await click('story-video-play');
@@ -113,6 +130,10 @@ try{
   await waitFor('window.Capacitor.Plugins.StoryVolume.status().then(v=>!v.active)');
   await adb('shell','input','keyevent','KEYCODE_WAKEUP');
   await waitFor('!document.hidden');
+  // visibilitychange precede al final de la transición de encendido de la A8;
+  // un toque inyectado durante esa transición lo consume Android.
+  await delay(700);
+  await waitFor("storyFilm && !document.querySelector('[data-action=\"story-video-play\"]').disabled");
   assert.equal(await evaluate("document.querySelector('.story-film').paused"),true);
   const savedTime=await evaluate(`storyFilmSavedPoint(${JSON.stringify(ids[0])}).time`);
   await click('story-video-play');
@@ -143,13 +164,18 @@ try{
   await writeFile(new URL('a8-video.png',directory),Buffer.from(shot.data,'base64'));
   await writeFile(new URL('a8-verified.json',directory),JSON.stringify({videos:checks,tabExit:true,stopsOnScreenOff:true,noAutoplayOnWake:true,resumesBeforeFiveMinutes:true,restartsAfterFiveMinutes:true,realVolumeCeiling:ceiling,maximum:initial.maximum,
     rapidTabChangesWithoutDecoders:35,realScreenTaps:true,wifiDisabledDuringPlayback:true,detachedPlayersUnloaded:true,
-    physicalVolumeButtonsCapped:true,allStoragePreserved:true,beforeChecksum:hash(before.entries),afterChecksum:hash(await evaluate(entriesExpression))},null,2));
+    physicalVolumeButtonsCapped:true,pauseVolumeNeverRaised:true,lowerVolumePreservedOnResume:true,narrationDefaultsPreserved:true,mutesBeforePause:true,allStoragePreserved:true,beforeChecksum:hash(before.entries),afterChecksum:hash(await evaluate(entriesExpression))},null,2));
   console.log('A8 verificada: siete videos reales, botones físicos limitados al 60 %, pausa/reanudación, salida sin audio y datos conservados.');
+}catch(error){
+  const diagnostic=await evaluate(`(()=>{const v=document.querySelector('.story-film');return{hidden:document.hidden,film:storyFilm&&{pending:storyFilm.pending,playing:storyFilm.playing,hasSession:!!storyFilm.session},video:v&&{paused:v.paused,muted:v.muted,time:v.currentTime,ready:v.readyState,error:v.error&&v.error.message},playDisabled:document.querySelector('[data-action="story-video-play"]')?.disabled,status:document.querySelector('.story-film-status')?.textContent}})()`).catch(()=>null);
+  await writeFile(new URL('a8-failure.json',directory),JSON.stringify({message:error.message,checks,diagnostic},null,2));
+  console.error(JSON.stringify(diagnostic));
+  throw error;
 }finally{
-  try{await evaluate("if(typeof stopStoryFilm==='function')stopStoryFilm();delete window.__verifiedOldFilm;true");}catch{}
+  try{await evaluate("clearInterval(window.__pauseVolumeTimer);if(typeof stopStoryFilm==='function')stopStoryFilm();delete window.__verifiedOldFilm;true");}catch{}
   if(before){
     const points=before.entries.filter(([key])=>key.startsWith('ian-story-video-progress-v1:'));
-    try{await evaluate(`for(const key of Object.keys(localStorage))if(key.startsWith(STORY_VIDEO_PROGRESS_PREFIX))localStorage.removeItem(key);for(const [key,value]of ${JSON.stringify(points)})localStorage.setItem(key,value);storyFilmProgressMemory={};true`);}catch{}
+    try{await evaluate(`for(const key of Object.keys(localStorage))if(key.startsWith(STORY_VIDEO_PROGRESS_PREFIX))localStorage.removeItem(key);for(const [key,value]of ${JSON.stringify(points)})localStorage.setItem(key,value);storyFilmProgressMemory={};setupStoryFilm();true`);}catch{}
   }
   if(volumeBefore!==undefined)await adb('shell','cmd','media_session','volume','--stream','3','--set',String(volumeBefore));
   if(wifiBefore==='1')await adb('shell','svc','wifi','enable');
