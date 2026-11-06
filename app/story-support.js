@@ -186,6 +186,14 @@ function stopStoryMedia() {
   storyAudioControls();
 }
 
+// El bloqueo de navegación protege la escucha mientras la app está visible.
+// Al bloquear la pantalla o salir de la app sí debe interrumpirse la voz,
+// cerrando su registro y conservando la espera desde este momento.
+function suspendStoryMedia() {
+  storyAudio?.storyFinish?.();
+  stopStoryMedia();
+}
+
 function storyAges(book) {
   return `<div class="story-ages">
     <figure><img src="${storyAsset(book, "scene-02.jpg")}" alt="El entrenador cuando era joven"><figcaption>ANTES<br><strong>Entrenador joven</strong></figcaption></figure>
@@ -254,7 +262,7 @@ function storyListenButtons() {
 
 function storyPlayAudio() {
   const book = storyBook(), state = storySupportState;
-  if (!book || storyAudio || state.panel === "video") return;
+  if (!book || storyAudio || document.hidden || state.panel === "video") return;
   if (storyAudioRemainingMs() > 0) return syncStoryAudioControls();
   stopStoryMedia();
   const file = state.panel === "read" ? `scene-${String(state.scene + 1).padStart(2, "0")}` : state.panel;
@@ -293,6 +301,7 @@ function storyPlayAudio() {
     }
     audio.onplaying = audio.onended = audio.onerror = audio.ontimeupdate = audio.onpause = audio.onvolumechange = null;
     audio.storyFinish = null;
+    audio.muted = true;
     audio.pause();
     if (volume) Promise.resolve(volume.end({ token })).catch(() => {});
     storyAudio = null;
@@ -319,6 +328,7 @@ function storyPlayAudio() {
   if (status) status.textContent = "";
   const play = () => {
     if (storyAudio !== audio) { if (volume) Promise.resolve(volume.end({ token })).catch(() => {}); return; }
+    if (document.hidden) return finish(false);
     try { Promise.resolve(audio.play()).then(markStarted, failed); } catch { failed(); }
   };
   if (native) {
@@ -380,8 +390,8 @@ function storySupportAction(action, target) {
 }
 
 document.addEventListener("visibilitychange", () => {
-  if (document.hidden) stopStoryMedia();
+  if (document.hidden) suspendStoryMedia();
   else if (route.view === "support-story") { setupStoryFilm(); syncStoryAudioControls(); }
 });
 
-window.addEventListener("pagehide", () => { stopStoryFilm(); storyAudio?.storyFinish?.(); });
+window.addEventListener("pagehide", suspendStoryMedia);

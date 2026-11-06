@@ -7,6 +7,14 @@ Leer también [TABLET_KIOSCO.md](TABLET_KIOSCO.md). Las dos usan `com.ian.escuel
 | Ulefone Armor Pad Pro | `3109RH1010027680` | Activación individual desde esta PC |
 | Samsung Galaxy Tab A8 | `R8MT100KBQD` | Desactivado; la actualización vuelve a comprobarlo |
 
+## Locuciones detenidas al bloquear — 6 de noviembre de 2026
+
+El evento de ocultación llamaba a `stopStoryMedia()`, pero su protección contra cambios de sección retornaba cuando había una locución activa. El puente Android solo detenía los videos. Ahora `suspendStoryMedia()` finaliza primero la locución como interrumpida y después detiene los demás medios; se invoca desde `visibilitychange`, `pagehide` y `StoryVolumePlugin.handleOnPause()`. El audio se silencia antes de pausarlo y de liberar el volumen. Se impide iniciar una voz con la página oculta y se cancela un comienzo nativo que responda después del bloqueo. La navegación manual sigue bloqueada mientras suena la voz con la pantalla encendida.
+
+La interrupción conserva los cinco minutos desde ese momento, cierra el registro pendiente y no añade la escena a las escuchadas completas. Encender la pantalla no reanuda la voz. Las 70 escenas y apoyos pasaron esta regresión local, además de los casos de inicio oculto y respuesta nativa tardía. En la A8 se reprodujo una voz de cada uno de los siete cuentos y ambos apoyos del entrenador, con toques y bloqueo físico: audio pausado y silenciado, posición sin avanzar detrás del bloqueo, controles liberados al regresar y repetición todavía bloqueada. Una prueba suprimió el aviso web de ocultación para comprobar la interrupción desde Android. La comprobación usa un almacenamiento de pruebas en memoria; no borra ni reemplaza las claves reales de Ian. Todos los valores reales antes y después coinciden.
+
+Se instaló la caché v179 sin borrar datos; compañero deshabilitado, app al frente y kiosco `LOCKED` confirmados. Pasaron `verify-stories.mjs`, `verify-stories-device.mjs screen-lock`, los siete videos reales y offline en navegador, y los 618 recursos PWA. Los 633 archivos web coinciden con la APK; SHA-256 compilado e instalado: `2344E99A955F1B35AA59944AAEDAE8963099AA948A6480A8AD862BFB4561EC11`. Copias de la raíz actualizadas. Evidencias: `tmp/story-audio-screen-lock/`. Se cierran las conexiones de prueba al terminar.
+
 ## Salto de volumen al pausar videos — 6 de noviembre de 2026
 
 El final de la sesión restauraba inmediatamente el volumen general anterior, que podía superar el 60 %, mientras WebView todavía vaciaba una cola de audio. Los videos ahora solicitan `restoreOnEnd: false`: al pausar, salir, terminar o fallar conservan el volumen aplicado. El elemento se silencia antes de `pause()` y solo habilita el sonido después de confirmar el techo al reproducir. La preferencia se conserva también en la recuperación tras un cierre. Las locuciones mantienen su límite y restauración por defecto.

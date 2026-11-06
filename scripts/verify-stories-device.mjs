@@ -7,7 +7,7 @@ import WebSocket from "ws";
 
 const execute = promisify(execFile);
 const mode = process.argv[2];
-if (!["snapshot", "verify"].includes(mode)) throw Error("Use snapshot before updating, then verify.");
+if (!["snapshot", "verify", "screen-lock"].includes(mode)) throw Error("Use snapshot before updating, then verify or screen-lock.");
 const serial = process.argv[3] || "R8MT100KBQD";
 if (!["R8MT100KBQD", "3109RH1010027680"].includes(serial)) throw Error("Unknown tablet.");
 const adbPath = `${process.env.ANDROID_HOME || "C:/Users/pablo/AppData/Local/Android/Sdk"}/platform-tools/adb.exe`;
@@ -67,6 +67,8 @@ try {
     await mkdir(directory, { recursive: true });
     await writeFile(backupPath, JSON.stringify(backup, null, 2));
     console.log("Estado previo guardado; los datos de otras secciones se comprobarán mediante su huella.");
+  } else if (mode === "screen-lock") {
+    await verifyScreenLock();
   } else {
     const before = JSON.parse(await readFile(backupPath, "utf8"));
     saved = await evaluate(snapshotExpression);
@@ -204,4 +206,93 @@ try {
   }
   socket.close();
   await adb("forward", "--remove", "tcp:9224");
+}
+
+async function verifyScreenLock() {
+  await adb('shell','input','keyevent','KEYCODE_WAKEUP');
+  await delay(700);
+  const entries = 'Object.entries(localStorage).sort(([a],[b])=>a.localeCompare(b))';
+  const before = await evaluate(`({entries:${entries},playing:Boolean(storyAudio||appSpeechAudio||storyFilm?.session)})`);
+  assert.equal(before.playing,false,'Do not interrupt an existing listening session');
+  const baseline = JSON.parse(await readFile(backupPath,'utf8'));
+  assert.equal(checksum(before.entries.filter(([k])=>!k.startsWith('ian-story-')&&k!=='ian-escuela-story-progress-v1')),baseline.otherChecksum);
+  const volume = await evaluate('window.Capacitor.Plugins.StoryVolume.status()');
+  const results=[];
+  const waitFor=async expression=>{
+    const until=Date.now()+12000;
+    while(Date.now()<until){if(await evaluate(expression))return;await delay(80);}
+    throw Error('Screen lock condition timed out: '+expression);
+  };
+  // A shadow store isolates test readings and waits. Ian's actual keys are
+  // never cleared, expired or replaced to make a test audio available.
+  await evaluate(`(()=>{
+    const keys=['getItem','setItem','removeItem'];
+    const proto=Storage.prototype;
+    const originals=Object.fromEntries(keys.map(key=>[key,Object.getOwnPropertyDescriptor(proto,key)]));
+    window.__storyLockAudit={originals,support:storySupportState,route:{...route},listening:storyListeningMemory,cooldowns:storyAudioCooldownMemory,
+      shadow:new Map(Object.entries(localStorage))};
+    const isStory=key=>String(key).startsWith('ian-story-')||key==='ian-escuela-story-progress-v1';
+    proto.getItem=function(key){return isStory(key)?(__storyLockAudit.shadow.get(String(key))??null):originals.getItem.value.call(this,key);};
+    proto.setItem=function(key,value){if(isStory(key))__storyLockAudit.shadow.set(String(key),String(value));else originals.setItem.value.call(this,key,value);};
+    proto.removeItem=function(key){if(isStory(key))__storyLockAudit.shadow.delete(String(key));else originals.removeItem.value.call(this,key);};
+    return true;
+  })()`);
+  try {
+    await adb('shell','cmd','media_session','volume','--stream','3','--set',String(Math.min(3,volume.current)));
+    const cases=await evaluate(`[
+      ...STORY_BOOKS.map(book=>({id:book.id,panel:'read',scene:0})),
+      ...Object.keys(STORY_BOOKS[0].helps).map(panel=>({id:STORY_BOOKS[0].id,panel,scene:0}))
+    ]`);
+    for(const [index,item]of cases.entries()){
+      await evaluate(`__storyLockAudit.shadow.clear();storyListeningMemory=null;storyAudioCooldownMemory={};storySupportState=${JSON.stringify(item)};setRoute({view:'support-story'});true`);
+      const point=await evaluate(`(()=>{const r=document.querySelector('[data-action="story-listen"]').getBoundingClientRect();return{x:(r.x+r.width/2)*devicePixelRatio,y:(r.y+r.height/2)*devicePixelRatio}})()`);
+      await adb('shell','input','tap',String(Math.round(point.x)),String(Math.round(point.y)));
+      await waitFor('storyAudio && !storyAudio.paused && storyAudio.currentTime>.1');
+      const suppressVisibility=index===cases.length-1;
+      await evaluate(`window.__storyLockAudio=storyAudio;window.__storyLockBlocker=e=>{if(document.hidden)e.stopImmediatePropagation();};if(${suppressVisibility})document.addEventListener('visibilitychange',__storyLockBlocker,true);true`);
+      await adb('shell','input','keyevent','KEYCODE_SLEEP');
+      await waitFor('storyAudio===null && __storyLockAudio.paused && __storyLockAudio.muted');
+      await waitFor('window.Capacitor.Plugins.StoryVolume.status().then(v=>!v.active)');
+      const paused=await evaluate('({time:__storyLockAudio.currentTime,nextAt:storyAudioNextAt(storyAudioSlot()),now:Date.now()})');
+      await delay(250);
+      assert.equal(await evaluate('__storyLockAudio.currentTime'),paused.time,'The audio must not advance behind the lock screen');
+      assert.ok(paused.nextAt-paused.now>295000&&paused.nextAt-paused.now<=300000);
+      assert.equal(await evaluate('storyListening().pending'),null);
+      assert.equal(await evaluate(`storyListening().readings[${JSON.stringify(item.id)}].heard.length`),0);
+      assert.equal(await evaluate('storyInteractionLocked()'),false);
+      await adb('shell','input','keyevent','KEYCODE_WAKEUP');
+      await waitFor('!document.hidden');await delay(700);
+      assert.equal(await evaluate('storyAudio===null && __storyLockAudio.paused && __storyLockAudio.muted'),true,'Unlocking must not resume narration');
+      assert.equal(await evaluate('storyAudioNextAt(storyAudioSlot())'),paused.nextAt,'Duplicate lifecycle events must not restart the wait');
+      assert.equal(await evaluate("document.querySelector('[data-action=\"story-listen\"]').disabled"),true);
+      assert.equal(await evaluate("document.querySelector('[data-action=\"story-library\"]').disabled"),false);
+      await evaluate("document.removeEventListener('visibilitychange',__storyLockBlocker,true);storyPlayAudio();true");
+      assert.equal(await evaluate('storyAudio'),null,'Manual repeat remains blocked for five minutes');
+      assert.equal(checksum(await evaluate(entries)),checksum(before.entries),'Test playback never changes real storage');
+      results.push({...item,stopped:true,muted:true,noAutoplay:true,notCompleted:true,cooldownPreserved:true,nativeFallback:suppressVisibility});
+    }
+  } finally {
+    await adb('shell','input','keyevent','KEYCODE_WAKEUP');
+    await waitFor('!document.hidden');await delay(700);
+    await evaluate(`(()=>{
+      document.removeEventListener('visibilitychange',window.__storyLockBlocker,true);
+      storyAudio?.storyFinish?.();stopStoryMedia();
+      const audit=__storyLockAudit;
+      audit.shadow=new Map(Object.entries(localStorage));
+      storySupportState=audit.support;storyListeningMemory=audit.listening;storyAudioCooldownMemory=audit.cooldowns;
+      setRoute(audit.route);
+      for(const[key,descriptor]of Object.entries(audit.originals))Object.defineProperty(Storage.prototype,key,descriptor);
+      delete window.__storyLockAudit;delete window.__storyLockAudio;delete window.__storyLockBlocker;
+      return true;
+    })()`);
+    await adb('shell','cmd','media_session','volume','--stream','3','--set',String(volume.current));
+  }
+  const after=await evaluate(entries);
+  assert.equal(checksum(after),checksum(before.entries));
+  const output=new URL('../tmp/story-audio-screen-lock/',import.meta.url);
+  await mkdir(output,{recursive:true});
+  await writeFile(new URL('a8-verified.json',output),JSON.stringify({results,allStoragePreserved:true,
+    isolatedStoryStorage:true,nativeFallbackWithoutVisibilityChange:true,noAudioAdvanceWhileLocked:true,
+    beforeChecksum:checksum(before.entries),afterChecksum:checksum(after)},null,2));
+  console.log('A8 verificada: siete locuciones de cuentos y dos apoyos detenidos al bloquear, sin reanudación automática, espera conservada y datos intactos.');
 }

@@ -6,6 +6,8 @@ Pausar, cambiar de pestaña, cuento o sección, ocultar la página o apagar la p
 
 Los puntos usan exclusivamente `ian-story-video-progress-v1:<id>` y no modifican las lecturas ni las esperas de las locuciones. No se mezclan video y locución: la voz mantiene su bloqueo de cambios y la pestaña Video no inicia audios de escenas o apoyos.
 
+El bloqueo de navegación durante una locución no impide detenerla al apagar la pantalla. La suspensión de la app cierra la voz como interrumpida, sin completar la escena ni reanudarla automáticamente al volver, y conserva los cinco minutos desde la interrupción. Los eventos web y el puente de pausa de Android usan la misma finalización. Esta corrección se verificó en la A8 el 6 de noviembre con la caché v179.
+
 ## Corrección del bloqueo en «Preparando el video»
 
 La A8 mostró `PIPELINE_ERROR_DECODE`; el servicio de video registró `clear_instances(11)` y `OMX_ErrorInsufficientResources`. Los elementos anteriores se pausaban, pero mantenían sus fuentes y decodificadores. Además, la precarga con una búsqueda a cero iniciaba decodificadores aunque no se hubiera pulsado Reproducir.

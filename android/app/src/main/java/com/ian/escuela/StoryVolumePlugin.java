@@ -57,8 +57,8 @@ public class StoryVolumePlugin extends Plugin {
     }
 
     @Override protected void handleOnPause() {
-        // Al apagar la pantalla o pasar la app a segundo plano, el video se
-        // detiene incluso si WebView demora el evento visibilitychange.
-        bridge.getWebView().evaluateJavascript("if (typeof stopStoryFilm === 'function') stopStoryFilm();", null);
+        // Al apagar la pantalla o pasar la app a segundo plano, voz y video se
+        // detienen incluso si WebView demora el evento visibilitychange.
+        bridge.getWebView().evaluateJavascript("if (typeof suspendStoryMedia === 'function') suspendStoryMedia();", null);
     }
 }

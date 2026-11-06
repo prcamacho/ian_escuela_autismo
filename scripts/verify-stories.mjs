@@ -18,7 +18,7 @@ function createApp({ storage = new Map(), volume } = {}) {
       if (AudioMock.failNext) { AudioMock.failNext = false; throw Error("Playback unavailable"); }
       this.paused = false; this.onplaying?.(); return Promise.resolve();
     }
-    pause() { this.paused = true; }
+    pause() { this.mutedAtPause = this.muted; this.paused = true; }
   }
   const context = vm.createContext({ console, Date: TestDate, Audio: AudioMock, navigator: {}, location: { protocol: "file:" },
     window: { navigator: {}, addEventListener: (name, callback) => windowListeners.set(name, callback), scrollTo() {},
@@ -41,6 +41,7 @@ function createApp({ storage = new Map(), volume } = {}) {
     }
   };
   return { app, context, run, click, books, open, audios, storage, finish, complete, AudioMock, windowListeners,
+    setHidden: hidden => { context.document.hidden = hidden; listeners.get('visibilitychange')(); },
     advance: ms => { now += ms; }, setNow: value => { now = value; }, now: () => now,
     remaining: () => run("storyAudioRemainingMs()"), state: () => JSON.parse(run("JSON.stringify(storyListening())")) };
 }
@@ -86,6 +87,53 @@ for (const book of books) {
   assert.doesNotMatch(h.app.innerHTML, /story-prev|story-pause|story-bottom|Repaso/);
 }
 assert.equal(audited.size, 70);
+
+// Screen lock is a lifecycle interruption, even though user navigation is
+// locked. It must stop every scene/helper without completing the reading.
+let interrupted = 0;
+for (const book of books) {
+  const h = createApp(); h.open(book.id);
+  const sections = [...book.scenes.map((_, scene) => ({scene,panel:'read'})),
+    ...Object.keys(book.helps).map(panel=>({scene:7,panel}))];
+  for(const section of sections){
+    h.run(`storySupportState.scene=${section.scene};render()`);h.click('story-panel',section.panel);
+    h.click('story-listen');
+    const audio=h.audios.at(-1), count=h.audios.length;
+    assert.equal(h.run('storyInteractionLocked()'),true);
+    h.advance(1200);h.setHidden(true);
+    assert.equal(audio.paused,true,`${book.id}: ${section.panel} must stop when hidden`);
+    assert.equal(audio.mutedAtPause,true,'Silence before pausing and restoring volume');
+    assert.equal(h.run('storyAudio'),null);
+    assert.equal(h.run('storyInteractionLocked()'),false);
+    assert.equal(h.state().pending,null);
+    assert.equal(h.state().readings[book.id].heard.length,0,'Interrupted scenes never count as completed');
+    assert.equal(h.remaining(),300000,'Five minutes start at interruption');
+    h.setHidden(false);
+    assert.equal(h.audios.length,count,'Unlocking never resumes narration');
+    h.click('story-listen');assert.equal(h.audios.length,count);
+    h.run('storyAudioCooldownMemory={}');assert.equal(h.remaining(),300000);
+    h.advance(300000);
+    interrupted++;
+  }
+}
+assert.equal(interrupted,70);
+
+{
+  const h=createApp();h.open(A);h.setHidden(true);
+  h.run('storyPlayAudio()');assert.equal(h.audios.length,0,'A hidden page cannot start a narration');
+}
+
+{
+  let allow;
+  const calls=[];
+  const h=createApp({volume:{begin:()=>new Promise(resolve=>{allow=resolve;}),end:args=>{calls.push(args);return Promise.resolve();}}});
+  h.open(A);h.click('story-listen');
+  const audio=h.audios.at(-1);
+  h.setHidden(true);h.setHidden(false);allow();await flush();
+  assert.equal(audio.paused,true,'A late native response cannot start audio after screen lock');
+  assert.equal(audio.mutedAtPause,true);assert.equal(h.run('storyAudio'),null);
+  assert.ok(calls.length>0);assert.equal(h.state().pending,null);
+}
 
 {
   const h = createApp(); h.open(A); h.click("story-listen"); h.finish();
@@ -226,4 +274,4 @@ for (const [range, status, bytes] of [["bytes=0-3", 206, [0, 1, 2, 3]], ["bytes=
   let response; workerListeners.get("fetch")({ request: new Request("https://localhost/clip.mp4", { headers: { Range: range } }), respondWith: value => response = value });
   const result = await response; assert.equal(result.status, status); assert.deepEqual([...new Uint8Array(await result.arrayBuffer())], bytes);
 }
-console.log("Cuentos verificados: 70 audios, cinco minutos desde el final, cambio de cuento 2/5 minutos, lecturas completas, persistencia, fallos y puente de volumen Android.");
+console.log("Cuentos verificados: 70 audios, interrupción al ocultar/bloquear sin completar la escena ni reanudar sola, cinco minutos desde el final, cambio de cuento 2/5 minutos, lecturas completas, persistencia, fallos y puente de volumen Android.");
