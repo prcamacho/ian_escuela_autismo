@@ -13,7 +13,10 @@ const context = vm.createContext({
   localStorage: { getItem: (key) => storage.get(key) ?? null, setItem: (key, value) => storage.set(key, value) },
   document: { getElementById: () => appElement, querySelector: () => null, documentElement: { classList: { toggle() {} } }, body: { classList: { toggle() {} } }, addEventListener: (event, callback) => listeners.set(event, callback) }
 });
-for (const file of ["pacman-language.js", "language-missions.js", "language-scenes.js", "weight-lab.js", "technology.js", "school-arcade.js", "pacman-quests.js", "english-family.js", "social-farm.js", "pacman-worlds.js", "pacman-discoveries.js", "app.js"]) vm.runInContext(await readFile(new URL(`../app/${file}`, import.meta.url), "utf8"), context, { filename: file });
+const scriptFiles = [...(await readFile(new URL("../app/index.html", import.meta.url), "utf8"))
+  .matchAll(/<script src="([^?]+)\?[^\"]+"><\/script>/g)]
+  .map(match => match[1]).filter(file => !file.startsWith("vendor/"));
+for (const file of scriptFiles) vm.runInContext(await readFile(new URL(`../app/${file}`, import.meta.url), "utf8"), context, { filename: file });
 const run = (source) => vm.runInContext(source, context);
 const click = (action, dataset = {}) => listeners.get("click")({ target: { closest: () => ({ dataset: { action, ...dataset } }) } });
 const current = () => run("session.exercises[session.index]");
@@ -23,7 +26,7 @@ run(`var before = clone(DEFAULT_DATA); before.settings.studentName = "Ian conser
 assert.equal(run('after.settings.studentName'), "Ian conservado");
 assert.equal(run('after.subjects.find(s => s.id === "lengua").themes.filter(t => t.missionMode).length'), 5);
 assert.equal(run('after.subjects.find(s => s.id === "lengua").themes.filter(t => t.id === "personal").length'), 1);
-assert.equal(run('after.subjects.find(s => s.id === "lengua").themes.filter(t => !t.arcadeMode && !t.questMode && !t.worldMode && !t.discoveryMode).slice(0, 5).every(t => Boolean(t.missionMode))'), true);
+assert.equal(run('after.subjects.find(s => s.id === "lengua").themes.filter(t => !t.arcadeMode && !t.questMode && !t.worldMode && !t.discoveryMode && !t.expeditionMode).slice(0, 5).every(t => Boolean(t.missionMode))'), true);
 
 const themes = run("LANGUAGE_MISSION_THEMES");
 for (const theme of themes) {

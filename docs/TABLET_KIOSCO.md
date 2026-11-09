@@ -4,6 +4,18 @@ Este documento conserva el contexto operativo de la Samsung Tab A8 dedicada a Ia
 
 Para distinguir A8 y Ulefone, activar el compañero y ubicar el respaldo cifrado de llaves, leer también [TABLETS_MANTENIMIENTO.md](TABLETS_MANTENIMIENTO.md). Los comandos de este documento sin serie explícita solo deben usarse con una tablet conectada; preferir los nuevos comandos por nombre.
 
+## Permisos de la sesion: comprobar antes de insistir
+
+El 9 de noviembre de 2026 una actualizacion de Cuentos se instalo y verifico en la A8 desde otro chat. Su registro de autorizaciones muestra solicitudes `sandbox_permissions: "require_escalated"` aprobadas. En esta conversacion los intentos normales fallaron al crear la conexion local de ADB, y una prueba independiente de TCP local recibio acceso denegado. La solicitud equivalente fuera del entorno restringido fue rechazada con `sandbox_approval: false`. No se encontraron cambios en los scripts de actualizacion que explicaran la diferencia; no se atribuye a un cambio hecho por el usuario.
+
+Antes de diagnosticar el cable o la autorizacion USB, ejecutar `npm run tablet:check`. No usa ADB ni consulta o modifica la tablet. Comprueba una conexion TCP temporal dentro de la PC y espera como maximo dos segundos por esa conexion. Devuelve JSON y codigo 0 si la conexion funciona o codigo 2 si falla. Que funcione solo habilita el siguiente diagnostico: no confirma que haya una tablet conectada.
+
+El actualizador incluye esta comprobacion y distingue fallo de conexion local, fallo de arranque del servidor ADB, fallo al enumerar dispositivos y una enumeracion correcta sin la tablet autorizada. Un fallo local no debe producir instrucciones de cambiar cable o aceptar un permiso en la tablet.
+
+Verificacion: `npm run verify:tablet`. Comprueba el diagnostico real de la sesion, la detencion ante acceso denegado y la lectura de salidas nativas en Windows PowerShell 5.1. Los avisos de arranque en stderr no se consideran errores si el proceso termina con codigo cero. Las pruebas no usan ADB ni modifican la tablet.
+
+La autorizacion del usuario para actualizar la app y la politica efectiva de ejecucion son cosas diferentes. Si la politica permite solicitar ejecucion autorizada fuera del sandbox, usar esa via para la operacion concreta. Si la prohibe, comunicar el bloqueo una sola vez: repetir ADB o pedir nuevamente permiso al usuario no cambia esa politica. No editar archivos de configuracion ni usar otras herramientas para eludirla. Las instrucciones permanentes para futuros chats estan en `AGENTS.md`.
+
 ## Estado actual
 
 - Dispositivo: Samsung Galaxy Tab A8.

@@ -1,4 +1,4 @@
-const CACHE_NAME = "ian-escuela-v181";
+const CACHE_NAME = "ian-escuela-v183";
 const PICTO_FILES = [
   "./assets/pictos/adios.png",
   "./assets/pictos/abrazo.png",
@@ -322,6 +322,8 @@ const APP_FILES = [
   "./pacman-worlds.css",
   "./pacman-discoveries.js",
   "./pacman-discoveries.css",
+  "./school-expeditions.js",
+  "./school-expeditions.css",
   "./parish-visit.js",
   "./parish-visit.css",
   "./pacman-memory.js",

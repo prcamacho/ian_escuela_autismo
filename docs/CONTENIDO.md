@@ -1,5 +1,31 @@
 # Contenido educativo
 
+## Escuela: expediciones para 9 años — 9 de noviembre de 2026
+
+Una nueva actividad al principio de cada una de las seis materias, también en instalaciones existentes. Se conservan los temas personales y los ajustes. Cada partida tiene cinco desafíos distintos y los bancos rotan entre partidas: 60 variantes en total.
+
+| Materia | Actividad | Aprendizaje y animación |
+| --- | --- | --- |
+| Lengua | Detectives del porqué | Diez relatos breves. Identificar causas, consecuencias o propósitos; después de comprobar, escenas de lluvia, viento, derrames, luz, deshielo y fútbol representan el relato. |
+| Ciencias Naturales | La red de la vida | Ocho ejemplos de cadenas de tres eslabones. Ordenar alimento y consumidores; una señal recorre las flechas. Se aclara que son ejemplos simplificados y que existen otras relaciones. |
+| Ciencias Sociales | El viaje de los productos | Ocho productos y cuatro etapas por circuito: materia prima, transformación y venta, con los trabajos y transportes que los conectan. El recorrido correcto se representa después de comprobar. |
+| Matemáticas | Pizzería de las fracciones | Doce pedidos de medios, cuartos y octavos; se seleccionan y quitan porciones iguales sobre la pizza. Incluye equivalencias como 1/2 = 2/4 = 4/8. Las porciones se separan y vuelven a reunirse. |
+| Inglés | Ready for the weather | Doce mensajes con clima, prenda y color. Elegir ambas características; el personaje muestra la elección antes de comprobar y la prenda del mensaje después, con traducción y animación. |
+| Tecnología | El taller de los inventos | Diez necesidades de diseño. Elegir un material y observar impermeabilidad, absorción, transparencia, rigidez, plegado, elasticidad o reflexión en una prueba animada. |
+
+Las respuestas se editan antes de **Comprobar**. Una vez confirmadas, quedan bloqueadas y se registra un único resultado en la sesión. El avance es manual y **Ver animación** repite la explicación sin modificar el resultado. No hay reloj, vidas ni audio. Las animaciones son finitas, se cancelan al salir y respetan movimiento reducido. Ilustraciones originales en SVG; no se requieren descargas ni servicios externos.
+
+La selección es una adaptación para practicar con apoyos visuales a los 9 años, no una equivalencia rígida entre edad y nivel. Referencias consultadas el 9 de noviembre de 2026; los textos, actividades e ilustraciones son originales:
+
+- [Ministerio de Educación: NAP, segundo ciclo](https://www.educ.ar/recursos/132576/nap-educacion-primaria-segundo-ciclo): comprensión narrativa, relaciones causales y resolución de problemas.
+- [DGCyE: Interacciones entre seres vivos](https://continuemosestudiando.abc.gob.ar/contenido/interacciones-entre-seres-vivos/): relaciones alimentarias en cadena y en red.
+- [Educ.ar: Un esfuerzo de producción](https://www.educ.ar/recursos/118053/un-esfuerzo-de-produccion): circuitos productivos y división del trabajo en primaria.
+- [DGCyE: Estudiar fracciones I](https://continuemosestudiando.abc.gob.ar/contenido/4-estudiar-fracciones-i/): partes iguales, relación parte-todo y equivalencias.
+- [British Council: Clothes, LearnEnglish Kids](https://learnenglishkids.britishcouncil.org/category/topics/clothes): vocabulario de prendas y apoyos visuales.
+- [Educ.ar: Los materiales, clasificación y propiedades](https://www.educ.ar/recursos/90867/los-materiales-clasificacion-y-propiedades): relación entre propiedades y usos de los materiales.
+
+Archivos: `app/school-expeditions.js` y `app/school-expeditions.css`. Incluidos en la caché offline. Verificación funcional: `npm run verify:school`; recursos offline: `npm run verify:pwa`. Instalados y revisados en la A8 el 9 de noviembre: seis partidas completas, 30 desafíos con toques reales y animaciones. La revisión visual final verificó las seis pantallas, las fracciones con numerador sobre denominador y el comienzo de cada actividad desde arriba. Los resultados de prueba se aislaron del almacenamiento real; datos de Ian conservados. Evidencias locales en `tmp/expeditions-release/`.
+
 La app esta preparada para que los temas y ejercicios se mantengan desde el codigo. Por ahora no hay editor visible para Ian, asi la interfaz queda limpia y sin distracciones.
 
 ## Descubrimientos de Pac-Man — 2 de noviembre de 2026

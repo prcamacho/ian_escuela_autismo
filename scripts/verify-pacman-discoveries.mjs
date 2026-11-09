@@ -27,7 +27,7 @@ run(`var old = clone(DEFAULT_DATA);
   var migrated = normalizeData(normalizeData(old));`);
 assert.equal(run("migrated.settings.studentName"), "Conservar");
 for (const theme of themes) {
-  assert.equal(run(`migrated.subjects.find(s => s.id === '${theme.subject}').themes[0].id`), theme.id);
+  assert.equal(run(`migrated.subjects.find(s => s.id === '${theme.subject}').themes.find(t => !t.expeditionMode).id`), theme.id);
   assert.equal(run(`migrated.subjects.find(s => s.id === '${theme.subject}').themes.filter(t => t.discoveryMode).length`), 1);
   for (const id of run(`old.subjects.find(s => s.id === '${theme.subject}').themes.map(t => t.id)`)) {
     assert.equal(run(`migrated.subjects.find(s => s.id === '${theme.subject}').themes.some(t => t.id === ${JSON.stringify(id)})`), true);

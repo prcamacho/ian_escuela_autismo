@@ -1181,6 +1181,7 @@ const DEFAULT_DATA = {
 
 DEFAULT_DATA.subjects.forEach((subject) => {
   subject.themes = withPacmanDiscoveryThemes(subject.id, withPacmanWorldThemes(subject.id, withPacmanQuestThemes(subject.id, withFamilyThemes(subject.id, withSchoolArcadeThemes(subject.id, subject.themes)))));
+  subject.themes = withSchoolExpeditionThemes(subject.id, subject.themes);
 });
 
 let data = loadData();
@@ -1938,11 +1939,11 @@ function normalizeData(value) {
         : themesWithCurrentMathActivities;
       return {
         ...fixed,
-        themes: clone(withPacmanDiscoveryThemes(fixed.id, withPacmanWorldThemes(fixed.id, withFarmTheme(fixed.id, withPacmanQuestThemes(fixed.id, withFamilyThemes(fixed.id, withSchoolArcadeThemes(fixed.id, fixed.id === "tecnologia"
+        themes: clone(withSchoolExpeditionThemes(fixed.id, withPacmanDiscoveryThemes(fixed.id, withPacmanWorldThemes(fixed.id, withFarmTheme(fixed.id, withPacmanQuestThemes(fixed.id, withFamilyThemes(fixed.id, withSchoolArcadeThemes(fixed.id, fixed.id === "tecnologia"
           ? withWeightLabThemes(fixed.id, [...themesWithCurrentMathActivities, ...(fallback?.themes || []).filter(
               (theme) => !themesWithCurrentMathActivities.some((savedTheme) => savedTheme?.id === theme.id)
             )])
-          : themesWithCurrentNaturalActivities)))))))
+          : themesWithCurrentNaturalActivities))))))))
       };
     })
   };
@@ -1971,6 +1972,7 @@ function setRoute(nextRoute) {
   if (route.view === "support-memory" && nextRoute.view !== "support-memory") leavePacmanMemory();
   if (route.view === "support-explorer" && nextRoute.view !== "support-explorer") leavePacmanExplorer();
   stopPacmanQuestAnimation();
+  stopSchoolExpeditionAnimation();
   if (typeof stopCapacityAnimation === "function") stopCapacityAnimation();
   if (typeof stopEarthAnimation === "function") stopEarthAnimation();
   stopFamilyAudio();
@@ -2037,6 +2039,7 @@ function render() {
   if (session?.exercises?.[0]?.type === "weight-lab") focusedActivityTypes.push("weight-lab");
   if (session?.exercises?.[0]?.type === "pacman-world") focusedActivityTypes.push("pacman-world");
   if (session?.exercises?.[0]?.type === "pacman-discovery") focusedActivityTypes.push("pacman-discovery");
+  if (session?.exercises?.[0]?.type === "school-expedition") focusedActivityTypes.push("school-expedition");
   const isFocusedActivity =
     route.view === "run" && (focusedActivityTypes.includes(session?.exercises?.[session.index]?.type) || session?.exercises?.[0]?.type === "pacman-verbs" || session?.exercises?.[0]?.type === "language-mission" || session?.exercises?.[0]?.type === "technology-lab" || session?.exercises?.[0]?.type === "school-arcade" || session?.exercises?.[0]?.type === "pacman-quest" || session?.exercises?.[0]?.type === "english-family");
   document.documentElement.classList.toggle("communication-mode", route.view === "communication");
@@ -3837,9 +3840,9 @@ function renderSubject(subjectId) {
     ? subject.themes
         .map(
           (theme) => `
-        <article class="item-card ${theme.discoveryMode ? "pd-theme-card" : theme.worldMode ? "pw-theme-card" : theme.farmActivity ? "farm-theme-card" : theme.questMode ? "pq-theme-card" : theme.earthLayers ? "earth-theme-card" : theme.arcadeMode ? "sa-theme-card" : theme.missionMode ? "lm-theme-card" : theme.pacmanVerbMode ? "pv-theme-card" : ""}">
+        <article class="item-card ${theme.expeditionMode ? "se-theme-card" : theme.discoveryMode ? "pd-theme-card" : theme.worldMode ? "pw-theme-card" : theme.farmActivity ? "farm-theme-card" : theme.questMode ? "pq-theme-card" : theme.earthLayers ? "earth-theme-card" : theme.arcadeMode ? "sa-theme-card" : theme.missionMode ? "lm-theme-card" : theme.pacmanVerbMode ? "pv-theme-card" : ""}">
           <div class="item-card-header">
-            <span class="tile-mark" style="--subject-color:${subject.color}">${theme.discoveryMode || theme.worldMode || theme.farmActivity || theme.questMode || theme.earthLayers || theme.pacmanVerbMode || theme.missionMode || theme.arcadeMode ? pacmanVerbSprite() : icon(subject.icon)}</span>
+            <span class="tile-mark" style="--subject-color:${subject.color}">${theme.expeditionMode || theme.discoveryMode || theme.worldMode || theme.farmActivity || theme.questMode || theme.earthLayers || theme.pacmanVerbMode || theme.missionMode || theme.arcadeMode ? pacmanVerbSprite() : icon(subject.icon)}</span>
             <div class="item-card-body">
               <h3>${escapeHtml(theme.title)}</h3>
               <p>${escapeHtml(themeDescription(theme))}</p>
@@ -3974,7 +3977,9 @@ function startSession(subjectId, themeId, mode) {
   familyAudioError = "";
 
   if (typeof stopCapacityAnimation === "function") stopCapacityAnimation();
-  const exercises = theme.capacityMode
+  const exercises = theme.expeditionMode
+    ? createSchoolExpeditionExercises(theme)
+    : theme.capacityMode
     ? createCapacityExercises(theme)
     : theme.discoveryMode
     ? createPacmanDiscoveryExercises(theme)
@@ -4027,6 +4032,8 @@ function startSession(subjectId, themeId, mode) {
     soundGalleryItemId: null,
     answers: [],
     exercises,
+    expeditions: Object.fromEntries(exercises.filter((exercise) => exercise.type === "school-expedition")
+      .map((exercise) => [exercise.id, createSchoolExpeditionState()])),
     capacity: Object.fromEntries(exercises.filter((exercise) => exercise.type === "capacity-lab")
       .map((exercise) => [exercise.id, createCapacityState(exercise)])),
     capacityLesson: theme.capacityMode ? { active: true, unit: 2, parts: [], busy: false } : null,
@@ -4258,7 +4265,7 @@ function startSession(subjectId, themeId, mode) {
   };
   route = { view: "run" };
   render();
-  if (exercises[0]?.type === "language-mission") window.scrollTo({ top: 0, behavior: "auto" });
+  if (["language-mission", "school-expedition"].includes(exercises[0]?.type)) window.scrollTo({ top: 0, behavior: "auto" });
   if (exercises[0]?.type === "english-vocabulary") {
     window.setTimeout(() => playEnglishVocabularyAudio(), 120);
   }
@@ -6927,6 +6934,7 @@ function renderRunner() {
   const total = session.exercises.length;
   const done = session.index >= total;
   if (done) {
+    if (session.exercises[0]?.type === "school-expedition") return renderSchoolExpeditionFinish();
     if (session.exercises[0]?.type === "capacity-lab") return renderCapacityFinish();
     if (session.exercises[0]?.type === "pacman-discovery") return renderPacmanDiscoveryFinish();
     if (session.exercises[0]?.type === "weight-lab") return renderWeightLabFinish();
@@ -6939,6 +6947,7 @@ function renderRunner() {
   }
 
   const exercise = session.exercises[session.index];
+  if (exercise.type === "school-expedition") return renderSchoolExpeditionRunner(exercise);
   if (exercise.type === "capacity-lab") return renderCapacityRunner(exercise);
   if (exercise.type === "pacman-discovery") return renderPacmanDiscoveryRunner(exercise);
   if (exercise.type === "weight-lab") return renderWeightLabRunner(exercise);
@@ -8643,6 +8652,7 @@ document.addEventListener("click", (event) => {
   if (!target) return;
   if (typeof storyInteractionLocked === "function" && storyInteractionLocked()) return;
   const action = target.dataset.action;
+  if (action.startsWith("se-")) return schoolExpeditionAction(action, target);
   if (action.startsWith("pd-")) return pacmanDiscoveryAction(action, target);
   if (action.startsWith("story-")) return storySupportAction(action, target);
   if (action.startsWith("pm-")) return pacmanMemoryAction(action, target);

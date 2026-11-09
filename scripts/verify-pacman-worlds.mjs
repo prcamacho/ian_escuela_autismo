@@ -30,7 +30,7 @@ run(`var old = clone(DEFAULT_DATA);
   var migrated = normalizeData(normalizeData(old));`);
 assert.equal(run("migrated.settings.studentName"), "Nombre conservado");
 for (const theme of themes) {
-  assert.equal(run(`migrated.subjects.find(s => s.id === '${theme.subject}').themes.find(t => !t.discoveryMode).id`), theme.id);
+  assert.equal(run(`migrated.subjects.find(s => s.id === '${theme.subject}').themes.find(t => !t.expeditionMode && !t.discoveryMode).id`), theme.id);
   assert.equal(run(`migrated.subjects.find(s => s.id === '${theme.subject}').themes.filter(t => t.worldMode).length`), 1);
   assert.equal(run(`migrated.subjects.find(s => s.id === '${theme.subject}').themes.some(t => t.id === 'custom-${theme.subject}')`), true);
   const previous = run(`old.subjects.find(s => s.id === '${theme.subject}').themes.map(t => t.id)`);

@@ -31,13 +31,32 @@ if (!(Test-Path -LiteralPath $adbPath)) {
   throw "No encuentro ADB en $adbPath. Ejecuta primero scripts\setup-android-cli.ps1."
 }
 
+. (Join-Path $PSScriptRoot 'tablet-environment.ps1')
+Assert-TabletLocalConnection
+
 if (Test-Path -LiteralPath $androidKeyPath) {
   $env:ADB_VENDOR_KEYS = $androidKeyPath
 }
 
 Write-Host "Conectando con la tablet $Serial..."
-& $adbPath start-server | Out-Null
-$deviceLines = & $adbPath devices
+function Invoke-TabletAdbDiagnostic {
+  param([string]$AdbPath, [string[]]$AdbArguments)
+  # ADB writes normal startup notices to stderr. In Windows PowerShell 5.1,
+  # redirecting stderr under Stop can throw even when the native exit is zero.
+  $ErrorActionPreference = 'Continue'
+  $taskOutput = @(& $AdbPath @AdbArguments 2>&1)
+  return [pscustomobject]@{ ExitCode = $LASTEXITCODE; Output = $taskOutput }
+}
+$serverQuery = Invoke-TabletAdbDiagnostic -AdbPath $adbPath -AdbArguments @('start-server')
+$serverOutput = $serverQuery.Output -join [Environment]::NewLine
+if ($serverQuery.ExitCode -ne 0) {
+  throw "ADB no pudo iniciar su servidor local. Todavia no se consulto la tablet. No es un diagnostico de cable o autorizacion USB.`n$serverOutput"
+}
+$deviceQuery = Invoke-TabletAdbDiagnostic -AdbPath $adbPath -AdbArguments @('devices')
+$deviceLines = $deviceQuery.Output
+if ($deviceQuery.ExitCode -ne 0) {
+  throw "ADB no pudo enumerar los dispositivos. No se puede afirmar que la tablet este desconectada o sin autorizar.`n$($deviceLines -join [Environment]::NewLine)"
+}
 $devicePattern = "^$([regex]::Escape($Serial))\s+device\b"
 if (!($deviceLines | Select-String -Pattern $devicePattern)) {
   $deviceSummary = ($deviceLines -join [Environment]::NewLine).Trim()

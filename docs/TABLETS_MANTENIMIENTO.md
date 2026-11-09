@@ -7,6 +7,16 @@ Leer también [TABLET_KIOSCO.md](TABLET_KIOSCO.md). Las dos usan `com.ian.escuel
 | Ulefone Armor Pad Pro | `3109RH1010027680` | Activación individual desde esta PC |
 | Samsung Galaxy Tab A8 | `R8MT100KBQD` | Desactivado; la actualización vuelve a comprobarlo |
 
+## Seis expediciones de Escuela instaladas — 9 de noviembre de 2026
+
+Se instalaron los cambios pendientes de la otra conversación: Detectives del porqué, La red de la vida, El viaje de los productos, Pizzería de las fracciones, Ready for the weather y El taller de los inventos. Hay una actividad nueva al principio de cada materia, cinco desafíos por partida y 60 variantes. Se conservaron los temas anteriores, ajustes personales, los 175 recursos de Cuentos y sus reglas actuales, incluidos descansos y esperas de videos.
+
+Se comprobaron seis partidas completas y 30 respuestas mediante toques reales en la A8, repetición de animaciones, avance manual, ausencia de errores JavaScript y conservación del almacenamiento. La comprobación inicial tras instalar confirmó los datos escolares previos. Para continuar la revisión se tomó el estado actual de la tablet, sin reponer la copia previa. Todas las claves anteriores y posteriores a las partidas de prueba coinciden; las pruebas utilizaron almacenamiento separado en memoria.
+
+La inspección visual detectó una regla de etiquetas que mostraba el numerador y el denominador juntos. Se corrigió la especificidad de `.se-order > .se-fraction`, conservando su tamaño en pantallas angostas, y se hizo que las expediciones se abran desde arriba. La lógica de las actividades no cambió. La versión final pasó otra revisión de las seis pantallas en la tablet, con fracciones verticales e instrucciones visibles.
+
+Pasaron `verify-school-expeditions.mjs`, las regresiones modificadas de las actividades anteriores, las 70 locuciones y los 621 recursos PWA. El chequeo local previo confirmó disponibilidad con `require_escalated`; instalación mediante `update-tablet.ps1 -Tablet a8 -SkipBuild`, con Device Owner conservado, compañero deshabilitado, app al frente y kiosco `LOCKED`. Se verificaron 636 archivos web y coincidencia del SHA-256 compilado e instalado: `400E96798E0318DC545837FC9F341674F695C91B4EDF3F61DBE5ECC3265E2022`, caché v183. Copias de la raíz actualizadas. Evidencias: `tmp/expeditions-release/`. Quedó Escuela abierta y todas las conexiones de revisión cerradas.
+
 ## Descansos y dos minutos tras videos completos — 9 de noviembre de 2026
 
 Los videos completos requieren dos minutos para iniciar el de otro cuento; los incompletos mantienen un minuto. El mismo video puede retomarse sin esa espera. Se muestra el contador de espera correspondiente.

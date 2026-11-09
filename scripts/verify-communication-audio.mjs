@@ -76,7 +76,10 @@ const context = vm.createContext({
   clearTimeout
 });
 
-for (const file of ["pacman-language.js", "language-missions.js", "language-scenes.js", "weight-lab.js", "technology.js", "school-arcade.js", "pacman-quests.js", "english-family.js", "social-farm.js", "pacman-worlds.js", "pacman-discoveries.js", "app.js"]) {
+const scriptFiles = [...(readFileSync(new URL("../app/index.html", import.meta.url), "utf8"))
+  .matchAll(/<script src="([^?]+)\?[^\"]+"><\/script>/g)]
+  .map(match => match[1]).filter(file => !file.startsWith("vendor/"));
+for (const file of scriptFiles) {
   vm.runInContext(readFileSync(resolve(root, "app", file), "utf8"), context);
 }
 const run = (code) => vm.runInContext(code, context);

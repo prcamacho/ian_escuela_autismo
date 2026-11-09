@@ -10,7 +10,10 @@ const context = vm.createContext({console, navigator:{}, location:{protocol:'fil
   document:{getElementById:()=>app,querySelector:()=>null,addEventListener(){},
     documentElement:{classList:{toggle(){}}},body:{classList:{toggle(){}}}}
 });
-for(const file of ['pacman-language.js','language-missions.js','language-scenes.js','weight-lab.js','technology.js','capacity-lab.js','school-arcade.js','pacman-quests.js','english-family.js','social-farm.js','pacman-worlds.js','pacman-discoveries.js','app.js'])
+const scriptFiles = [...(await readFile(new URL("../app/index.html", import.meta.url), "utf8"))
+  .matchAll(/<script src="([^?]+)\?[^\"]+"><\/script>/g)]
+  .map(match => match[1]).filter(file => !file.startsWith("vendor/"));
+for (const file of scriptFiles)
   vm.runInContext(await readFile(new URL('../app/'+file,import.meta.url),'utf8'),context,{filename:file});
 const run=code=>vm.runInContext(code,context);
 const tap=(action,dataset={})=>run(`capacityAction(${JSON.stringify(action)},{dataset:${JSON.stringify(dataset)}})`);
