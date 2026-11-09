@@ -7,6 +7,16 @@ Leer también [TABLET_KIOSCO.md](TABLET_KIOSCO.md). Las dos usan `com.ian.escuel
 | Ulefone Armor Pad Pro | `3109RH1010027680` | Activación individual desde esta PC |
 | Samsung Galaxy Tab A8 | `R8MT100KBQD` | Desactivado; la actualización vuelve a comprobarlo |
 
+## Descansos y dos minutos tras videos completos — 9 de noviembre de 2026
+
+Los videos completos requieren dos minutos para iniciar el de otro cuento; los incompletos mantienen un minuto. El mismo video puede retomarse sin esa espera. Se muestra el contador de espera correspondiente.
+
+Toda la sección Cuentos comparte 15 minutos de uso visible. Salir menos de cinco minutos conserva el uso acumulado; cinco minutos consecutivos fuera lo reinician. También se deja de acumular al bloquear u ocultar la app. Al agotarse el uso, voz y video se interrumpen y aparece **Descanso**, con cuenta regresiva de 15:00 a 00:00, actualizada cada segundo. Se bloquea Cuentos y se permiten las otras secciones. Un descanso activo persiste al cerrar o salir y no se cancela por pasar cinco minutos fuera. Al finalizar se habilita el acceso sin autoplay.
+
+La clave nueva es `ian-story-usage-v1`, con uso, señal de actividad, salida y vencimiento del descanso. No se cambian los avances, esperas de locuciones ni los puntos de los videos. Pasaron las 70 locuciones, los siete videos reales y offline, la política de dos minutos, las fronteras exactas del descanso y de cinco minutos fuera, recarga y tres tamaños de pantalla. En la A8 se usó un contador de prueba aislado en 14:59 para observar la detención real de una locución y un video, salida a Mis apoyos, bloqueo al volver y habilitación sin autoplay. Los 120 segundos de espera después de un video completo sí se midieron en tiempo real. El reloj de Android se conservó y las huellas de todas las claves reales antes y después coinciden.
+
+Actualización instalada sin borrar datos, compañero deshabilitado y kiosco `LOCKED` confirmados. La compilación auditada incluye 634 archivos web y caché v181. SHA-256: `4C1B90647158FFC843F0D4D9CE18B2FB9F5C08C4B6F51C52102A2AC59B19596E`. Copias de la raíz actualizadas. Evidencias: `tmp/story-breaks/`. Al terminar queda Mis apoyos, con las conexiones de prueba cerradas.
+
 ## Un minuto entre videos incompletos — 6 de noviembre de 2026
 
 Los videos tienen una espera independiente de las locuciones: si el último video empezó y se deja incompleto, los otros seis requieren un minuto desde que se detuvo. El mismo video puede retomarse de inmediato. Terminarlo permite iniciar otro sin espera. Debajo de los botones se muestra `Espera: 59s`, contando hacia atrás, con Reproducir deshabilitado. Al vencer se habilita únicamente el comienzo manual. Recorrer cuentos o salir de un video ya pausado no reinicia el plazo, que sobrevive a la recarga y al cierre de la app.

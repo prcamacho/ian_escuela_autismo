@@ -16,7 +16,9 @@ const browser = await chromium.launch({ channel: "msedge", headless: true, args:
 const errors = [];
 const verified = [];
 async function openVideo(page, id) {
-  await page.evaluate(() => setRoute({ view: "support-stories" }));
+  // Continuous-use breaks have their own integration suite. These cases
+  // isolate video playback, saved points and the shorter switching waits.
+  await page.evaluate(() => { storyUsageSync=()=>{};setRoute({ view: "support-stories" }); });
   await page.locator(`[data-action="story-open"][data-value="${id}"]`).click();
   await page.locator('[data-action="story-panel"][data-value="video"]').click();
 }
@@ -27,9 +29,13 @@ async function play(page) {
     return v && !v.paused && v.currentTime > .15 && storyFilm?.playing && !v.error;
   });
 }
-async function finishVideo(page) {
+async function finishVideo(page, expireWait = true) {
   await page.locator('.story-film').evaluate(v=>v.currentTime=v.duration-.15);
   await page.waitForFunction(()=>document.querySelector('.story-film').ended && storyFilm.session===null);
+  if(expireWait)await page.evaluate(()=>{
+    const saved=JSON.parse(localStorage.getItem(STORY_VIDEO_LAST_KEY));
+    saved.at-=120000;localStorage.setItem(STORY_VIDEO_LAST_KEY,JSON.stringify(saved));storyFilmLastMemory=null;
+  });
 }
 try {
   const context = await browser.newContext({ viewport: { width: 1098, height: 686 }, hasTouch: true, serviceWorkers: "block" });
@@ -149,9 +155,14 @@ try {
   await page.waitForFunction(()=>!document.querySelector('[data-action="story-video-play"]').disabled);
   assert.equal(await page.locator('.story-film').evaluate(v=>v.paused),true,'Expiry enables manual play without autoplay');
   assert.equal(await page.locator('.story-film-status').textContent(),'');
-  await play(page);await finishVideo(page);
+  await play(page);await finishVideo(page,false);
   await openVideo(page,books[1].id);
-  assert.equal(await page.locator('[data-action="story-video-play"]').isDisabled(),false,'Finishing a video immediately permits another');
+  assert.equal(await page.locator('[data-action="story-video-play"]').isDisabled(),true,'Finishing a video requires two minutes before another');
+  assert.equal(await page.locator('.story-film-status').textContent(),'Espera: 120s');
+  await page.evaluate(()=>{window.__videoNow+=119999;storyFilmControls();});
+  assert.equal(await page.locator('[data-action="story-video-play"]').isDisabled(),true);
+  await page.evaluate(()=>window.__videoNow++);
+  await page.waitForFunction(()=>!document.querySelector('[data-action="story-video-play"]').disabled);
   await play(page);await page.locator('[data-action="story-video-pause"]').click();
   await page.evaluate(()=>window.__videoNow+=60000);
   const seedPoint = async age => page.evaluate(({id,age})=>{
@@ -283,7 +294,7 @@ try {
     rapidTabsWithoutLoading:35,detachedPlayersUnloaded:true,stalledStartTimesOutAndRetries:true,
     otherSixVideosBlockedForOneMinute:true,countdown59sVisible:true,sameVideoImmediatelyAvailable:true,
     changeWaitSurvivesReload:true,pausedBrowsingDoesNotExtendChangeWait:true,blockedAt59999ms:true,enabledAt60000msWithoutAutoplay:true,
-    completionImmediatelyAllowsAnotherVideo:true,errors},null,2));
+    completionRequiresTwoMinutes:true,errors},null,2));
   console.log('Videos verificados: 7 MP4 reales y offline, 60 %, salida y segundo plano, reanudación persistente, reinicio exacto a cinco minutos, carreras Android y datos conservados.');
 } finally {
   await browser.close();

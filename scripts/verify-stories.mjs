@@ -8,9 +8,9 @@ const sources = await Promise.all([...html.matchAll(/<script src="([^?]+)\?[^\"]
   .map(([, file]) => file).filter(file => !file.startsWith("vendor/"))
   .map(async file => [file, await readFile(new URL(`../app/${file}`, import.meta.url), "utf8")]));
 
-function createApp({ storage = new Map(), volume } = {}) {
+function createApp({ storage = new Map(), volume, trackUsage = false, initialNow = 1_000_000 } = {}) {
   const app = { innerHTML: "" }, listeners = new Map(), windowListeners = new Map(), audios = [];
-  let now = 1_000_000;
+  let now = initialNow;
   class TestDate extends Date { static now() { return now; } }
   class AudioMock {
     constructor(src) { this.src = src; this.currentTime = 0; this.paused = true; audios.push(this); }
@@ -22,7 +22,7 @@ function createApp({ storage = new Map(), volume } = {}) {
   }
   const context = vm.createContext({ console, Date: TestDate, Audio: AudioMock, navigator: {}, location: { protocol: "file:" },
     window: { navigator: {}, addEventListener: (name, callback) => windowListeners.set(name, callback), scrollTo() {},
-      matchMedia: () => ({ matches: false }), setTimeout() {}, speechSynthesis: {},
+      matchMedia: () => ({ matches: false }), setTimeout() { return 1; }, clearTimeout() {}, speechSynthesis: {},
       ...(volume ? { Capacitor: { isNativePlatform: () => true, Plugins: { StoryVolume: volume } } } : {}) },
     localStorage: { getItem: key => storage.get(key) ?? null, setItem: (key, value) => storage.set(key, value), removeItem: key => storage.delete(key) },
     document: { getElementById: () => app, querySelector: () => null, documentElement: { classList: { toggle() {} } },
@@ -30,6 +30,9 @@ function createApp({ storage = new Map(), volume } = {}) {
   });
   for (const [file, source] of sources) vm.runInContext(source, context, { filename: file });
   const run = code => vm.runInContext(code, context);
+  // Isolate narration deadlines from the usage policy; dedicated cases below
+  // exercise the real tracker, including interruption of an active voice.
+  if (!trackUsage) run('storyUsageSync=()=>{}');
   const click = (action, value) => listeners.get("click")({ target: { closest: () => ({ dataset: { action, value } }) } });
   const books = JSON.parse(run("JSON.stringify(STORY_BOOKS)"));
   const open = id => { click("story-library"); click("story-open", id); };
@@ -87,6 +90,46 @@ for (const book of books) {
   assert.doesNotMatch(h.app.innerHTML, /story-prev|story-pause|story-bottom|Repaso/);
 }
 assert.equal(audited.size, 70);
+
+{
+  const h=createApp({trackUsage:true});h.open(A);h.click('story-listen');
+  const audio=h.audios.at(-1);
+  h.advance(899999);h.run('storyUsageTick()');assert.equal(h.run('storyBreakRemainingMs()'),0);
+  h.advance(1);h.run('storyUsageTick()');
+  assert.equal(h.run('storyBreakRemainingMs()'),900000);
+  assert.equal(audio.paused,true);assert.equal(audio.muted,true);
+  assert.equal(h.state().readings[A].heard.length,0);
+  assert.match(h.app.innerHTML,/Descanso/);assert.match(h.app.innerHTML,/15:00/);
+  h.click('supports');assert.equal(h.run('route.view'),'supports');
+  h.click('story-library');assert.match(h.app.innerHTML,/Descanso/);
+  const reopened=createApp({storage:h.storage,trackUsage:true,initialNow:h.now()});reopened.open(A);
+  assert.equal(reopened.run('storyBreakRemainingMs()'),900000,'Closing the app cannot bypass a rest');
+  reopened.advance(899999);reopened.run('storyUsageTick()');assert.equal(reopened.run('storyBreakRemainingMs()'),1);
+  reopened.advance(1);reopened.run('storyUsageTick();render()');
+  assert.equal(reopened.run('storyBreakRemainingMs()'),0);assert.doesNotMatch(reopened.app.innerHTML,/story-rest-title/);
+  assert.equal(reopened.audios.length,0,'Rest expiry never resumes the voice');
+}
+for(const outside of [299999,300000]){
+  const h=createApp({trackUsage:true});h.open(A);h.advance(600000);h.click('supports');
+  assert.equal(h.run('storyUsageState().usedMs'),600000);
+  h.advance(outside);h.open(A);
+  assert.equal(h.run('storyUsageState().usedMs'),outside<300000?600000:0);
+  h.advance(300000);h.run('storyUsageTick()');
+  assert.equal(h.run('storyBreakRemainingMs()')>0,outside<300000);
+}
+{
+  const h=createApp({trackUsage:true});h.open(A);h.advance(600000);h.setHidden(true);
+  h.advance(200000);h.setHidden(false);assert.equal(h.run('storyUsageState().usedMs'),600000);
+  h.advance(299999);h.run('storyUsageTick()');assert.equal(h.run('storyBreakRemainingMs()'),0);
+  h.advance(1);h.run('storyUsageTick()');assert.equal(h.run('storyBreakRemainingMs()'),900000);
+}
+for(const book of books){
+  const h=createApp();h.run(`saveStoryFilmLast(${JSON.stringify(book.id)},true)`);
+  assert.equal(h.run(`storyFilmChangeRemainingMs(${JSON.stringify(book.id)})`),0);
+  for(const other of books.filter(b=>b.id!==book.id))assert.equal(h.run(`storyFilmChangeRemainingMs(${JSON.stringify(other.id)})`),120000);
+  h.advance(119999);assert.equal(h.run(`storyFilmChangeRemainingMs(${JSON.stringify(books.find(b=>b.id!==book.id).id)})`),1);
+  h.advance(1);assert.equal(h.run(`storyFilmChangeRemainingMs(${JSON.stringify(books.find(b=>b.id!==book.id).id)})`),0);
+}
 
 // Screen lock is a lifecycle interruption, even though user navigation is
 // locked. It must stop every scene/helper without completing the reading.

@@ -46,10 +46,37 @@ const hash=value=>createHash('sha256').update(JSON.stringify(value)).digest('hex
 const entriesExpression='Object.entries(localStorage).sort(([a],[b])=>a.localeCompare(b))';
 let before,volumeBefore,wifiBefore;
 const checks=[];
+// Este recorrido aísla el contador de uso. La política completa de descansos
+// y los dos minutos reales se comprueban en verify-story-breaks-device.mjs.
+async function isolateUsage(){
+  await evaluate(`(()=>{
+    if(!window.__videoUsageOriginals){
+      window.__videoUsageOriginals=Object.fromEntries(['getItem','setItem','removeItem'].map(k=>[k,Object.getOwnPropertyDescriptor(Storage.prototype,k)]));
+      window.__videoUsageShadow=null;
+      const original=__videoUsageOriginals;
+      Storage.prototype.getItem=function(k){return k===STORY_USAGE_KEY?__videoUsageShadow:original.getItem.value.call(this,k);};
+      Storage.prototype.setItem=function(k,v){if(k===STORY_USAGE_KEY)__videoUsageShadow=String(v);else original.setItem.value.call(this,k,v);};
+      Storage.prototype.removeItem=function(k){if(k===STORY_USAGE_KEY)__videoUsageShadow=null;else original.removeItem.value.call(this,k);};
+    }
+    clearTimeout(storyUsageTimer);storyUsageTimer=null;storyUsageMemory=null;storyUsageRunning=false;storyUsageSaved='';return true;
+  })()`);
+}
+async function restoreUsage(){
+  if(!before)return;
+  const raw=before.entries.find(([k])=>k==='ian-story-usage-v1')?.[1]??null;
+  await evaluate(`(()=>{setRoute({view:'supports'});clearTimeout(storyUsageTimer);storyUsageTimer=null;
+    if(window.__videoUsageOriginals){for(const[k,d]of Object.entries(__videoUsageOriginals))Object.defineProperty(Storage.prototype,k,d);delete window.__videoUsageOriginals;delete window.__videoUsageShadow;}
+    if(${JSON.stringify(raw)}===null)localStorage.removeItem(STORY_USAGE_KEY);else localStorage.setItem(STORY_USAGE_KEY,${JSON.stringify(raw)});
+    storyUsageMemory=null;storyUsageRunning=false;storyUsageSaved='';return true;})()`);
+}
+async function expireCompletedFixture(){
+  await evaluate('(()=>{const previousVideo=JSON.parse(localStorage.getItem(STORY_VIDEO_LAST_KEY));previousVideo.at-=120000;localStorage.setItem(STORY_VIDEO_LAST_KEY,JSON.stringify(previousVideo));storyFilmLastMemory=null;return true;})()');
+}
 try{
   await waitFor('!document.hidden');
   assert.equal(await evaluate('Boolean(storyAudio || appSpeechAudio)'),false,'Do not interrupt a narration');
   before=await evaluate(`({entries:${entriesExpression},support:storySupportState,route,progress:localStorage.getItem(STORY_PROGRESS_KEY)})`);
+  await isolateUsage();
   const old=JSON.parse(await readFile(new URL('../tmp/story-policy-device/R8MT100KBQD.json',import.meta.url),'utf8'));
   const beforeOther=before.entries.filter(([key])=>!key.startsWith('ian-story-') && key!=='ian-escuela-story-progress-v1');
   assert.equal(hash(beforeOther),old.otherChecksum,'The APK update must preserve the existing school data');
@@ -116,11 +143,12 @@ try{
     assert.equal(await evaluate("__verifiedOldFilm.paused && !__verifiedOldFilm.hasAttribute('src') && storyFilm===null"),true);
     await waitFor('window.Capacitor.Plugins.StoryVolume.status().then(v=>!v.active)');
     checks.push({id:ids[i],ceiling,status,pauseResume:true,stopOnLeave:true,pauseVolumeSamples:pauseSamples,pauseVolumeNeverRaised:true});
-    // Completar este cuento permite pasar al siguiente sin el minuto de espera.
+    // Final real y plazo vencido de prueba para recorrer los siete archivos.
     await open(ids[i]);await click('story-video-play');
     await waitFor('storyFilm?.playing && !storyFilm.video.paused');
     await evaluate('storyFilm.video.currentTime=storyFilm.video.duration-.15;true');
     await waitFor('storyFilm.video.ended && storyFilm.session===null');
+    await expireCompletedFixture();
   }
   // Una espera real, sin adelantar el reloj de Android ni sustituir la regla.
   await open(ids[0]);await click('story-video-play');
@@ -142,6 +170,7 @@ try{
   assert.equal(await evaluate('localStorage.getItem(STORY_VIDEO_LAST_KEY)'),lastPlayback);
   await command('Page.reload',{});await delay(500);
   await waitFor('document.readyState === "complete" && typeof storyFilmChangeRemainingMs === "function"');
+  await isolateUsage();
   await open(ids[1]);
   assert.equal(await evaluate('localStorage.getItem(STORY_VIDEO_LAST_KEY)'),lastPlayback);
   assert.equal(await evaluate('document.querySelector("[data-action=story-video-play]").disabled'),true);
@@ -156,7 +185,8 @@ try{
   await evaluate('storyFilm.video.currentTime=storyFilm.video.duration-.15;true');
   await waitFor('storyFilm.video.ended && storyFilm.session===null');
   await open(ids[0]);
-  assert.equal(await evaluate('document.querySelector("[data-action=story-video-play]").disabled'),false);
+  assert.equal(await evaluate('document.querySelector("[data-action=story-video-play]").disabled'),true);
+  await expireCompletedFixture();await evaluate('storyFilmControls();true');
   // Salir de la pestaña dentro del mismo cuento también detiene y reinicia.
   await open(ids[0]);await click('story-video-play');
   await waitFor("storyFilm && !storyFilm.video.paused && storyFilm.video.currentTime>.15");
@@ -193,6 +223,7 @@ try{
   }
   const previousLast=before.entries.find(([key])=>key==='ian-story-video-last-v1')?.[1]??null;
   await evaluate(`storyFilmLastMemory=null;if(${JSON.stringify(previousLast)}===null)localStorage.removeItem(STORY_VIDEO_LAST_KEY);else localStorage.setItem(STORY_VIDEO_LAST_KEY,${JSON.stringify(previousLast)});true`);
+  await restoreUsage();
   // Restaurar solo el marcador de lectura si el recorrido visual normalizó claves vencidas.
   const after=await evaluate(entriesExpression);
   const mapBefore=new Map(before.entries),mapAfter=new Map(after);
@@ -202,14 +233,13 @@ try{
   assert.equal(hash(await evaluate(entriesExpression)),hash(before.entries));
   // La vista previa de un video depura su marcador vencido. Volver a la
   // biblioteca evita que esa depuración normal modifique los datos restaurados.
-  await evaluate('setRoute({view:"support-stories"});true');
   const shot=await command('Page.captureScreenshot',{format:'png'});
   await writeFile(new URL('a8-video.png',directory),Buffer.from(shot.data,'base64'));
   await writeFile(new URL('a8-verified.json',directory),JSON.stringify({videos:checks,tabExit:true,stopsOnScreenOff:true,noAutoplayOnWake:true,resumesBeforeFiveMinutes:true,restartsAfterFiveMinutes:true,realVolumeCeiling:ceiling,maximum:initial.maximum,
     rapidTabChangesWithoutDecoders:35,realScreenTaps:true,wifiDisabledDuringPlayback:true,detachedPlayersUnloaded:true,
     physicalVolumeButtonsCapped:true,pauseVolumeNeverRaised:true,lowerVolumePreservedOnResume:true,narrationDefaultsPreserved:true,mutesBeforePause:true,
     unfinishedVideoChangeWaitRealMinute:true,countdown59sVisible:true,changeWaitSurvivesReload:true,sameVideoImmediatelyAvailable:true,
-    completionImmediatelyAllowsAnotherVideo:true,noAutoplayAtChangeWaitExpiry:true,allStoragePreserved:true,beforeChecksum:hash(before.entries),afterChecksum:hash(await evaluate(entriesExpression))},null,2));
+    completionRequiresTwoMinutes:true,noAutoplayAtChangeWaitExpiry:true,allStoragePreserved:true,beforeChecksum:hash(before.entries),afterChecksum:hash(await evaluate(entriesExpression))},null,2));
   console.log('A8 verificada: siete videos reales, botones físicos limitados al 60 %, pausa/reanudación, salida sin audio y datos conservados.');
 }catch(error){
   const diagnostic=await evaluate(`(()=>{const v=document.querySelector('.story-film');return{hidden:document.hidden,film:storyFilm&&{pending:storyFilm.pending,playing:storyFilm.playing,hasSession:!!storyFilm.session},video:v&&{paused:v.paused,muted:v.muted,time:v.currentTime,ready:v.readyState,error:v.error&&v.error.message},playDisabled:document.querySelector('[data-action="story-video-play"]')?.disabled,status:document.querySelector('.story-film-status')?.textContent}})()`).catch(()=>null);
@@ -226,6 +256,7 @@ try{
   }
   if(volumeBefore!==undefined)await adb('shell','cmd','media_session','volume','--stream','3','--set',String(volumeBefore));
   if(wifiBefore==='1')await adb('shell','svc','wifi','enable');
+  try{await restoreUsage();}catch{}
   socket.close();
   await new Promise(resolve=>socket.once('close',resolve));
   await adb('forward','--remove','tcp:9226');

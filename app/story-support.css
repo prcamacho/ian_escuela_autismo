@@ -53,6 +53,10 @@ body.story-mode .main { width:100%; max-width:none; flex:1; height:100%; min-hei
 .story-film-controls .btn { min-width:160px; font-size:1.2rem; }
 .story-film-status { min-height:1.4em; margin:0; text-align:center; font-size:.95rem; color:#52675b; }
 .story-film-status.is-waiting { padding:8px 16px; border-radius:12px; background:#fff0c2; color:#614912; font-size:1.05rem; font-weight:800; font-variant-numeric:tabular-nums; }
+.story-rest { display:grid; place-items:center; min-height:65vh; height:100%; padding:20px; }
+.story-rest-card { width:min(540px,100%); padding:clamp(24px,5vw,52px); border-radius:24px; text-align:center; background:#fff6db; color:#3f513e; border:2px solid #e7d6a2; }
+.story-rest-card h2 { margin:0 0 20px; font-size:clamp(2.2rem,5vw,3.5rem); }
+.story-rest-timer { margin:0 0 30px; font-size:clamp(3.5rem,9vw,6rem); line-height:1; font-weight:800; font-variant-numeric:tabular-nums; }
 @media(max-width:700px) {
   body.story-mode .main { padding:10px; }
   .story-screen { gap:8px; }

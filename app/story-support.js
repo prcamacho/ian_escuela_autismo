@@ -261,6 +261,8 @@ function storyListenButtons() {
 }
 
 function storyPlayAudio() {
+  storyUsageSync();
+  if (storyBreakRemainingMs() > 0) return render();
   const book = storyBook(), state = storySupportState;
   if (!book || storyAudio || document.hidden || state.panel === "video") return;
   if (storyAudioRemainingMs() > 0) return syncStoryAudioControls();
@@ -338,6 +340,8 @@ function storyPlayAudio() {
 }
 
 function storySupportAction(action, target) {
+  storyUsageSync();
+  if (storyBreakRemainingMs() > 0 && !["story-library", "story-open"].includes(action)) return render();
   if (storyInteractionLocked()) return;
   if (action === "story-library") return setRoute({ view: "support-stories" });
   if (action === "story-open") {
@@ -390,8 +394,12 @@ function storySupportAction(action, target) {
 }
 
 document.addEventListener("visibilitychange", () => {
-  if (document.hidden) suspendStoryMedia();
-  else if (route.view === "support-story") { setupStoryFilm(); syncStoryAudioControls(); }
+  if (document.hidden) { storyUsageSync(true); suspendStoryMedia(); }
+  else {
+    storyUsageSync();
+    if (isStoryRoute() && storyBreakRemainingMs() > 0) render();
+    else if (route.view === "support-story") { setupStoryFilm(); syncStoryAudioControls(); }
+  }
 });
 
-window.addEventListener("pagehide", suspendStoryMedia);
+window.addEventListener("pagehide", () => { storyUsageSync(true); suspendStoryMedia(); });

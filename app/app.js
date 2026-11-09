@@ -1965,6 +1965,7 @@ function allExercisesCount(subject) {
 }
 
 function setRoute(nextRoute) {
+  storyUsageSync();
   if (typeof storyInteractionLocked === "function" && storyInteractionLocked()) return;
   if (typeof stopStoryMedia === "function") stopStoryMedia();
   if (route.view === "support-memory" && nextRoute.view !== "support-memory") leavePacmanMemory();
@@ -2022,6 +2023,7 @@ function subtitleForRoute() {
 }
 
 function render() {
+  storyUsageSync();
   if (typeof storyInteractionLocked === "function" && storyInteractionLocked()) return;
   document.documentElement.classList.toggle("story-mode", route.view === "support-story");
   document.body.classList.toggle("story-mode", route.view === "support-story");
@@ -2052,6 +2054,7 @@ function render() {
   const isDragMatchingActivity = route.view === "run" && session?.exercises?.[session.index]?.type === "drag-matching";
   document.documentElement.classList.toggle("drag-matching-mode", isDragMatchingActivity);
   document.body.classList.toggle("drag-matching-mode", isDragMatchingActivity);
+  if (isStoryRoute() && storyBreakRemainingMs() > 0) return renderStoryRest();
   if (route.view === "school") return renderSchool();
   if (route.view === "communication") return renderCommunication();
   if (route.view === "supports") return renderSupports();

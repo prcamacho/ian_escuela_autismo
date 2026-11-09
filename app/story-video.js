@@ -4,6 +4,7 @@ const STORY_VIDEO_RESTART_AFTER_MS = 300_000;
 const STORY_VIDEO_START_TIMEOUT_MS = 12_000;
 const STORY_VIDEO_PROGRESS_PREFIX = "ian-story-video-progress-v1:";
 const STORY_VIDEO_CHANGE_WAIT_MS = 60_000;
+const STORY_VIDEO_COMPLETE_WAIT_MS = 120_000;
 const STORY_VIDEO_LAST_KEY = "ian-story-video-last-v1";
 let storyFilmProgressMemory = {};
 let storyFilmLastMemory = null;
@@ -38,8 +39,9 @@ function storyFilmChangeRemainingMs(bookId) {
     if (raw !== null) last = JSON.parse(raw);
   } catch {}
   if (!last || !STORY_BOOKS.some(book => book.id === last.bookId) || last.bookId === bookId
-    || last.completed === true || !Number.isFinite(last.at) || last.at <= 0 || last.at > Date.now()) return 0;
-  return Math.max(0, last.at + STORY_VIDEO_CHANGE_WAIT_MS - Date.now());
+    || !Number.isFinite(last.at) || last.at <= 0 || last.at > Date.now()) return 0;
+  const wait = last.completed === true ? STORY_VIDEO_COMPLETE_WAIT_MS : STORY_VIDEO_CHANGE_WAIT_MS;
+  return Math.max(0, last.at + wait - Date.now());
 }
 
 function storyFilmSavedPoint(bookId) {
@@ -215,6 +217,8 @@ function setupStoryFilm() {
 }
 
 function playStoryFilm() {
+  storyUsageSync();
+  if (storyBreakRemainingMs() > 0) return render();
   if (storyInteractionLocked()) return;
   setupStoryFilm();
   const film = storyFilm;

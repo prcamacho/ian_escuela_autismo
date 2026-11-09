@@ -8,15 +8,23 @@ Los puntos usan exclusivamente `ian-story-video-progress-v1:<id>` y no modifican
 
 El bloqueo de navegación durante una locución no impide detenerla al apagar la pantalla. La suspensión de la app cierra la voz como interrumpida, sin completar la escena ni reanudarla automáticamente al volver, y conserva los cinco minutos desde la interrupción. Los eventos web y el puente de pausa de Android usan la misma finalización. Esta corrección se verificó en la A8 el 6 de noviembre con la caché v179.
 
-## Un minuto para cambiar después de un video incompleto
+## Espera para cambiar de video
 
-Desde la caché v180, un video que empezó y se deja sin terminar exige un minuto desde su última reproducción para iniciar el video de otro cuento. Retomar el mismo video sigue disponible inmediatamente. Llegar al final natural deja libre el inicio de otro video, sin espera. Una preparación que falla antes de empezar no crea una restricción nueva.
+Un video que empezó y se deja sin terminar exige un minuto desde su última reproducción para iniciar el video de otro cuento. Desde la caché v181, llegar al final exige dos minutos para iniciar otro video. Retomar o reproducir el mismo video sigue disponible inmediatamente, salvo que haya un descanso de Cuentos activo. Una preparación que falla antes de empezar no crea una restricción nueva.
 
 La pestaña del otro video muestra debajo de los botones un cartel `Espera: 59s`, con cuenta atrás y Reproducir deshabilitado. Al vencer el minuto desaparece el cartel y se habilita el inicio manual, sin autoplay. La cuenta no se reinicia por recorrer cuentos, pestañas o volver a salir de un video ya pausado; continúa al recargar o cerrar la app. Los seis videos diferentes del último incompleto comparten el mismo plazo. Empezar a reproducir de nuevo ese último video sí actualiza su última reproducción.
 
 Se guarda exclusivamente `ian-story-video-last-v1`, con cuento, instante y finalización. Se actualiza al comenzar realmente, durante la reproducción, al pausar o salir y al terminar. La comprobación se aplica también dentro de la función de reproducción: no depende solo del botón. Un temporizador actualiza el cartel y se cancela al salir. No modifica el plazo de cinco minutos para volver al principio ni las restricciones de las locuciones.
 
-Validado en navegador con los seis destinos diferentes, recarga, frontera exacta 59 999/60 000 ms y habilitación sin autoplay. En la A8 se comprobó el minuto real con Wi-Fi apagado, cartel 59s, persistencia tras recargar, espera mientras se visita Inicio, reanudación inmediata del mismo video y cambio libre tras completar otro. Los siete videos siguen funcionando offline y los valores de almacenamiento antes y después coinciden. Evidencias: `tmp/story-video-change-wait/`.
+Validado en navegador con los seis destinos diferentes, recarga, fronteras exactas de uno y dos minutos y habilitación sin autoplay. La prueba original del minuto incompleto está en `tmp/story-video-change-wait/`. La actualización de dos minutos después de completar se midió durante 120 segundos reales en la A8, sin cambiar su reloj; evidencias en `tmp/story-breaks/`.
+
+## Descanso de Cuentos
+
+La biblioteca, las escenas, los apoyos y los videos comparten un contador de 15 minutos de uso visible. Salir de Cuentos, ocultar la app o bloquear la pantalla detiene la acumulación. Volver antes de cinco minutos conserva lo acumulado; cinco minutos seguidos fuera lo reinician. La clave `ian-story-usage-v1` conserva el uso, su última señal, la salida y el vencimiento del descanso. Recuperar la app no cuenta como uso el tiempo que estuvo cerrada.
+
+Al llegar a 15 minutos se interrumpen voz y video y aparece **Descanso**, con cuenta regresiva **15:00 → 00:00** que se actualiza cada segundo. Durante esos 15 minutos se bloquea toda la sección Cuentos y se permite ir a Mis apoyos u otras secciones. El descanso ya iniciado no se cancela por salir, permanecer cinco minutos fuera ni cerrar la app. Al vencer se habilita el acceso y comienza un ciclo nuevo, sin reanudar medios automáticamente. Las locuciones interrumpidas conservan sus esperas y no completan la escena.
+
+Se verificaron las fronteras 899 999/900 000 ms de uso y descanso, 299 999/300 000 ms fuera, recarga, voz, video y otras secciones. En la A8 se adelantó únicamente un contador de prueba en memoria a 14:59 para observar su vencimiento real: voz silenciada, video descargado y pantalla Descanso. Se probaron también el regreso desde otras secciones y la habilitación sin autoplay. Ninguna clave real de Ian fue sustituida por esos valores de prueba. `verify-story-breaks.mjs`, `verify-stories.mjs` y `verify-story-breaks-device.mjs` contienen las comprobaciones.
 
 ## Corrección del bloqueo en «Preparando el video»
 
@@ -57,6 +65,6 @@ Los originales de los cuentos 2 al 7 se copiaron sin recodificar ni modificar. A
 - `node scripts/verify-stories.mjs`: conserva las reglas de los 70 audios existentes.
 - `node scripts/verify-story-videos.mjs`: reproduce los siete MP4 en navegador y sin conexión; comprueba pausa/reanudación, ausencia de controles nativos, salida, ocultación, tres tamaños de pantalla, cancelación de comienzos pendientes, rechazo del puente antiguo y conservación de los datos escolares y las lecturas. Comprueba reanudación después de salir y recargar, frontera exacta de 4:59.999 / 5:00.000, salida de una pausa sin prolongarla y final natural sin un punto pendiente.
 - Pruebas JUnit de `StoryVolumePolicy`: techo del 60 % para diferentes escalas, botones, cambios externos, restauración y conservación del límite anterior de las locuciones.
-- `node scripts/verify-story-videos-device.mjs`: revisión real en la A8 existente, sin borrar lecturas ni esperas; conserva el almacenamiento y restaura el volumen previo. Verifica los siete archivos, botones físicos (9/15), pausa, salida, pantalla apagada, regreso sin autoplay, continuación y reinicio tras cinco minutos. Los puntos creados durante la prueba se retiran y los puntos previos de Ian se conservan. Cierra la conexión CDP al terminar.
+- `node scripts/verify-story-videos-device.mjs`: auditoría de los siete archivos, botones físicos (9/15), pausa, salida, pantalla apagada y puntos. Aísla el contador de uso y usa plazos de cambio ya vencidos para el recorrido de medios. `verify-story-breaks-device.mjs` comprueba el descanso con medios reales y los dos minutos completos de cambio. Ambas pruebas conservan las claves originales y cierran sus conexiones.
 
-Las evidencias locales y las huellas de los siete archivos están en `tmp/story-videos/`; el diagnóstico y la APK de la corrección están en `tmp/story-videos-fix/`. El precache actual corresponde a `ian-escuela-v177`. La corrección de apagado de `MainActivity` y su prueba `ScreenTimeoutGuardTest` se conservan.
+Las evidencias locales y las huellas de los siete archivos están en `tmp/story-videos/`; el diagnóstico de carga está en `tmp/story-videos-fix/`, y los descansos en `tmp/story-breaks/`. El precache de esta actualización corresponde a `ian-escuela-v181`. La corrección de apagado de `MainActivity` y su prueba `ScreenTimeoutGuardTest` se conservan.
